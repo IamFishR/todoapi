@@ -14,7 +14,7 @@ class DbOperation {
             const user = await User.create(data);
             return user;
         } catch (error) {
-            return error;
+            return { error: error.message };
         }
     }
 
@@ -24,7 +24,7 @@ class DbOperation {
             const users = await User.find();
             return users;
         } catch (error) {
-            return error;
+            return { error: error.message };
         }
     }
 
@@ -34,7 +34,7 @@ class DbOperation {
             const user = await User.findById(id);
             return user;
         } catch (error) {
-            return error;
+            return { error: error.message };
         }
     }
 
@@ -47,7 +47,7 @@ class DbOperation {
             });
             return user;
         } catch (error) {
-            return error;
+            return { error: error.message}
         }
     }
 
@@ -57,7 +57,7 @@ class DbOperation {
             const user = await User.findByIdAndDelete(id);
             return user;
         } catch (error) {
-            return error;
+            return { error: error.message };
         }
     }
 }

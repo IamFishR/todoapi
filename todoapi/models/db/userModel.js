@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-
-
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -15,41 +13,31 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    date: {
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
         type: Date,
         default: Date.now
     },
     additionalInfo: {
         type: Object,
-        required: false
+        required: false,
+        default: {
+            status: 'active',
+            bio: '',
+            website: '',
+            github: '',
+            outlook: '',
+            google: '',
+            calendly: '',
+            microsoft_teams: '',
+        }
     },
-    role: {
-        type: [String],
+    roleids: {
+        type: Array,
         required: true,
-        default: 'user',
-        enum: [
-            'user',
-            'admin',
-            'superadmin',
-            'guest',
-            'moderator',
-            'editor',
-            'author',
-            'contributor',
-            'subscriber'
-        ]
-    },
-    status: {
-        type: String,
-        required: true,
-        default: 'active',
-        enum: [
-            'active',
-            'inactive',
-            'suspended',
-            'banned',
-            'deleted'
-        ]
     },
 });
 

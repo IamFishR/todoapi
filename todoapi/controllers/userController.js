@@ -1,10 +1,8 @@
 const dbOperation = require("../models/dbOperation");
 
-
 class UserController {
     constructor() {
         // super();
-        console.log("UserController initialized")
     }
 
     // Create a new user

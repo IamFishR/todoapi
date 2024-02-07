@@ -10,7 +10,6 @@ const url = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryW
 
 const connectDB = async () => {
     try {
-        console.log('Trying to connect to the database')
         return await mongoose.connect(url, {});
     } catch (err) {
         console.log('it is not able to connect to the database')
