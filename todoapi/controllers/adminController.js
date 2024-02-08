@@ -16,6 +16,16 @@ class AdminController {
             res.status(400).json({ error: message });
         }
     }
+
+    async getRoles(req, res) {
+        try {
+            const roles = await dbOperation.getRoles();
+            res.status(200).json(roles);
+        } catch (error) {
+            const message = error.message;
+            res.status(400).json({ error: message });
+        }
+    }
 }
 
 module.exports = new AdminController();

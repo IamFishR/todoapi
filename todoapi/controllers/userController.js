@@ -18,7 +18,14 @@ class UserController {
     }
 
     // Get all users
-    async getUsers(req, res) { }
+    async getUsers(req, res) {
+        try {
+            const users = await dbOperation.getUsers();
+            res.status(200).json(users);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
 
     // Get a user by ID
     async getUserById(req, res) {
@@ -27,8 +34,7 @@ class UserController {
             const user = await dbOperation.getUserById(userid);
             res.status(200).json(user);
         } catch (error) {
-            const message = error.message;
-            res.status(400).json({ error: message });
+            res.status(400).json({ error: error.message });
         }
     }
 
@@ -36,7 +42,19 @@ class UserController {
     async updateUser(req, res) { }
 
     // Delete a user by ID
-    async deleteUser(req, res) { }
+    async deleteUser(req, res) {
+        try {
+            const userid = req.params.id;
+            const user = await dbOperation.deleteUser(userid);
+            res.status(200).json({
+                message: "User deleted successfully",
+                user: user
+            });
+        } catch (error) {
+            const message = error.message;
+            res.status(400).json({ error: message });
+        }
+    }
 
 }
 

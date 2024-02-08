@@ -14,6 +14,15 @@ class DbOperation {
             return { error: error.message };
         }
     }
+
+    async getRoles() {
+        try {
+            const roles = await User.find();
+            return roles;
+        } catch (error) {
+            return { error: error.message };
+        }
+    }
 }
 
 module.exports = new DbOperation();
