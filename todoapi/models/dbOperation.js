@@ -38,7 +38,10 @@ class DbOperation {
     async getUsers() {
         try {
             const users = await User.find();
-            return this.generateResponse(users, "Users retrieved successfully");
+            return {
+                message: "Users retrieved successfully",
+                users: users
+            }
         } catch (error) {
             return dbvalidation.generateErrorResp(error, '');
         }

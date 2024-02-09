@@ -70,4 +70,12 @@ UserSchema.path('email').validate(async (email) => {
     return !emailCount;
 }, 'Email already exists');
 
+// remove password from the user object before sending the response
+UserSchema.set('toJSON', {
+    transform: (doc, ret, options) => {
+        delete ret.password;
+        return ret;
+    }
+});
+
 module.exports = mongoose.model('User', UserSchema);
