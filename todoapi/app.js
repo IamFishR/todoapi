@@ -21,4 +21,9 @@ app.use('/users', usersRouter);
 app.use('/admins', adminRouter);
 app.use('/askme', askmeRouter);
 
+// invalid route
+app.get('*', (req, res) => {
+    res.status(404).json({ error: "Invalid route" });
+});
+
 module.exports = app;

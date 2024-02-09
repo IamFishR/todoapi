@@ -3,7 +3,7 @@ var router = express.Router();
 const userController = require('../controllers/userController');
 
 // Route for creating a new user
-router.post('/', userController.createUser);
+router.post('/signup', userController.createUser);
 
 // Route for getting all users
 router.get('/', userController.getUsers);
@@ -16,5 +16,12 @@ router.put('/:id', userController.updateUser);
 
 // Route for deleting a user by ID
 router.delete('/:id', userController.deleteUser);
+
+router.post('/signin', userController.signIn);
+
+// invalid route
+router.get('*', (req, res) => {
+    res.status(404).json({ error: "Invalid route" });
+});
 
 module.exports = router;
