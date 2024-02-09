@@ -13,7 +13,10 @@ class UserController {
             res.status(201).json(user);
         } catch (error) {
             const message = error.message;
-            res.status(400).json({ error: message });
+            res.status(400).json({
+                error: message,
+                details: error
+            });
         }
     }
 
@@ -32,6 +35,9 @@ class UserController {
         try {
             const userid = req.params.id;
             const user = await dbOperation.getUserById(userid);
+            if (!user) {
+                throw new Error("User not found");
+            }
             res.status(200).json(user);
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -53,6 +59,17 @@ class UserController {
         } catch (error) {
             const message = error.message;
             res.status(400).json({ error: message });
+        }
+    }
+
+    // signin
+    async signIn(req, res) {
+        try {
+            const data = req.body;
+            const user = await dbOperation.signIn(data);
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
         }
     }
 
