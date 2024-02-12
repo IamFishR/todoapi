@@ -1,7 +1,7 @@
 const User = require('./db/userModel');
 const connectDB = require('../config/db');
 const dbvalidation = require('./dbValidation');
-
+const bcrypt = require('bcryptjs');
 
 // create a class to handle all the database operations
 class DbOperation {
@@ -104,11 +104,16 @@ class DbOperation {
             if (!user) {
                 throw new Error("User not found");
             } else {
-                const compare = await user.isValidPassword(data.password);
-                if (!compare) {
-                    throw new Error("Invalid password");
+                if (data?.password) {
+                    const compare = await bcrypt.compare(data.password, user.password);
+                    if (compare) {
+                        return this.generateResponse(user, "User retrieved successfully");
+                    } else {
+                        throw new Error("Incorrect credentials");
+                    }
+                } else {
+                    throw new Error("Incorrect credentials");
                 }
-                return this.generateResponse(user, "User retrieved successfully");
             }
         } catch (error) {
             return dbvalidation.generateErrorResp(error, '');

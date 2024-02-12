@@ -52,18 +52,12 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', async function (next) {
-    if(this.isModified('password')) {
+    if (this.isModified('password')) {
         const salt = bcrypt.genSaltSync(10);
         this.password = await bcrypt.hash(this.password, salt);
     }
     next();
 });
-
-UserSchema.method.isValidPassword = async function (password) {
-    const user = this;
-    const compare = await bcrypt.compare(password, user.password);
-    return compare;
-}
 
 UserSchema.path('email').validate(async (email) => {
     const emailCount = await mongoose.models.User.countDocuments({ email });

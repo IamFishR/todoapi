@@ -1,4 +1,5 @@
 const dbOperation = require("../models/dbOperation");
+const { generateToken, verifyToken } = require('../config/authMiddleware');
 
 class UserController {
     constructor() {
@@ -67,7 +68,33 @@ class UserController {
         try {
             const data = req.body;
             const user = await dbOperation.signIn(data);
-            res.status(200).json(user);
+            if (user.error) {
+                throw new Error(user.message);
+            }
+            if (!user) {
+                throw new Error("User not found");
+            }
+            const token = generateToken(user);
+            res.status(200).json({
+                message: "Sign in successful",
+                token: token
+            });
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    async verifySingnIn(req, res) {
+        try {
+            const token = req.body.token;
+            const decoded = verifyToken(token);
+            if (!decoded) {
+                throw new Error("Invalid token");
+            }
+            if (decoded.exp < new Date()) {
+                throw new Error("Token expired");
+            }
+            res.status(200).json({ message: "Authentication successful", decoded: decoded });
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
