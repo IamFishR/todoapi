@@ -1,5 +1,4 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { stack } = require("../routes");
 require('dotenv').config();
 
 class AskMeService {
