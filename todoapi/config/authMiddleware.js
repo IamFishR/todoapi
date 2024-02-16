@@ -1,6 +1,6 @@
 const jsonWebToken = require('jsonwebtoken');
-const { emit } = require('../models/db/userModel');
 require('dotenv').config();
+const requestCounts = new Map();
 
 const authMiddleware = (req, res, next) => {
     const token = req.headers['authorization'];
@@ -11,7 +11,16 @@ const authMiddleware = (req, res, next) => {
         });
     }
 
-    jsonWebToken.verify(token, 'secret', (err, decoded) => {
+    if (req.baseUrl === '/askme') {
+        const count = requestCounts.get(token) || 0;
+        if (count > 55) {
+            return res.status(429).json({ error: "Rate limit exceeded" });
+        }
+        requestCounts.set(token, count + 1);
+        req.ratelimit = requestCounts.get(token);
+    }
+
+    jsonWebToken.verify(token, process.env.JSONWEBTOKEN_SECRET_KEY, (err, decoded) => {
         if (err) {
             return res.status(401).send({ message: 'Authentication failed' });
         }
@@ -59,4 +68,8 @@ const convertDate = (date) => {
     return milliseconds.toLocaleDateString('en-US', options);
 };
 
-module.exports = { authMiddleware, generateToken, verifyToken };
+module.exports = {
+    authMiddleware,
+    generateToken,
+    verifyToken
+};

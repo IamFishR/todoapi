@@ -28,6 +28,11 @@ const tasksSchema = new mongoose.Schema({
             type: [String],
             required: false,
             ref: 'Projects'
+        },
+        categoryId: {
+            type: [String],
+            required: false,
+            ref: 'Categories'
         }
     },
     tags: {

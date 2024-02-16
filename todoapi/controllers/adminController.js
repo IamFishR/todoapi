@@ -26,6 +26,27 @@ class AdminController {
             res.status(400).json({ error: message });
         }
     }
+
+    async createCategory(req, res) {
+        try {
+            const data = req.body;
+            const category = await dbOperation.createCategory(data);
+            res.status(201).json(category);
+        } catch (error) {
+            const message = error.message;
+            res.status(400).json({ error: message });
+        }
+    }
+
+    async getCategories(req, res) {
+        try {
+            const categories = await dbOperation.getCategories();
+            res.status(200).json(categories);
+        } catch (error) {
+            const message = error.message;
+            res.status(400).json({ error: message });
+        }
+    }
 }
 
 module.exports = new AdminController();

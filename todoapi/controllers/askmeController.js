@@ -9,7 +9,10 @@ class AskMeController {
         try {
             const query = req.body.query;
             const answer = await AskMeService.askQuestion(query);
-            res.status(200).json(answer);
+            res.status(200).json({
+                ...answer,
+                ratelimit: req.ratelimit
+            });
         } catch (error) {
             const message = error.message;
             res.status(400).json({ error: message });

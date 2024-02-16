@@ -111,6 +111,14 @@ class DbValidation {
 
         return resp;
     }
+
+    noDataFound(data) {
+        return {
+            error: true,
+            message: data?.message || 'No data found',
+            data
+        };
+    }
 }
 
 module.exports = new DbValidation();
