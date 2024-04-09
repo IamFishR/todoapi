@@ -2,8 +2,7 @@
 // const connectDB = require('../config/db');
 // const dbvalidation = require('./dbValidation');
 const bcrypt = require('bcryptjs');
-const { getAllUsersProc, signInProc } = require('./procedures/getAllUsers');
-const logme = require('../helper/logme');
+const User = require('./dboperations/userOperations');
 
 // // create a class to handle all the database operations
 // class DbOperation {
@@ -128,22 +127,27 @@ const logme = require('../helper/logme');
 class DbOperation {
     async getAllUsers() {
         try {
-            const users = await getAllUsersProc();
+            const users = await User.getAllUsersProc();
             if (!users[0].length) {
                 throw new Error("No users found");
+            }
+            if (users.error) {
+                throw new Error(users.error);
             }
             const finalResult = users[0].map(async (user) => {
                 return await this.removeSecrets(user);
             });
             return await Promise.all(finalResult);
         } catch (error) {
-
+            return {
+                error: error
+            }
         }
     }
 
     async signIn(data) {
         try {
-            const user = await signInProc(data);
+            const user = await User.signInProc(data);
             if (user.error) {
                 throw new Error(user.error);
             }

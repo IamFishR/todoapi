@@ -4,7 +4,11 @@ require('dotenv').config();
 const requestCounts = new Map();
 
 const authMiddleware = (req, res, next) => {
-    const token = req.headers['authorization'];
+    let token = req.headers['authorization'];
+
+    if (token && token.startsWith('Bearer ')) {
+        token = token.replace('Bearer ', '');
+    }
 
     if (!token) {
         return res.status(401).send({
@@ -35,7 +39,7 @@ const authMiddleware = (req, res, next) => {
     });
 };
 
-const generateToken = async(user) => {
+const generateToken = async (user) => {
     /**
      * @param {object} user
      * @param {string} user.id

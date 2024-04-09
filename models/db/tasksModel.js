@@ -1,53 +1,41 @@
-const mongoose = require('mongoose');
+const TasksOperations = require('../dboperations/tasksOperations');
+const logme = require('../../helper/logme');
 
-const tasksSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: [true, 'Title is required']
-    },
-    description: {
-        type: String,
-        required: false
-    },
-    dueDate: {
-        type: Date,
-        required: false
-    },
-    priority: {
-        type: String,
-        required: false
-    },
-    status: {
-        type: String,
-        required: [true, 'Status is required'],
-        enum: ['want to do', 'doing it', 'done', 'have done some part', 'doing it later', 'do not want to do', 'do or die', 'do not know', 'do not care', 'do not want to do', 'do not want to do'],
-        default: 'want to do'
-    },
-    relate: {
-        projectId: {
-            type: [String],
-            required: false,
-            ref: 'Projects'
-        },
-        categoryId: {
-            type: [String],
-            required: false,
-            ref: 'Categories'
+
+const getAllTasks = async (req, res) => {
+    try {
+        const tasks = await TasksOperations.getAllTasks();
+        if (tasks.length === 0) {
+            throw new Error('No tasks found');
         }
-    },
-    tags: {
-        type: [String],
-        required: [true, 'Tags are required'],
-        default: ['untagged']
-    },
-    userId: {
-        type: String,
-        required: [true, 'User Id is required'],
-        ref: 'User'
+        if (tasks.error) {
+            throw new Error(tasks.error);
+        }
+        return tasks;
+    } catch (error) {
+        logme.error(error.message);
+        return {
+            error: error.messagef
+        }
     }
-}, {
-    timestamps: true
-});
+}
 
-const Tasks = mongoose.model('Tasks', tasksSchema);
-module.exports = Tasks;
+const getTask = async (id) => {
+    try {
+        const task = await TasksOperations.getTask(id);
+        if (task.error) {
+            throw new Error(task.error);
+        }
+        return task;
+    } catch (error) {
+        logme.error(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
+module.exports = {
+    getAllTasks,
+    getTask
+}
