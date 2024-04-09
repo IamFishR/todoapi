@@ -3,6 +3,7 @@
 // const dbvalidation = require('./dbValidation');
 const bcrypt = require('bcryptjs');
 const { getAllUsersProc, signInProc } = require('./procedures/getAllUsers');
+const logme = require('../helper/logme');
 
 // // create a class to handle all the database operations
 // class DbOperation {
@@ -128,7 +129,7 @@ class DbOperation {
     async getAllUsers() {
         try {
             const users = await getAllUsersProc();
-            if(!users[0].length) {
+            if (!users[0].length) {
                 throw new Error("No users found");
             }
             const finalResult = users[0].map(async (user) => {
@@ -143,11 +144,13 @@ class DbOperation {
     async signIn(data) {
         try {
             const user = await signInProc(data);
-            const usr = user[0].users;
-            if (!usr) {
+            if (user.error) {
+                throw new Error(user.error);
+            }
+            if (user.length < 1) {
                 throw new Error("User not found");
             }
-
+            const usr = user[0].users;
             const compare = await bcrypt.compare(data.password, usr.password);
             if (compare) {
                 return await this.removeSecrets(usr);
@@ -155,8 +158,9 @@ class DbOperation {
                 throw new Error("Incorrect credentials");
             }
         } catch (error) {
-            console.log(error);
-            return error;
+            return {
+                error: error
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 // it should have a function that call the stored procedure tsdev_getall_users
 
 const connection = require('../../config/db');
+const logme = require('../../helper/logme');
 
 const getAllUsersProc = async () => {
 
@@ -25,6 +26,7 @@ const signInProc = async (data) => {
     return new Promise((resolve, reject) => {
         connection.query(options, (err, result, fields) => {
             if (err) {
+                logme.error(err);
                 return reject(err);
             }
             resolve(result);

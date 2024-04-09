@@ -1,5 +1,6 @@
 const dbOperation = require("../models/dbOperation");
 const { generateToken, verifyToken } = require('../config/authMiddleware');
+const logme = require('../helper/logme');
 
 class UserController {
     constructor() {
@@ -70,12 +71,16 @@ class UserController {
         try {
             const data = req.body;
             const user = await dbOperation.signIn(data);
-            const token = generateToken(user);
+            if (user.error) {
+                throw new Error(user.error);
+            }
+            const token = await generateToken(user);
             res.status(200).json({
                 message: "Sign in successful",
                 token: token
             });
         } catch (error) {
+            logme.error(error.message);
             res.status(400).json({ error: error.message });
         }
     }

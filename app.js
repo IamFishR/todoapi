@@ -1,7 +1,7 @@
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var morgan = require('morgan');
 
 
 var indexRouter = require('./routes/index');
@@ -12,7 +12,10 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
-app.use(logger('dev'));
+// Define log format
+const logFormat = '[:date[iso]] :method :url :status :response-time ms - :res[content-length]';
+app.use(morgan(logFormat));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

@@ -1,3 +1,4 @@
+const e = require('express');
 const jsonWebToken = require('jsonwebtoken');
 require('dotenv').config();
 const requestCounts = new Map();
@@ -22,13 +23,11 @@ const authMiddleware = (req, res, next) => {
 
     jsonWebToken.verify(token, process.env.JSONWEBTOKEN_SECRET_KEY, (err, decoded) => {
         if (err) {
-            return res.status(401).send({ message: 'Authentication failed' });
-        }
-
-        // The expiry date is a NumericDate, which is the number of seconds since Epoch
-        const expiryDate = new Date(decoded.exp * 1000);
-        if (expiryDate < new Date()) {
-            return res.status(401).send({ message: 'Token expired' });
+            let message = err.message;
+            if (err.name === 'TokenExpiredError') {
+                message = 'Token expired.'
+            }
+            return res.status(401).send({ message: message });
         }
 
         req.user = decoded;
@@ -36,13 +35,13 @@ const authMiddleware = (req, res, next) => {
     });
 };
 
-const generateToken = (user) => {
+const generateToken = async(user) => {
     /**
      * @param {object} user
      * @param {string} user.id
      * @param {string} user.email
      */
-    const token = jsonWebToken.sign({
+    return jsonWebToken.sign({
         id: user.id,
         email: user.email
     }, process.env.JSONWEBTOKEN_SECRET_KEY, { expiresIn: '1h' });
