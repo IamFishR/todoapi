@@ -25,6 +25,12 @@ const authMiddleware = (req, res, next) => {
             return res.status(401).send({ message: 'Authentication failed' });
         }
 
+        // The expiry date is a NumericDate, which is the number of seconds since Epoch
+        const expiryDate = new Date(decoded.exp * 1000);
+        if (expiryDate < new Date()) {
+            return res.status(401).send({ message: 'Token expired' });
+        }
+
         req.user = decoded;
         next();
     });
@@ -33,10 +39,11 @@ const authMiddleware = (req, res, next) => {
 const generateToken = (user) => {
     /**
      * @param {object} user
-     * @param {string} user._id
+     * @param {string} user.id
+     * @param {string} user.email
      */
-    return jsonWebToken.sign({
-        id: user._id,
+    const token = jsonWebToken.sign({
+        id: user.id,
         email: user.email
     }, process.env.JSONWEBTOKEN_SECRET_KEY, { expiresIn: '1h' });
 };

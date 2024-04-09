@@ -3,7 +3,6 @@ const { generateToken, verifyToken } = require('../config/authMiddleware');
 
 class UserController {
     constructor() {
-        // super();
     }
 
     // Create a new user
@@ -24,8 +23,11 @@ class UserController {
     // Get all users
     async getUsers(req, res) {
         try {
-            const users = await dbOperation.getUsers();
-            res.status(200).json(users);
+            const users = await dbOperation.getAllUsers();
+            res.status(200).json({
+                message: "Users retrieved successfully",
+                users: users
+            });
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
@@ -68,12 +70,6 @@ class UserController {
         try {
             const data = req.body;
             const user = await dbOperation.signIn(data);
-            if (user.error) {
-                throw new Error(user.message);
-            }
-            if (!user) {
-                throw new Error("User not found");
-            }
             const token = generateToken(user);
             res.status(200).json({
                 message: "Sign in successful",
