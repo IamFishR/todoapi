@@ -1,6 +1,4 @@
 const TasksOperations = require('../dboperations/tasksOperations');
-const logme = require('../../helper/logme');
-
 
 const getAllTasks = async (req, res) => {
     try {
@@ -13,7 +11,6 @@ const getAllTasks = async (req, res) => {
         }
         return tasks;
     } catch (error) {
-        logme.error(error.message);
         return {
             error: error.messagef
         }
@@ -28,14 +25,29 @@ const getTask = async (id) => {
         }
         return task;
     } catch (error) {
-        logme.error(error.message);
         return {
             error: error.message
         }
     }
 }
 
+const createTask = async (task) => {
+    try {
+        const newTask = await TasksOperations.createTask(task);
+        if (newTask.error) {
+            throw new Error(newTask.error);
+        }
+        return newTask;
+    } catch (error) {
+        return {
+            error: error.message
+        }
+    }
+
+}
+
 module.exports = {
     getAllTasks,
-    getTask
+    getTask,
+    createTask
 }

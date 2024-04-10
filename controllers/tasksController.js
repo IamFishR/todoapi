@@ -1,5 +1,7 @@
 const logme = require('../helper/logme');
-const { getAllTasks, getTask } = require('../models/db/tasksModel');
+const { getAllTasks, getTask, createTask } = require('../models/db/tasksModel');
+const Common = require('../helper/common');
+
 // const CommentsController = require('./commentsController');
 // const subTasksModel = require('../models/db/subTasksModel');
 
@@ -46,22 +48,57 @@ class TasksController {
         }
     }
 
-    // async createTask(req, res) {
-    //     try {
-    //         const task = await Tasks.create(req.body);
-    //         res.status(201).json({
-    //             status: 'success',
-    //             data: {
-    //                 task
-    //             }
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
+    async createTask(req, res) {
+        try {
+            if (!req.body.userid) {
+                throw new Error('No user id provided');
+            }
+            if (!req.body.title) {
+                throw new Error('No title provided');
+            }
+            if (!req.body.description) {
+                throw new Error('No description provided');
+            }
+            if (!req.body.due_date) {
+                throw new Error('No due date provided');
+            }
+
+            const newTask = {
+                user_id: req.body.userid,
+                taskid: Common.generateUniqueId(),
+                title: req.body.title,
+                description: req.body.description,
+                status: req.body.status || 'todo',
+                priority: req.body.priority || 'low',
+                due_date: req.body.due_date,
+                created_at: req.body?.createdAt || new Date(),
+                updated_at: req.body?.updatedAt || new Date(),
+                tags: req.body.tags || [],
+                assign_to: req.body.assign_to || null,
+                assign_by: req.body.assign_by || null,
+                assign_at: req.body.assign_at || null,
+                completed_at: req.body.completed_at || null,
+                deleted_at: req.body.deleted_at || null,
+                attachment_id: req.body.attachment_id || null,
+                comment_id: req.body.comment_id || null,
+            };
+            const task = await createTask(newTask);
+            if (task.error) {
+                throw new Error(task.error);
+            }
+            res.status(201).json({
+                status: 'success',
+                data: {
+                    task
+                }
+            });
+        } catch (error) {
+            res.status(400).json({
+                status: 'fail',
+                message: error.message
+            });
+        }
+    }
 
     // async updateTask(req, res) {
     //     try {

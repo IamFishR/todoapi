@@ -32,6 +32,19 @@ class TasksOperations extends Connection {
             });
         });
     }
+
+    async createTask(task) {
+        await this.connect();
+        return new Promise((resolve, reject) => {
+            this.connection.query('INSERT INTO tasks SET ?', task, (err, result, fields) => {
+                if (err) {
+                    return reject(err);
+                }
+                this.disconnect();
+                resolve(result);
+            });
+        });
+    }
 }
 
 module.exports = new TasksOperations();

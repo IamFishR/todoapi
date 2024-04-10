@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const crypto = require('crypto');
+const Common = require('../helper/common');
 
 
 /* GET home page. */
@@ -10,12 +10,9 @@ router.get('/', function (req, res, next) {
 
 router.get('/unique', function (req, res, next) {
 
-  function generateUniqueId() {
-    return crypto.randomBytes(12).toString('hex');
-  }
-
   res.status(200).json({
-    uniqueId: generateUniqueId()
+    status: 'success',
+    uniqueId: Common.generateUniqueId()
   });
 });
 
