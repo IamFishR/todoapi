@@ -62,18 +62,32 @@ class TasksController {
             if (!req.body.due_date) {
                 throw new Error('No due date provided');
             }
+            const currentDate = new Date();
+            // get unix timestamp
+            const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+
+            let dueDate = new Date(req.body.due_date);
+            // get unix timestamp
+            dueDate = dueDate.toISOString().slice(0, 19).replace('T', ' ');
+
+
+            let createdAt = req.body.created_at ? new Date(req.body.created_at) : currentDate;
+            createdAt = createdAt.toISOString().slice(0, 19).replace('T', ' ');
+
+            let updatedAt = req.body.updated_at ? new Date(req.body.updated_at) : currentDate;
+            updatedAt = updatedAt.toISOString().slice(0, 19).replace('T', ' ');
 
             const newTask = {
+                task_id: Common.generateUniqueId(),
                 user_id: req.body.userid,
-                taskid: Common.generateUniqueId(),
                 title: req.body.title,
                 description: req.body.description,
                 status: req.body.status || 'todo',
                 priority: req.body.priority || 'low',
-                due_date: req.body.due_date,
-                created_at: req.body?.createdAt || new Date(),
-                updated_at: req.body?.updatedAt || new Date(),
-                tags: req.body.tags || [],
+                due_date: dueDate || null,
+                created_at: createdAt,
+                updated_at: updatedAt,
+                tags: req.body.tags || null,
                 assign_to: req.body.assign_to || null,
                 assign_by: req.body.assign_by || null,
                 assign_at: req.body.assign_at || null,
@@ -88,9 +102,7 @@ class TasksController {
             }
             res.status(201).json({
                 status: 'success',
-                data: {
-                    task
-                }
+                task: task
             });
         } catch (error) {
             res.status(400).json({

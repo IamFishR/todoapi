@@ -37,7 +37,10 @@ const createTask = async (task) => {
         if (newTask.error) {
             throw new Error(newTask.error);
         }
-        return newTask;
+        if (newTask.affectedRows === 0) {
+            throw new Error('Task not created');
+        }
+        return task;
     } catch (error) {
         return {
             error: error.message
