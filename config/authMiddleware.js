@@ -1,7 +1,8 @@
-const e = require('express');
 const jsonWebToken = require('jsonwebtoken');
 require('dotenv').config();
 const requestCounts = new Map();
+const logme = require('../helper/logme');
+const { log } = require('winston');
 
 const authMiddleware = (req, res, next) => {
     let token = req.headers['authorization'];
@@ -11,6 +12,12 @@ const authMiddleware = (req, res, next) => {
     }
 
     if (!token) {
+        logme.warn({
+            message: 'someone tried to access a protected route without a token.',
+            data: {
+                headers: req.headers
+            }
+        })
         return res.status(401).send({
             message: 'Houston, we have a problem! You\'re missing an access token, which is like trying to launch a spaceship without fuel.'
         });
@@ -29,6 +36,13 @@ const authMiddleware = (req, res, next) => {
         if (err) {
             let message = err.message;
             if (err.name === 'TokenExpiredError') {
+                logme.warn({
+                    message: 'someone tried to access a protected route with an expired token.',
+                    data: {
+                        headers: req.headers,
+                        error: err
+                    }
+                });
                 message = 'Token expired.'
             }
             return res.status(401).send({ message: message });

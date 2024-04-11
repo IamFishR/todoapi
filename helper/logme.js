@@ -5,25 +5,54 @@ const { format } = winston;
 const date = new Date();
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const logFileName = date.getDate() + '_' + months[date.getMonth()] + '_' + date.getFullYear() + '.log';
+const levels = {
+    error: 0,
+    warn: 1,
+    info: 2,
+    http: 3,
+    verbose: 4,
+    debug: 5,
+    silly: 6
+};
+const colors = {
+    error: 'red',
+    warn: 'yellow',
+    info: 'green',
+    http: 'magenta',
+    verbose: 'cyan',
+    debug: 'blue',
+    silly: 'grey'
+};
+
+
+
+winston.addColors(colors);
 
 const logme = winston.createLogger({
     level: 'info',
+    levels: levels,
     format: format.combine(
-        format.timestamp(),
+        format.timestamp({
+            format: 'YYYY-MM-DD HH:mm:ss'
+        }),
+        format.errors({ stack: true }),
+        format.splat(),
         format.json()
     ),
     transports: [
+        // new winston.transports.Console({
+        //     format: format.combine(
+        //         format.colorize({ all: true })
+        //     )
+        // }),
         new winston.transports.File({
-            filename: '../logs/myapp.log',
-            maxsize: 5242880, // 5MB
-            tailable: true, // archive old logs
-            zippedArchive: true,
-            maxFiles: 10,
-            handleExceptions: true
-        }),
-        new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-        new winston.transports.Console()
+            filename: `./logs/${logFileName}`,
+            format: format.combine(
+                format.uncolorize()
+            )
+        })
     ]
 });
+
 
 module.exports = logme;

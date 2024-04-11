@@ -1,5 +1,5 @@
 const logme = require('../helper/logme');
-const { getAllTasks, getTask, createTask } = require('../models/db/tasksModel');
+const { getAllTasks, getTask, createTask, updateTaskWithParams } = require('../models/db/tasksModel');
 const Common = require('../helper/common');
 
 // const CommentsController = require('./commentsController');
@@ -43,7 +43,7 @@ class TasksController {
             logme.error(error.message);
             res.status(400).json({
                 status: 'fail',
-                message: error
+                message: error.message
             });
         }
     }
@@ -74,8 +74,7 @@ class TasksController {
             let createdAt = req.body.created_at ? new Date(req.body.created_at) : currentDate;
             createdAt = createdAt.toISOString().slice(0, 19).replace('T', ' ');
 
-            let updatedAt = req.body.updated_at ? new Date(req.body.updated_at) : currentDate;
-            updatedAt = updatedAt.toISOString().slice(0, 19).replace('T', ' ');
+            let updatedAt = formattedDate;
 
             const newTask = {
                 task_id: Common.generateUniqueId(),
@@ -112,51 +111,92 @@ class TasksController {
         }
     }
 
-    // async updateTask(req, res) {
-    //     try {
-    //         const newTask = {
-    //             title: req.body.title,
-    //             description: req.body.description,
-    //             dueDate: req.body.dueDate,
-    //             priority: req.body.priority,
-    //             status: req.body.status,
-    //             relate: req.body.relate,
-    //             tags: req.body.tags,
-    //             userId: req.body.userId
-    //         };
-    //         const task = await Tasks.findByIdAndUpdate(req.params.id, newTask, {
-    //             new: true,
-    //             runValidators: true
-    //         });
-    //         res.status(200).json({
-    //             status: 'success',
-    //             data: {
-    //                 task
-    //             }
-    //         });
+    async updateTask(req, res) {
+        try {
+            if (!req.body.id) {
+                throw new Error('No task id provided');
+            }
+            const task = await getTask(req.body.id);
+            if (task.error) {
+                throw new Error(task.error);
+            }
+            const currentDate = new Date();
+            // get unix timestamp
+            const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
 
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
+            if (req.body.due_date) {
+                let dueDate = req.body.due_date ? new Date(req.body.due_date) : new Date(task.due_date);
+                // get unix timestamp
+                dueDate = dueDate.toISOString().slice(0, 19).replace('T', ' ');
+            }
+            if (req.body.completed_at) {
+                let createdAt = req.body.created_at ? new Date(req.body.created_at) : new Date(task.created_at);
+                createdAt = createdAt.toISOString().slice(0, 19).replace('T', ' ');
+            }
+            let updatedAt = formattedDate;
 
-    // async deleteTask(req, res) {
-    //     try {
-    //         await Tasks.findByIdAndDelete(req.params.id);
-    //         res.status(204).json({
-    //             status: 'success',
-    //             data: null
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
+            const updatedTask = {
+                updated_at: updatedAt,
+            };
+            if (req.body.title) updatedTask.title = req.body.title;
+            if (req.body.description) updatedTask.description = req.body.description;
+            if (req.body.status) updatedTask.status = req.body.status;
+            if (req.body.priority) updatedTask.priority = req.body.priority;
+            if (req.body.due_date) updatedTask.due_date = dueDate;
+            if (req.body.tags) updatedTask.tags = req.body.tags;
+            if (req.body.assign_to) updatedTask.assign_to = req.body.assign_to;
+            if (req.body.assign_by) updatedTask.assign_by = req.body.assign_by;
+            if (req.body.assign_at) updatedTask.assign_at = req.body.assign_at;
+            if (req.body.completed_at) updatedTask.completed_at = req.body.completed_at;
+            if (req.body.attachment_id) updatedTask.attachment_id = req.body.attachment_id;
+            if (req.body.comment_id) updatedTask.comment_id = req.body.comment_id;
+
+            const updated = await updateTaskWithParams(req.body.id, updatedTask);
+            if (updated.error) {
+                throw new Error(updated.error);
+            }
+            res.status(200).json({
+                status: 'success',
+                task: updated
+            });
+        } catch (error) {
+            logme.error(error.message);
+            res.status(400).json({
+                status: 'fail',
+                message: error.message
+            });
+        }
+    }
+
+    async deleteTask(req, res) {
+        try {
+            if (!req.body.id) {
+                throw new Error('No task id provided');
+            }
+            const task = await getTask(req.body.id);
+            if (task.error) {
+                throw new Error(task.error);
+            }
+            const currentDate = new Date();
+            // get unix timestamp
+            const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+            const deletedTask = await updateTaskWithParams(req.body.id, { deleted_at: formattedDate, status: 'deleted', updated_at: formattedDate });
+            if (deletedTask.error) {
+                throw new Error(deletedTask.error);
+            }
+            res.status(200).json({
+                status: 'success',
+                task: null
+            });
+
+        } catch (error) {
+            logme.error(error.message);
+            res.status(400).json({
+                status: 'fail',
+                message: error.message
+            });
+        }
+    }
 
     // async getSubtasks(req, res) {
     //     try {

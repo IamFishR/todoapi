@@ -1,23 +1,16 @@
-// Used for: User operations
-// Purpose: To perform database operations for the user
-// procedure: tsdev_getall_users
-const connection = require('../../config/db');
-const Connection = require('./connection');
+const dbconnection = require('../../config/db');
 
-class User extends Connection {
+class User {
     constructor() {
-        super();
-        this.connection = connection;
+        this.pool = dbconnection;
     }
 
     async getAllUsersProc() {
-        await this.connect();
         return new Promise((resolve, reject) => {
-            this.connection.query('CALL tsdev_getall_users()', (err, result, fields) => {
+            this.pool.query('CALL tsdev_getall_users()', (err, result, fields) => {
                 if (err) {
                     return reject(err);
                 }
-                this.disconnect();
                 resolve(result);
             });
         });
@@ -26,17 +19,15 @@ class User extends Connection {
     async signInProc(data) {
         const email = data.email;
         const options = {
-            sql: 'SELECT * FROM users WHERE email = ' + this.connection.escape(email),
+            sql: 'SELECT * FROM users WHERE email = ' + this.pool.escape(email),
             nestTables: true
         }
 
-        await this.connect();
         return new Promise((resolve, reject) => {
-            this.connection.query(options, (err, result, fields) => {
+            this.pool.query(options, (err, result, fields) => {
                 if (err) {
                     return reject(err);
                 }
-                this.disconnect();
                 resolve(result);
             });
         });

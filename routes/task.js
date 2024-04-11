@@ -12,8 +12,8 @@ router.get('/:id?', authMiddleware, (req, res) => {
     return TasksController.getTasks(req, res);
 });
 router.post('/', authMiddleware, TasksController.createTask);
-// router.patch('/tasks/:id', authMiddleware, TasksController.updateTask);
-// router.delete('/tasks/:id', authMiddleware, TasksController.deleteTask);
+router.patch('/', authMiddleware, TasksController.updateTask);
+router.delete('/', authMiddleware, TasksController.deleteTask);
 
 // // subtasks
 // router.get('/tasks/:id/subtasks/:subId?', authMiddleware, (req, res) => {

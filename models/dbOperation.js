@@ -1,6 +1,4 @@
-// const User = require('./db/userModel');
-// const connectDB = require('../config/db');
-// const dbvalidation = require('./dbValidation');
+
 const bcrypt = require('bcryptjs');
 const User = require('./dboperations/userOperations');
 
