@@ -7,7 +7,7 @@ var morgan = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 // var adminRouter = require('./routes/admin');
-// var askmeRouter = require('./routes/askme');
+var askmeRouter = require('./routes/askme');
 var tasksRouter = require('./routes/task');
 
 var app = express();
@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 // app.use('/admins', adminRouter);
-// app.use('/askme', askmeRouter);
+app.use('/askme', askmeRouter);
 app.use('/tasks', tasksRouter);
 
 // invalid route
