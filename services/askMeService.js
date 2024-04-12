@@ -20,10 +20,7 @@ class AskMeService {
                 // generationConfig: generationConfig
             });
         } catch (error) {
-            return {
-                error: error.message,
-                stack: error.stack,
-            }
+            return error;
         }
     }
 
@@ -34,16 +31,13 @@ class AskMeService {
             const text = response.text();
             const { totalTokens } = await this.model.countTokens(prompt);
             return {
-                question: prompt,
-                answer: response,
-                text: text,
-                totalTokens: totalTokens
+                "question": prompt,
+                "answer": response,
+                "text": text,
+                "totalTokens": totalTokens
             };
         } catch (error) {
-            return {
-                error: error,
-                api_key: process.env.GENERATIVEAI_API_KEY
-            }
+            return error
         }
     }
 
@@ -65,14 +59,9 @@ class AskMeService {
                 chathistory: chathistory
             };
         } catch (error) {
-            return {
-                error: error.message,
-                stack: error.stack
-            }
+            return error;
         }
     }
-
-
 }
 
 module.exports = new AskMeService();

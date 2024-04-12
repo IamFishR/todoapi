@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 // var adminRouter = require('./routes/admin');
 var askmeRouter = require('./routes/askme');
 var tasksRouter = require('./routes/task');
+var logRouter = require('./routes/log');
 
 var app = express();
 
@@ -26,6 +27,7 @@ app.use('/users', usersRouter);
 // app.use('/admins', adminRouter);
 app.use('/askme', askmeRouter);
 app.use('/tasks', tasksRouter);
+app.use('/logs', logRouter);
 
 // invalid route
 app.get('*', (req, res) => {
