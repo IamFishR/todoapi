@@ -1,23 +1,30 @@
-const { 
+const {
     GoogleGenerativeAI,
     ChatSession
- } = require("@google/generative-ai");
+} = require("@google/generative-ai");
 require('dotenv').config();
 
 class AskMeService {
     constructor() {
-        this.genAI = new GoogleGenerativeAI(process.env.GENERATIVEAI_API_KEY);
-        const generationConfig = {
-            // stopSequences: ["red"],
-            // maxOutputTokens: 100,
-            // temperature: 0.9,
-            // topP: 0.1,
-            // topK: 16,
-          };
-        this.model = this.genAI.getGenerativeModel({
-            model: "gemini-pro",
-            // generationConfig: generationConfig
-        });
+        try {
+            this.genAI = new GoogleGenerativeAI(process.env.GENERATIVEAI_API_KEY);
+            const generationConfig = {
+                // stopSequences: ["red"],
+                // maxOutputTokens: 100,
+                // temperature: 0.9,
+                // topP: 0.1,
+                // topK: 16,
+            };
+            this.model = this.genAI.getGenerativeModel({
+                model: "gemini-pro",
+                // generationConfig: generationConfig
+            });
+        } catch (error) {
+            return {
+                error: error.message,
+                stack: error.stack,
+            }
+        }
     }
 
     async askQuestion(prompt) {
@@ -34,8 +41,8 @@ class AskMeService {
             };
         } catch (error) {
             return {
-                error: error.message,
-                stack: error.stack
+                error: error,
+                api_key: process.env.GENERATIVEAI_API_KEY
             }
         }
     }
@@ -65,7 +72,7 @@ class AskMeService {
         }
     }
 
-    
+
 }
 
 module.exports = new AskMeService();

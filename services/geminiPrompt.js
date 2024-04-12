@@ -23,7 +23,7 @@ class Prompts {
   }
 
   async taskToPerform() {
-    return "User have multiple tasks and wanted to add new task provided below, you can provide more details regarding the task or what more possible things we can do regarding the below task : ";
+    return "User have multiple tasks and wanted to add new task provided below, provide the details of the tasks by using below information it should be less than 5: ";
   }
 }
 
