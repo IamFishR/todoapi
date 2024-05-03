@@ -3,14 +3,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var morgan = require('morgan');
 
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-// var adminRouter = require('./routes/admin');
-var askmeRouter = require('./routes/askme');
-var tasksRouter = require('./routes/task');
-var logRouter = require('./routes/log');
-
 var app = express();
 
 // Define log format
@@ -22,12 +14,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-// app.use('/admins', adminRouter);
-app.use('/askme', askmeRouter);
-app.use('/tasks', tasksRouter);
-app.use('/logs', logRouter);
+app.use('/', require('./routes/index'));
+app.use('/users', require('./routes/users'));
+// app.use('/admins', require('./routes/admin'));
+app.use('/askme', require('./routes/askme'));
+app.use('/tasks', require('./routes/task'));
+app.use('/logs', require('./routes/log'));
+app.use('/finances', require('./routes/finance'));
 
 // invalid route
 app.get('*', (req, res) => {

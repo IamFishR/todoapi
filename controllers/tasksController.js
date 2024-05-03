@@ -86,7 +86,7 @@ class TasksController {
                 due_date: dueDate || null,
                 created_at: createdAt,
                 updated_at: updatedAt,
-                tags: req.body.tags || null,
+                tags: req.body.tags.trim() || null,
                 assign_to: req.body.assign_to || null,
                 assign_by: req.body.assign_by || null,
                 assign_at: req.body.assign_at || null,

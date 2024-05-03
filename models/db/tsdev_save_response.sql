@@ -1,16 +1,3 @@
--- tsdev_save_response PROCEDURE
--- this procedure will get only one param, json string
--- this json string will have the following keys
--- {
-    -- response: JSON.stringify(answer),
-    -- user_id: req.user.id,
-    -- type: 'hdfcBankSms',
-    -- status: 'one_time_chat',
-    -- created_at: Common.getTodaysDateWithTime(),
-    -- updated_at: Common.getTodaysDateWithTime(),
-    -- deleted_at: null,
--- }
-
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS `tsdev_save_response`$$
