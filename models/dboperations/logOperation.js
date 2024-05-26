@@ -1,5 +1,3 @@
-const dbconnection = require('../../config/db');
-const mysql = require('mysql');
 const path = require('path');
 const fs = require('fs');
 
@@ -38,6 +36,25 @@ class LogOperation {
                     }
 
                     resolve(data);
+                });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    }
+
+    async writeSMS(date) {
+        try {
+            return new Promise((resolve, reject) => {
+                const fileName = 'sms_tracking.json';
+                const logFile = path.join(__dirname, '../../logs', fileName);
+                // write all json data to file
+                fs.writeFile(logFile, JSON.stringify(date), 'utf8', (error) => {
+                    if (error) {
+                        reject(error);
+                    }
+
+                    resolve({ message: 'Data written successfully' });
                 });
             });
         } catch (error) {

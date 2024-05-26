@@ -1,5 +1,5 @@
 const Projects = require('../models/db/projectsModel');
-const CommentsController = require('./commentsController');
+// const CommentsController = require('./commentsController');
 
 class ProjectsController {
     constructor() {
@@ -25,7 +25,7 @@ class ProjectsController {
     async getProject(req, res) {
         try {
             const project = await Projects.findById(req.params.id);
-            const comments = await CommentsController.getComments(req, res);
+            // const comments = await CommentsController.getComments(req, res);
             res.status(200).json({
                 status: 'success',
                 data: {

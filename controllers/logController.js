@@ -24,6 +24,25 @@ class LogController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    async sendSms(req, res) {
+        try {
+            const logs = await dbOperation.writeSMS(date);
+            if(logs.error) {
+                throw new Error(logs.error);
+            }
+
+            res.status(200).json({ message: 'SMS written successfully' });
+        } catch (error) {
+            logme.error({
+                message: error.message,
+                method: 'sendSms',
+                controller: 'LogController',
+                action: 'sendSms'
+            });
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new LogController();
