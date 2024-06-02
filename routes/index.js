@@ -8,6 +8,13 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Welcome To API' });
 });
 
+router.get('/ping', function (req, res, next) {
+  res.status(200).json({
+    status: 'success',
+    message: 'pong'
+  });
+});
+
 router.get('/unique', function (req, res, next) {
 
   res.status(200).json({

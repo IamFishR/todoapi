@@ -7,18 +7,26 @@ class TasksOperations {
         this.pool = dbconnection;
     }
 
-    getAllTasks() {
+    getAllTasks(params) {
         // this.connect();
         return new Promise((resolve, reject) => {
             // select * tasks if status is not deleted
-            const query = 'SELECT * FROM tasks WHERE status != \'deleted\''; // status is not deleted
+            // const query = 'SELECT * FROM tasks WHERE status != \'deleted\''; // status is not deleted
+            let query = 'SELECT * FROM tasks'; // status is not deleted
+            if (params && params?.u) {
+                query += ` WHERE user_id = ${params.u}`;
+            }
+
+            // not deleted
+            query += ' AND status != \'deleted\'';
+
             this.pool.query(query, (err, result, fields) => {
                 if (err) {
                     logme.error({
                         message: 'getAllTasks failed',
                         data: { query: query, error: err }
                     });
-                    return reject(err);
+                    resolve({ error: err });
                 }
                 resolve(result);
             });
@@ -46,7 +54,6 @@ class TasksOperations {
     }
 
     createTask(task) {
-        // this.connect();
         return new Promise((resolve, reject) => {
             this.pool.query(
                 'CALL tsdev_create_task(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
@@ -93,7 +100,7 @@ class TasksOperations {
                         ]
                     });
                     if (err) {
-                        return reject(err);
+                        resolve({ error: err });
                     }
                     resolve(result);
                 });
@@ -101,7 +108,6 @@ class TasksOperations {
     }
 
     updateTask(id, task) {
-        // this.connect();
         return new Promise((resolve, reject) => {
             const query = 'CALL tsdev_update_task(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             const inserts = [id,
@@ -125,44 +131,6 @@ class TasksOperations {
 
             this.pool.query(queryStr, (err, result, fields) => {
                 if (err) {
-                    let errors = [
-                        {
-                            code: 'ER_DUP_ENTRY',
-                            message: 'Duplicate entry'
-                        },
-                        {
-                            code: 'ER_NO_REFERENCED_ROW_2',
-                            message: 'Foreign key constraint fails'
-                        },
-                        {
-                            code: 'ER_NO_DEFAULT_FOR_FIELD',
-                            message: 'Field doesn\'t have a default value'
-                        },
-                        {
-                            code: 'ER_DATA_TOO_LONG',
-                            message: 'Data too long for column'
-                        },
-                        {
-                            code: 'ER_TRUNCATED_WRONG_VALUE',
-                            message: 'Truncated wrong value'
-                        },
-                        {
-                            code: 'ER_NO_DEFAULT_FOR_FIELD',
-                            message: 'Field doesn\'t have a default value'
-                        },
-                        {
-                            code: 'ER_CANT_AGGREGATE_2COLLATIONS',
-                            message: 'collation mismatch'
-                        },
-                        {
-                            code: 'ER_DUP_FIELDNAME',
-                            message: 'Duplicate column name'
-                        },
-                        {
-                            code: 'ER_SP_WRONG_NO_OF_ARGS',
-                            message: 'arguments mismatch!'
-                        }
-                    ]
                     logme.error({
                         message: 'update task failed',
                         data: {
@@ -171,12 +139,23 @@ class TasksOperations {
                             error: err
                         }
                     });
-                    let error = errors.find(e => e.code === err.code);
-                    if (error) {
-                        reject(error);
-                    } else {
-                        reject(err);
-                    }
+                    resolve({ error: err });
+                }
+                resolve(result);
+            });
+        });
+    }
+
+    createSubtask(subtask) {
+        return new Promise((resolve, reject) => {
+            let query = 'INSERT INTO subtasks SET ?';
+            this.pool.query(query, subtask, (err, result, fields) => {
+                if (err) {
+                    logme.error({
+                        message: 'createSubtask failed',
+                        data: { query: query, error: err }
+                    });
+                    resolve({ error: err });
                 }
                 resolve(result);
             });

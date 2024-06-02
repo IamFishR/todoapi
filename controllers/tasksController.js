@@ -1,5 +1,5 @@
 const logme = require('../helper/logme');
-const { getAllTasks, getTask, createTask, updateTaskWithParams } = require('../models/db/tasksModel');
+const { getAllTasks, getTask, createTask, updateTaskWithParams, createSubtask } = require('../models/db/tasksModel');
 const Common = require('../helper/common');
 
 // const CommentsController = require('./commentsController');
@@ -191,6 +191,95 @@ class TasksController {
 
         } catch (error) {
             logme.error(error.message);
+            res.status(400).json({
+                status: 'fail',
+                message: error.message
+            });
+        }
+    }
+
+    async getTasksByUser(req, res) {
+        try {
+            if (!req.params.userId) {
+                throw new Error('No user id provided');
+            }
+            const tasks = await getAllTasks({
+                u: req.params.userId
+            });
+            if (tasks.message) {
+                throw new Error(tasks.message);
+            }
+            res.status(200).json({
+                status: 'success',
+                tasks: tasks
+            });
+        } catch (error) {
+            logme.error(error.message);
+            res.status(400).json({
+                status: 'unable to get tasks by user id',
+                message: {
+                    error: error.message
+                }
+            });
+        }
+    }
+
+    async createSubtask(req, res) {
+        try {
+            if (!req.body.task_id) {
+                throw new Error('No task id provided');
+            }
+            if (!req.body.title) {
+                throw new Error('No title provided');
+            }
+            if (!req.body.description) {
+                throw new Error('No description provided');
+            }
+            if (!req.body.due_date) {
+                throw new Error('No due date provided');
+            }
+            const currentDate = new Date();
+            // get unix timestamp
+            const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+
+            let dueDate = new Date(req.body.due_date);
+            // get unix timestamp
+            dueDate = dueDate.toISOString().slice(0, 19).replace('T', ' ');
+
+            let createdAt = req.body.created_at ? new Date(req.body.created_at) : currentDate;
+            createdAt = createdAt.toISOString().slice(0, 19).replace('T', ' ');
+
+            let updatedAt = formattedDate;
+
+            const newSubTask = {
+                subtask_id: Common.generateUniqueId(),
+                task_id: req.body.task_id,
+                user_id: req.body.userid,
+                title: req.body.title,
+                description: req.body.description,
+                status: req.body.status || 'todo',
+                priority: req.body.priority || 'low',
+                due_date: dueDate || null,
+                created_at: createdAt,
+                updated_at: updatedAt,
+                tags: req.body.tags.trim() || null,
+                assign_to: req.body.assign_to || null,
+                assign_by: req.body.assign_by || null,
+                assign_at: req.body.assign_at || null,
+                completed_at: req.body.completed_at || null,
+                deleted_at: req.body.deleted_at || null,
+                attachment_id: req.body.attachment_id || null,
+                comment_id: req.body.comment_id || null,
+            };
+            const subtask = await createSubtask(newSubTask);
+            if (subtask.error) {
+                throw new Error(subtask.error);
+            }
+            res.status(201).json({
+                status: 'success',
+                subtask: subtask
+            });
+        } catch (error) {
             res.status(400).json({
                 status: 'fail',
                 message: error.message

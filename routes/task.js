@@ -5,9 +5,13 @@ const TasksController = require('../controllers/tasksController');
 const { authMiddleware } = require('../config/authMiddleware');
 
 // tasks
-router.get('/:id?', authMiddleware, (req, res) => {
-    if (req.params.id) {
+// router.get('/:id?||:userId?', authMiddleware, (req, res) => {
+router.get('/:id?/:userId?', authMiddleware, (req, res) => {
+    if (req.params.id && !req.params.userId) {
         return TasksController.getTask(req, res);
+    }
+    if (req.params.userId) {
+        return TasksController.getTasksByUser(req, res);
     }
     return TasksController.getTasks(req, res);
 });
@@ -15,16 +19,14 @@ router.post('/', authMiddleware, TasksController.createTask);
 router.patch('/', authMiddleware, TasksController.updateTask);
 router.delete('/', authMiddleware, TasksController.deleteTask);
 
-// // subtasks
-// router.get('/tasks/:id/subtasks/:subId?', authMiddleware, (req, res) => {
-//     if (req.params.subId) {
-//         return TasksController.getSubtask(req, res);
-//     }
-//     return TasksController.getSubtasks(req, res);
-// });
-// router.post('/tasks/:id/subtasks', authMiddleware, TasksController.createSubtask);
-// router.patch('/tasks/:id/subtasks/:subId', authMiddleware, TasksController.updateSubtask);
-// router.delete('/tasks/:id/subtasks/:subId', authMiddleware, TasksController.deleteSubtask);
+// subtasks
+router.get('/:id/subtasks/:subId?', authMiddleware, (req, res) => {
+    if (req.params.subId) {
+        return TasksController.getSubtask(req, res);
+    }
+    return TasksController.getSubtasks(req, res);
+});
+router.post('/:id/subtasks', authMiddleware, TasksController.createSubtask);
 
 // projects
 // router.get('/projects/:id?', authMiddleware, (req, res) => {
