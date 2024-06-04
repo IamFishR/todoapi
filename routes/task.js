@@ -10,7 +10,7 @@ router.get('/:id?/:userId?', authMiddleware, (req, res) => {
     if (req.params.id && !req.params.userId) {
         return TasksController.getTask(req, res);
     }
-    if (req.params.userId) {
+    if (req.params.userId && !req.params.id) {
         return TasksController.getTasksByUser(req, res);
     }
     return TasksController.getTasks(req, res);

@@ -13,12 +13,13 @@ class TasksOperations {
             // select * tasks if status is not deleted
             // const query = 'SELECT * FROM tasks WHERE status != \'deleted\''; // status is not deleted
             let query = 'SELECT * FROM tasks'; // status is not deleted
-            if (params && params?.u) {
-                query += ` WHERE user_id = ${params.u}`;
-            }
-
             // not deleted
-            query += ' AND status != \'deleted\'';
+            query += ' WHERE status != \'deleted\'';
+            
+            if (params && params?.u) {
+                query += ` AND user_id = ${params.u}`;
+            }
+            
 
             this.pool.query(query, (err, result, fields) => {
                 if (err) {
