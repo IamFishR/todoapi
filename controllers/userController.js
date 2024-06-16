@@ -125,8 +125,14 @@ class UserController {
                 throw new Error("Content is required");
             }
 
-            // trim content
-            data.content = data.content.trim();
+            // convert content to Text
+            // data.content = Buffer.from(data.content, 'base64').toString('utf-8');
+            if(typeof data.content === 'object') {
+                data.content = JSON.stringify(data.content);
+            } else {
+                data.content = data.content.toString();
+            }
+
 
             if (data.user_id) {
                 data.user_id = data.user_id.trim();

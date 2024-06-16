@@ -64,6 +64,8 @@ class User {
                     if (result.affectedRows < 1) {
                         return reject(new Error("Copy paste failed"));
                     } else {
+                        // decode content
+                        // data.content = Buffer.from(data.content, 'utf-8').toString('base64');
                         resolve({ message: "Copy paste successful", user: data });
                     }
                 });
