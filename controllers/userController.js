@@ -1,6 +1,7 @@
 const dbOperation = require("../models/dbOperation");
 const { generateToken, verifyToken } = require('../config/authMiddleware');
 const logme = require('../helper/logme');
+const common = require('../helper/common');
 
 class UserController {
     constructor() {
@@ -112,6 +113,42 @@ class UserController {
                 throw new Error("Token expired");
             }
             res.status(200).json({ message: "Authentication successful", decoded: decoded });
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    async copyPaste(req, res) {
+        try {
+            const data = req.body;
+            if (!data.content) {
+                throw new Error("Content is required");
+            }
+
+            // trim content
+            data.content = data.content.trim();
+
+            if (data.user_id) {
+                data.user_id = data.user_id.trim();
+            } else {
+                throw new Error("User ID is required");
+            }
+            data['copy_paste_id'] = common.generateUniqueId();
+            data['created_at'] = new Date();
+
+            const user = await dbOperation.copyPaste({
+                copy_paste_id: data.copy_paste_id,
+                user_id: data.user_id,
+                content: data.content,
+                created_at: data.created_at
+            });
+            if (user.error) {
+                throw new Error(user.error);
+            }
+            res.status(200).json({
+                message: "Copy paste successful",
+                user: user
+            });
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
