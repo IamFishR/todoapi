@@ -32,6 +32,22 @@ class User {
             });
         });
     }
+
+    async createUserProc(data) {
+        const options = {
+            sql: 'INSERT INTO users SET ?',
+            values: data
+        }
+
+        return new Promise((resolve, reject) => {
+            this.pool.query(options, (err, result, fields) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
+    }
 }
 
 module.exports = new User();

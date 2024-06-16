@@ -10,14 +10,27 @@ class UserController {
     async createUser(req, res) {
         try {
             const data = req.body;
+            if (data.password !== data.confirmPassword) {
+                throw new Error("Passwords do not match");
+            }
+
+            if (data.password.length < 6) {
+                throw new Error("Password must be at least 6 characters long");
+            }
+
+            if (data.emmail === "" || data.password === "") {
+                throw new Error("Email and password are required fields");
+            }
+
+            // const user = await dbOperation.createUser(data);
+            data.password = await bcrypt.hash(data.password, 10);
             const user = await dbOperation.createUser(data);
+            if (user.error) {
+                throw new Error(user.error);
+            }
             res.status(201).json(user);
         } catch (error) {
-            const message = error.message;
-            res.status(400).json({
-                error: message,
-                details: error
-            });
+            res.status(200).json({ error: error.message });
         }
     }
 

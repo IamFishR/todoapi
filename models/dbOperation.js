@@ -2,126 +2,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('./dboperations/userOperations');
 
-// // create a class to handle all the database operations
-// class DbOperation {
-//     constructor() {
-//         // connect to the database
-//         connectDB();
-//     }
-//     generateResponse(data, message) {
-//         const response = {
-//             name: data.name,
-//             email: data.email,
-//             createdAt: data.createdAt,
-//             updatedAt: data.updatedAt,
-//             additionalInfo: data.additionalInfo,
-//             roleids: data.roleids,
-//         };
-
-//         return {
-//             message: message,
-//             user: response
-//         };
-//     }
-//     // Create a new user
-//     async createUser(data) {
-//         try {
-//             const user = await User.create(data);
-//             return this.generateResponse(user, "User created successfully");
-//         } catch (error) {
-//             return dbvalidation.generateErrorResp(error, '');
-//         }
-//     }
-
-//     // Get all users
-//     async getUsers() {
-//         try {
-//             const users = await User.find();
-//             return {
-//                 message: "Users retrieved successfully",
-//                 users: users
-//             }
-//         } catch (error) {
-//             return dbvalidation.generateErrorResp(error, '');
-//         }
-//     }
-
-//     // Get a user by ID
-//     async getUserById(id) {
-//         try {
-//             const isValidId = dbvalidation.validateId(id);
-//             if (!isValidId) {
-//                 throw new Error("Invalid ID");
-//             }
-//             const user = await User.findById(id);
-//             if (!user) {
-//                 throw new Error("User not found");
-//             }
-//             return this.generateResponse(user, "User retrieved successfully");
-//         } catch (error) {
-//             return dbvalidation.generateErrorResp(error, '');
-//         }
-//     }
-
-//     // Update a user by ID
-//     async updateUser(id, data) {
-//         try {
-//             const isValidId = mongoose.Types.ObjectId.isValid(id);
-//             if (!isValidId) {
-//                 throw new Error("Invalid ID");
-//             }
-//             const user = await User.findByIdAndUpdate(id, data, {
-//                 new: true,
-//                 runValidators: true
-//             });
-//             return this.generateResponse(user, "User updated successfully");
-//         } catch (error) {
-//             return dbvalidation.generateErrorResp(error, '');
-//         }
-//     }
-
-//     // Delete a user by ID
-//     async deleteUser(id) {
-//         try {
-//             const isValidId = mongoose.Types.ObjectId.isValid(id);
-//             if (!isValidId) {
-//                 throw new Error("Invalid ID");
-//             }
-//             const user = await User.findByIdAndDelete(id);
-//             return this.generateResponse(user, "User deleted successfully");
-//         } catch (error) {
-//             return dbvalidation.generateErrorResp(error, '');
-//         }
-//     }
-
-//     // signin
-//     async signIn(data) {
-//         try {
-//             const user = await User.findOne({
-//                 email: data.email
-//             }).where('email').equals(data.email);
-//             if (!user) {
-//                 throw new Error("User not found");
-//             } else {
-//                 if (data?.password) {
-//                     const compare = await bcrypt.compare(data.password, user.password);
-//                     if (compare) {
-//                         return this.generateResponse(user, "User retrieved successfully");
-//                     } else {
-//                         throw new Error("Incorrect credentials");
-//                     }
-//                 } else {
-//                     throw new Error("Incorrect credentials");
-//                 }
-//             }
-//         } catch (error) {
-//             return dbvalidation.generateErrorResp(error, '');
-//         }
-//     }
-// }
-
-
-
 class DbOperation {
     async getAllUsers() {
         try {
@@ -159,6 +39,40 @@ class DbOperation {
             } else {
                 throw new Error("Incorrect credentials");
             }
+        } catch (error) {
+            return {
+                error: error
+            }
+        }
+    }
+
+    async createUser(data) {
+        try {
+            let db_columns_val = {
+                // user_id: null,
+                // name: data.name,
+                // email: data.email,
+                // password: data.password,
+                // role: data.role || 'user',
+                // avatar: data.avatar || null,
+                // bio: data.bio || null,
+                // facebook: data.facebook || null,
+                // twitter: data.twitter || null,
+                // linkedin: data.linkedin || null,
+                // github: data.github || null,
+                // website: data.website || null,
+                // google: data.google || null,
+                // created_at: new Date(),
+                // updated_at: new Date()
+            };
+
+
+
+            const user = await User.createUserProc(db_columns_val);
+            if (user.error) {
+                throw new Error(user.error);
+            }
+            return await this.removeSecrets(user[0]);
         } catch (error) {
             return {
                 error: error

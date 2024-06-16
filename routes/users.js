@@ -6,7 +6,7 @@ const { authMiddleware } = require('../config/authMiddleware');
 
 router.post('/authenticate', userController.signIn);
 router.post('/verifySingnIn', authMiddleware, userController.verifySingnIn);
-// router.post('/signup', userController.createUser);
+router.post('/signup', userController.createUser);
 
 // Route for getting all users
 router.get('/', authMiddleware, userController.getUsers);
@@ -19,11 +19,4 @@ router.get('/', authMiddleware, userController.getUsers);
 
 // Route for deleting a user by ID
 // router.delete('/:id', authMiddleware, userController.deleteUser);
-
-
-// invalid route
-router.get('*', (req, res) => {
-    res.status(404).json({ error: "Invalid route" });
-});
-
 module.exports = router;
