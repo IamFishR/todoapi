@@ -6,4 +6,5 @@ const { authMiddleware } = require('../config/authMiddleware');
 
 /* GET home page. */
 router.get('/calc-allocations', authMiddleware, financeController.calculateAllocations);
+router.get('/investmentareas', authMiddleware, financeController.getInvestmentAreas);
 module.exports = router;

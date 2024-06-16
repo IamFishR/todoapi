@@ -123,10 +123,32 @@ const createSubtask = async (subtask) => {
     }
 }
 
+const getSubtask = async (id, subId) => {
+    try {
+        const subtask = await TasksOperations.getSubtask(id, subId);
+        if (subtask.error) {
+            if (ErrorMessages[subtask.error.code]) {
+                throw new Error(ErrorMessages[subtask.error.code]);
+            } else {
+                throw new Error(subtask.error.message);
+            }
+        }
+        if (subtask.length === 0) {
+            throw new Error('Subtask not found');
+        }
+        return subtask;
+    } catch (error) {
+        return {
+            error: error.message
+        }
+    }
+}
+
 module.exports = {
     getAllTasks,
     getTask,
     createTask,
     updateTaskWithParams,
-    createSubtask
+    createSubtask,
+    getSubtask
 }

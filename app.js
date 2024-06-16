@@ -21,6 +21,7 @@ app.use('/askme', require('./routes/askme'));
 app.use('/tasks', require('./routes/task'));
 app.use('/logs', require('./routes/log'));
 app.use('/finances', require('./routes/finance'));
+app.use('/ai', require('./routes/ai'));
 
 // invalid route
 app.get('*', (req, res) => {

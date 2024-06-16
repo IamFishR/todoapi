@@ -48,6 +48,32 @@ class User {
             });
         });
     }
+
+    async copyPaste(data) {
+        try {
+            const options = {
+                sql: 'INSERT INTO copy_paste SET ?',
+                values: data
+            }
+
+            return new Promise((resolve, reject) => {
+                this.pool.query(options, (err, result, fields) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    if (result.affectedRows < 1) {
+                        return reject(new Error("Copy paste failed"));
+                    } else {
+                        resolve({ message: "Copy paste successful", user: data });
+                    }
+                });
+            });
+        } catch (error) {
+            return {
+                error: error
+            }
+        }
+    }
 }
 
 module.exports = new User();

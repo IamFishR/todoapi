@@ -87,5 +87,19 @@ class DbOperation {
         delete data.email_verified_at;
         return data;
     }
+
+    async copyPaste(data) {
+        try {
+            const user = await User.copyPaste(data);
+            if (user.error) {
+                throw new Error(user.error);
+            }
+            return user;
+        } catch (error) {
+            return {
+                error: error
+            }
+        }
+    }
 }
 module.exports = new DbOperation();
