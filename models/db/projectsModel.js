@@ -112,9 +112,9 @@ class ProjectsModel {
 
                 let _p = {
                     project_id: Common.generateUniqueId(),
-                    user_id: data.user_id,
-                    task_id: data.task_id ? data.task_id : null,
-                    comment_id: data.comment_id ? data.comment_id : null,
+                    // owner: data.user_id,
+                    // task_id: data.task_id ? data.task_id : null,
+                    // comment_id: data.comment_id ? data.comment_id : null,
                     name: data.name,
                     description: data.description ? data.description : '',
                     status: data.status,
@@ -123,7 +123,7 @@ class ProjectsModel {
                     priority: data.priority,
                     due_date: data.due_date ? data.due_date : null,
                     start_date: data.start_date ? data.start_date : null,
-                    attachment_id: null,
+                    // attachment_id: null,
                     owner: data.user_id,
                     created_at: Common.getUnixTimeStamp(),
                     updated_at: Common.getUnixTimeStamp(),
@@ -135,7 +135,10 @@ class ProjectsModel {
                 this.pool.query(sql, _p, (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
                         } else {
                             reject(err.message);
                         }
