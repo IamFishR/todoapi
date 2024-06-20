@@ -1,24 +1,105 @@
-const TasksOperations = require('../dboperations/tasksOperations');
+// const TasksOperations = require('../dboperations/tasksOperations');
+const dbconnection = require('../../config/db');
+const Common = require('../../helper/common');
+const logme = require('../../helper/logme');
 
-const ErrorMessages = {
-    'ER_BAD_FIELD_ERROR': 'Bad field error',
-    'ER_NO_SUCH_TABLE': 'No such table',
-    'ER_PARSE_ERROR': 'Parse error',
-    'ER_ACCESS_DENIED_ERROR': 'Access denied error',
-    'ER_BAD_DB_ERROR': 'Bad database error',
-    'ER_BAD_TABLE_ERROR': 'Bad table error',
-    'ER_NO_SUCH_TABLE': 'No such table',
-    'ER_TABLE_EXISTS_ERROR': 'Table exists error',
-    'ER_DUP_ENTRY': 'Duplicate entry',
-    'ER_NO_REFERENCED_ROW_2': 'Foreign key constraint fails',
-    'ER_NO_DEFAULT_FOR_FIELD': 'Field doesn\'t have a default value',
-    'ER_DATA_TOO_LONG': 'Data too long for column',
-    'ER_TRUNCATED_WRONG_VALUE': 'Truncated wrong value',
-    'ER_NO_DEFAULT_FOR_FIELD': 'Field doesn\'t have a default value',
-    'ER_CANT_AGGREGATE_2COLLATIONS': 'collation mismatch',
-    'ER_DUP_FIELDNAME': 'Duplicate column name',
-    'ER_SP_WRONG_NO_OF_ARGS': 'arguments mismatch!'
-};
+class Tasks {
+    constructor() {
+        this.pool = dbconnection;
+    }
+
+    taskModel = {
+        task_id: {
+            type: 'VARCHAR',
+        },
+        project_id: {
+            type: 'VARCHAR',
+        },
+        title: {
+            type: 'VARCHAR',
+        },
+        description: {
+            type: 'TEXT',
+        },
+        status: {
+            type: 'VARCHAR',
+        },
+        priority: {
+            type: 'VARCHAR',
+        },
+        due_date: {
+            type: 'DATETIME',
+        },
+        owner: {
+            type: 'VARCHAR',
+        },
+        created_at: {
+            type: 'DATETIME',
+        },
+        updated_at: {
+            type: 'DATETIME',
+        },
+        tags: {
+            type: 'VARCHAR',
+        },
+        assign_to: {
+            type: 'VARCHAR',
+        },
+        assign_by: {
+            type: 'VARCHAR',
+        },
+        assign_at: {
+            type: 'DATETIME',
+        },
+        completed_at: {
+            type: 'DATETIME',
+        },
+        deleted_at: {
+            type: 'DATETIME',
+        }
+    }
+
+    async getAllTasks(id) {
+        try {
+            return new Promise((resolve, reject) => {
+                const sql = `SELECT * FROM tasks WHERE project_id = ?`;
+                this.pool.query(sql, [id], (err, result) => {
+                    if (err) {
+                        logme.error({
+                            message: 'getAllTasks failed',
+                            data: { query: sql, error: err }
+                        });
+                        return reject(err);
+                    }
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async getTask(id) {
+        try {
+            return new Promise((resolve, reject) => {
+                const sql = 'SELECT * FROM tasks WHERE task_id = ?';
+                this.pool.query(sql, [id], (err, result) => {
+                    if (err) {
+                        logme.error({
+                            message: 'getTask failed',
+                            data: { query: sql, error: err }
+                        });
+                        return reject(err);
+                    }
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+    
+}
 
 const getAllTasks = async (params) => {
     try {
@@ -27,8 +108,8 @@ const getAllTasks = async (params) => {
             throw new Error('No tasks found');
         }
         if (tasks.error) {
-            if (ErrorMessages[tasks.error.code]) {
-                throw new Error(ErrorMessages[tasks.error.code]);
+            if (Common.ErrorMessages[tasks.error.code]) {
+                throw new Error(Common.ErrorMessages[tasks.error.code]);
             } else {
                 throw new Error(tasks.error.message);
             }
@@ -43,8 +124,8 @@ const getTask = async (id) => {
     try {
         const task = await TasksOperations.getTask(id);
         if (task.error) {
-            if (ErrorMessages[task.error.code]) {
-                throw new Error(ErrorMessages[task.error.code]);
+            if (Common.ErrorMessages[task.error.code]) {
+                throw new Error(Common.ErrorMessages[task.error.code]);
             } else {
                 throw new Error(task.error.message);
             }
@@ -64,8 +145,8 @@ const createTask = async (task) => {
     try {
         const newTask = await TasksOperations.createTask(task);
         if (newTask.error) {
-            if (ErrorMessages[newTask.error.code]) {
-                throw new Error(ErrorMessages[newTask.error.code]);
+            if (Common.ErrorMessages[newTask.error.code]) {
+                throw new Error(Common.ErrorMessages[newTask.error.code]);
             } else {
                 throw new Error(newTask.error.message);
             }
@@ -85,8 +166,8 @@ const updateTaskWithParams = async (id, task) => {
     try {
         const updatedTask = await TasksOperations.updateTask(id, task);
         if (updatedTask.error) {
-            if (ErrorMessages[updatedTask.error.code]) {
-                throw new Error(ErrorMessages[updatedTask.error.code]);
+            if (Common.ErrorMessages[updatedTask.error.code]) {
+                throw new Error(Common.ErrorMessages[updatedTask.error.code]);
             } else {
                 throw new Error(updatedTask.error.message);
             }
@@ -106,8 +187,8 @@ const createSubtask = async (subtask) => {
     try {
         const newSubtask = await TasksOperations.createSubtask(subtask);
         if (newSubtask.error) {
-            if (ErrorMessages[newSubtask.error.code]) {
-                throw new Error(ErrorMessages[newSubtask.error.code]);
+            if (Common.ErrorMessages[newSubtask.error.code]) {
+                throw new Error(Common.ErrorMessages[newSubtask.error.code]);
             } else {
                 throw new Error(newSubtask.error.message);
             }
@@ -127,8 +208,8 @@ const getSubtask = async (id, subId) => {
     try {
         const subtask = await TasksOperations.getSubtask(id, subId);
         if (subtask.error) {
-            if (ErrorMessages[subtask.error.code]) {
-                throw new Error(ErrorMessages[subtask.error.code]);
+            if (Common.ErrorMessages[subtask.error.code]) {
+                throw new Error(Common.ErrorMessages[subtask.error.code]);
             } else {
                 throw new Error(subtask.error.message);
             }
@@ -144,11 +225,4 @@ const getSubtask = async (id, subId) => {
     }
 }
 
-module.exports = {
-    getAllTasks,
-    getTask,
-    createTask,
-    updateTaskWithParams,
-    createSubtask,
-    getSubtask
-}
+module.exports = new Tasks();

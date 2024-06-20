@@ -1,9 +1,6 @@
-const logme = require('../helper/logme');
-const { getAllTasks, getTask, createTask, updateTaskWithParams, createSubtask, getSubtask } = require('../models/db/tasksModel');
+const Tasks = require('../models/db/tasksModel');
 const Common = require('../helper/common');
-
-// const CommentsController = require('./commentsController');
-// const subTasksModel = require('../models/db/subTasksModel');
+const logme = require('../helper/logme');
 
 class TasksController {
     constructor() {
@@ -11,19 +8,27 @@ class TasksController {
     }
     async getTasks(req, res) {
         try {
-            const tasks = await getAllTasks();
-            if (tasks.error) {
-                throw new Error(tasks.error);
+            /**
+             * Get all tasks from project_id
+             */
+            if (!req.query.project_id) {
+                throw new Error('No project id provided');
             }
-            res.status(200).json({
-                status: 'success',
-                tasks: tasks
+            Tasks.getAllTasks(req.query.project_id).then((tasks) => {
+                if (tasks.error) {
+                    throw new Error(tasks.error);
+                }
+                res.status(200).json({
+                    status: 'success',
+                    tasks: tasks
+                });
+            }).catch((error) => {
+                throw new Error(error.message);
             });
         } catch (error) {
             logme.error(error.message);
             res.status(400).json({
-                status: 'fail',
-                message: error
+                error: error.message
             });
         }
     }
@@ -31,13 +36,16 @@ class TasksController {
     async getTask(req, res) {
         try {
             if (!req.params.id) throw new Error('No task id provided');
-            const task = await getTask(req.params.id);
-            if (task.error) {
-                throw new Error(task.error);
-            }
-            res.status(200).json({
-                status: 'success',
-                task: task
+            Tasks.getTask(req.params.id).then((task) => {
+                if (task.error) {
+                    throw new Error(task.error);
+                }
+                res.status(200).json({
+                    status: 'success',
+                    task: task
+                });
+            }).catch((error) => {
+                throw new Error(error.message);
             });
         } catch (error) {
             logme.error(error.message);
@@ -50,42 +58,36 @@ class TasksController {
 
     async createTask(req, res) {
         try {
+            let errors = {};
             if (!req.body.userid) {
-                throw new Error('No user id provided');
+                errors.userid = 'user id is required';
             }
             if (!req.body.title) {
-                throw new Error('No title provided');
+                errors.title = 'title is required';
             }
             if (!req.body.description) {
-                throw new Error('No description provided');
+                errors.description = 'description is required';
             }
             if (!req.body.due_date) {
-                throw new Error('No due date provided');
+                errors.due_date = 'due date is required';
             }
+            if (Object.keys(errors).length > 0) {
+                throw new Error(JSON.stringify(errors));
+            }
+
             const currentDate = new Date();
-            // get unix timestamp
-            const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
-
-            let dueDate = new Date(req.body.due_date);
-            // get unix timestamp
-            dueDate = dueDate.toISOString().slice(0, 19).replace('T', ' ');
-
-
             let createdAt = req.body.created_at ? new Date(req.body.created_at) : currentDate;
-            createdAt = createdAt.toISOString().slice(0, 19).replace('T', ' ');
-
-            let updatedAt = formattedDate;
 
             const newTask = {
                 task_id: Common.generateUniqueId(),
-                user_id: req.body.userid,
+                owner: req.body.userid,
                 title: req.body.title,
                 description: req.body.description,
                 status: req.body.status || 'todo',
                 priority: req.body.priority || 'low',
-                due_date: dueDate || null,
+                due_date: Common.convertTimeToGMT(req.body.due_date),
                 created_at: createdAt,
-                updated_at: updatedAt,
+                updated_at: Common.convertTimeToGMT(currentDate),
                 tags: req.body.tags.trim() || null,
                 assign_to: req.body.assign_to || null,
                 assign_by: req.body.assign_by || null,

@@ -1,6 +1,6 @@
 const dbconnection = require('../../config/db');
 const logme = require('../../helper/logme');
-const mysql = require('mysql');
+// const mysql = require('mysql');
 
 class TasksOperations {
     constructor() {

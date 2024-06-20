@@ -52,6 +52,13 @@ class Common {
         'ER_DUP_FIELDNAME': 'Duplicate column name',
         'ER_SP_WRONG_NO_OF_ARGS': 'arguments mismatch!'
     }
+
+    convertTimeToGMT(time) {
+        const gmttime = new Date(time).toGMTString();
+
+        // return unix timestamp
+        return Math.floor(new Date(gmttime).getTime() / 1000);
+    }
 }
 
 module.exports = new Common();

@@ -14,19 +14,6 @@ class ProjectsModel {
             length: 255,
             primaryKey: true
         },
-        user_id: {
-            type: 'VARCHAR',
-            length: 255,
-            notNull: true
-        },
-        task_id: {
-            type: 'VARCHAR',
-            length: 255
-        },
-        comment_id: {
-            type: 'VARCHAR',
-            length: 255
-        },
         name: {
             type: 'VARCHAR',
             length: 255,
@@ -59,10 +46,6 @@ class ProjectsModel {
         },
         start_date: {
             type: 'DATE'
-        },
-        attachment_id: {
-            type: 'VARCHAR',
-            length: 255
         },
         owner: {
             type: 'VARCHAR',
