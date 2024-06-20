@@ -12,4 +12,12 @@ router.get('/:id?', authMiddleware, (req, res) => {
     return ProjectsController.getProjects(req, res);
 });
 
+router.post('/', authMiddleware, (req, res) => {
+    return ProjectsController.createProject(req, res);
+});
+
+router.put('/', authMiddleware, (req, res) => {
+    return ProjectsController.updateProject(req, res);
+});
+
 module.exports = router;

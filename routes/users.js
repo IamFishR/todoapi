@@ -7,7 +7,7 @@ const { authMiddleware } = require('../config/authMiddleware');
 router.post('/authenticate', userController.signIn);
 router.post('/verifySingnIn', authMiddleware, userController.verifySingnIn);
 router.post('/signup', userController.createUser);
-router.post('/copypaste', userController.copyPaste);
+router.post('/copypaste',authMiddleware, userController.copyPaste);
 
 // Route for getting all users
 router.get('/', authMiddleware, userController.getUsers);

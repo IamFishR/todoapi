@@ -19,6 +19,7 @@ app.use('/users', require('./routes/users'));
 // app.use('/admins', require('./routes/admin'));
 app.use('/askme', require('./routes/askme'));
 app.use('/tasks', require('./routes/task'));
+app.use('/projects', require('./routes/project'));
 app.use('/logs', require('./routes/log'));
 app.use('/finances', require('./routes/finance'));
 app.use('/ai', require('./routes/ai'));
