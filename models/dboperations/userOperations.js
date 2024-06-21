@@ -5,15 +5,20 @@ class User {
         this.pool = dbconnection;
     }
 
-    async getAllUsersProc() {
-        return new Promise((resolve, reject) => {
-            this.pool.query('CALL tsdev_getall_users()', (err, result, fields) => {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(result);
+    async getUserById(userid) {
+        try {
+            return new Promise((resolve, reject) => {
+                const sql = 'SELECT * FROM users WHERE user_id = ?';
+                this.pool.query(sql, [userid], (err, result) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve(result);
+                });
             });
-        });
+        } catch (error) {
+            return error;
+        }
     }
 
     async signInProc(data) {

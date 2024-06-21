@@ -1,5 +1,6 @@
 // const TasksOperations = require('../dboperations/tasksOperations');
 const dbconnection = require('../../config/db');
+const ProjectsModel = require('./projectsModel');
 const Common = require('../../helper/common');
 const logme = require('../../helper/logme');
 
@@ -102,36 +103,45 @@ class Tasks {
     async createTask(task) {
         try {
             return new Promise((resolve, reject) => {
-                const currentDate = new Date();
-                const createdAt = task?.created_at ? Common.convertTimeToGMT(task.created_at) : Common.convertTimeToGMT(currentDate);
-                const newTask = {
-                    task_id: Common.generateUniqueId(),
-                    project_id: task.project_id,
-                    title: task.title,
-                    description: task.description,
-                    status: task.status || 'todo',
-                    priority: task.priority || 'low',
-                    due_date: Common.convertTimeToGMT(task.due_date),
-                    owner: task.userid,
-                    created_at: createdAt,
-                    updated_at: Common.convertTimeToGMT(currentDate),
-                    tags: task.tags.trim() || null,
-                    assign_to: task.assign_to || null,
-                    assign_by: task.assign_by || null,
-                    assign_at: task.assign_at || null,
-                    completed_at: task.completed_at || null,
-                    deleted_at: task.deleted_at || null,
-                };
-                const sql = 'INSERT INTO tasks SET ?';
-                this.pool.query(sql, newTask, (err, result) => {
-                    if (err) {
-                        logme.error({
-                            message: 'createTask failed',
-                            data: { query: sql, error: err }
-                        });
-                        return reject(err);
+
+                // check if project exists
+                ProjectsModel.getProjects(task.project_id).then((result) => {
+                    if (result.length === 0) {
+                        return reject('Project not found');
                     }
-                    resolve(newTask);
+                    const currentDate = new Date();
+                    const createdAt = task?.created_at ? Common.convertTimeToGMT(task.created_at) : Common.convertTimeToGMT(currentDate);
+                    const newTask = {
+                        task_id: Common.generateUniqueId(),
+                        project_id: task.project_id,
+                        title: task.title,
+                        description: task.description,
+                        status: task.status || 'todo',
+                        priority: task.priority || 'low',
+                        due_date: Common.convertTimeToGMT(task.due_date),
+                        owner: task.userid,
+                        created_at: createdAt,
+                        updated_at: Common.convertTimeToGMT(currentDate),
+                        tags: task.tags.trim() || null,
+                        assign_to: task.assign_to || null,
+                        assign_by: task.assign_by || null,
+                        assign_at: task.assign_at || null,
+                        completed_at: task.completed_at || null,
+                        deleted_at: task.deleted_at || null,
+                    };
+                    const sql = 'INSERT INTO tasks SET ?';
+                    this.pool.query(sql, newTask, (err, result) => {
+                        if (err) {
+                            logme.error({
+                                message: 'createTask failed',
+                                data: { query: sql, error: err }
+                            });
+                            return reject(err);
+                        }
+                        resolve(newTask);
+                    });
+                }).catch((error) => {
+                    return reject(error);
                 });
             });
         } catch (error) {

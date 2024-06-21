@@ -1,7 +1,7 @@
 const Projects = require('../models/db/projectsModel');
-// const CommentsController = require('./commentsController');
+const User = require('../models/dbOperation');
 const logme = require('../helper/logme');
-const Common = require('../helper/common');
+// const Common = require('../helper/common');
 class ProjectsController {
     constructor() {
 
@@ -60,19 +60,30 @@ class ProjectsController {
             if (!project) {
                 return res.status(400).send('Project data is required');
             }
-            Projects.createProject(project).then((newProject) => {
-                if (newProject?.error) {
+            User.getUserById(project.user_id).then((user) => {
+                if(user.error) {
                     return res.status(400).send({
-                        error: newProject.error
+                        error: user.error
                     });
                 }
-                res.status(201).json({
-                    status: 'success',
-                    project: newProject,
+                Projects.createProject(project).then((newProject) => {
+                    if (newProject?.error) {
+                        return res.status(400).send({
+                            error: newProject.error
+                        });
+                    }
+                    res.status(201).json({
+                        status: 'success',
+                        project: newProject,
+                    });
+                }).catch((error) => {
+                    res.status(400).json({
+                        error: error
+                    });
                 });
             }).catch((error) => {
                 res.status(400).json({
-                    error: error
+                    error: error.message
                 });
             });
         } catch (error) {

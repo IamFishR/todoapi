@@ -36,31 +36,44 @@ class UserController {
     }
 
     // Get all users
-    async getUsers(req, res) {
-        try {
-            const users = await dbOperation.getAllUsers();
-            if (users.error) {
-                throw new Error(users.error);
-            }
-            res.status(200).json({
-                message: "Users retrieved successfully",
-                users: users
-            });
-        } catch (error) {
-            res.status(400).json({ error: error.message });
-        }
-    }
+    // async getUsers(req, res) {
+    //     try {
+    //         const users = await dbOperation.getAllUsers();
+    //         if (users.error) {
+    //             throw new Error(users.error);
+    //         }
+    //         res.status(200).json({
+    //             message: "Users retrieved successfully",
+    //             users: users
+    //         });
+    //     } catch (error) {
+    //         res.status(400).json({ error: error.message });
+    //     }
+    // }
 
     // Get a user by ID
     async getUserById(req, res) {
         try {
             const userid = req.params.id;
-            const user = await dbOperation.getUserById(userid);
-            if (!user) {
-                throw new Error("User not found");
+            if (!userid) {
+                throw new Error("User ID is required");
             }
-            res.status(200).json(user);
+            dbOperation.getUserById(userid).then((user) => {
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                res.status(200).json({
+                    status: 'success',
+                    user: user
+                });
+            }).catch((error) => {
+                res.status(400).json({ error: error.message });
+            });
         } catch (error) {
+            logme.error({
+                message: "getUserById failed",
+                data: error
+            });
             res.status(400).json({ error: error.message });
         }
     }
@@ -127,7 +140,7 @@ class UserController {
 
             // convert content to Text
             // data.content = Buffer.from(data.content, 'base64').toString('utf-8');
-            if(typeof data.content === 'object') {
+            if (typeof data.content === 'object') {
                 data.content = JSON.stringify(data.content);
             } else {
                 data.content = data.content.toString();

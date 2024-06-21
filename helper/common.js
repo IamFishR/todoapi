@@ -54,10 +54,10 @@ class Common {
     }
 
     convertTimeToGMT(time) {
+        time = time ? time : new Date().getTime();
         const gmttime = new Date(time).toGMTString();
 
-        // return unix timestamp
-        return Math.floor(new Date(gmttime).getTime() / 1000);
+        return gmttime;
     }
 }
 

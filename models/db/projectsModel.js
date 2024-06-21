@@ -1,7 +1,6 @@
 const dbconnection = require('../../config/db');
 const Common = require('../../helper/common');
 
-
 class ProjectsModel {
     constructor() {
         this.pool = dbconnection;
@@ -68,7 +67,7 @@ class ProjectsModel {
                 // let sql = `SELECT ${id != null ? id : '*'} FROM ${this.tableName}`;
                 let sql = `SELECT * FROM ${this.tableName}`;
 
-                if(id) {
+                if (id) {
                     sql = `SELECT * FROM ${this.tableName} WHERE project_id = '${id}'`;
                 }
                 this.pool.query(sql, (err, result) => {
@@ -90,6 +89,8 @@ class ProjectsModel {
     async createProject(data) {
         try {
             return new Promise((resolve, reject) => {
+                // check if the user exists
+
                 let errors = {};
                 if (!data.name) {
                     errors.name = 'Name is required';
@@ -112,9 +113,6 @@ class ProjectsModel {
 
                 let _p = {
                     project_id: Common.generateUniqueId(),
-                    // owner: data.user_id,
-                    // task_id: data.task_id ? data.task_id : null,
-                    // comment_id: data.comment_id ? data.comment_id : null,
                     name: data.name,
                     description: data.description ? data.description : '',
                     status: data.status,
@@ -122,11 +120,10 @@ class ProjectsModel {
                     color: Common.getRandomColor(),
                     priority: data.priority,
                     due_date: data.due_date ? data.due_date : null,
-                    start_date: data.start_date ? data.start_date : null,
-                    // attachment_id: null,
+                    start_date: Common.convertTimeToGMT(data.start_date ? data.start_date : null),
                     owner: data.user_id,
-                    created_at: Common.getUnixTimeStamp(),
-                    updated_at: Common.getUnixTimeStamp(),
+                    created_at: Common.convertTimeToGMT(data.created_at ? data.created_at : null),
+                    updated_at: Common.convertTimeToGMT(data.updated_at ? data.updated_at : null),
                     deleted_at: null
                 };
 
@@ -167,9 +164,9 @@ class ProjectsModel {
                         error: errors
                     });
                 }
-    
+
                 let _p = {};
-    
+
                 if (data.name) {
                     _p.name = data.name;
                 }
@@ -194,7 +191,7 @@ class ProjectsModel {
                 if (data.updated_at) {
                     _p.updated_at = data.updated_at;
                 }
-    
+
                 let sql = `UPDATE ${this.tableName} SET ? WHERE project_id = ?`;
                 this.pool.query(sql, [_p, id], (err, result) => {
                     if (err) {
@@ -224,12 +221,12 @@ class ProjectsModel {
                         error: errors
                     });
                 }
-    
+
                 // only change the deleted_at and status to deleted
                 let _p = {};
                 _p.deleted_at = Common.getUnixTimeStamp();
                 _p.status = 'deleted';
-    
+
                 let sql = `UPDATE ${this.tableName} SET ? WHERE project_id = ?`;
                 this.pool.query(sql, [_p, id], (err, result) => {
                     if (err) {

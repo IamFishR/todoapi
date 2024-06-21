@@ -3,23 +3,45 @@ const bcrypt = require('bcryptjs');
 const User = require('./dboperations/userOperations');
 
 class DbOperation {
-    async getAllUsers() {
+    // async getAllUsers() {
+    //     try {
+    //         const users = await User.getAllUsersProc();
+    //         if (!users[0].length) {
+    //             throw new Error("No users found");
+    //         }
+    //         if (users.error) {
+    //             throw new Error(users.error);
+    //         }
+    //         const finalResult = users[0].map(async (user) => {
+    //             return await this.removeSecrets(user);
+    //         });
+    //         return await Promise.all(finalResult);
+    //     } catch (error) {
+    //         return {
+    //             error: error
+    //         }
+    //     }
+    // }
+
+    async getUserById(userid) {
         try {
-            const users = await User.getAllUsersProc();
-            if (!users[0].length) {
-                throw new Error("No users found");
-            }
-            if (users.error) {
-                throw new Error(users.error);
-            }
-            const finalResult = users[0].map(async (user) => {
-                return await this.removeSecrets(user);
+            return new Promise((resolve, reject) => {
+                User.getUserById(userid).then((user) => {
+                    if (user.error) {
+                        throw new Error(user.error);
+                    }
+                    if (user.length < 1) {
+                        throw new Error("User not found");
+                    }
+                    this.removeSecrets(user[0]).then((result) => {
+                        resolve(result);
+                    });
+                }).catch((error) => {
+                    reject(error);
+                });
             });
-            return await Promise.all(finalResult);
         } catch (error) {
-            return {
-                error: error
-            }
+            return error;
         }
     }
 
@@ -40,9 +62,7 @@ class DbOperation {
                 throw new Error("Incorrect credentials");
             }
         } catch (error) {
-            return {
-                error: error
-            }
+            return error;
         }
     }
 
