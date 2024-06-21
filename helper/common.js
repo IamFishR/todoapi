@@ -57,7 +57,16 @@ class Common {
         time = time ? time : new Date().getTime();
         const gmttime = new Date(time).toGMTString();
 
-        return gmttime;
+        // gmttime format to 2024-06-21 13:54:43
+        let date = new Date(gmttime);
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const year = date.getFullYear();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
 }
 

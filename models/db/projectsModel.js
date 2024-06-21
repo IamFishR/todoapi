@@ -110,7 +110,7 @@ class ProjectsModel {
                         error: errors
                     });
                 }
-
+                const createdAt = data?.created_at ? Common.convertTimeToGMT(data.created_at) : Common.convertTimeToGMT();
                 let _p = {
                     project_id: Common.generateUniqueId(),
                     name: data.name,
@@ -119,14 +119,13 @@ class ProjectsModel {
                     tags: data.tags ? data.tags : null,
                     color: Common.getRandomColor(),
                     priority: data.priority,
-                    due_date: data.due_date ? data.due_date : null,
-                    start_date: Common.convertTimeToGMT(data.start_date ? data.start_date : null),
+                    due_date: data?.due_date ? Common.convertTimeToGMT(data.due_date) : null,
+                    start_date: Common.convertTimeToGMT(data.start_date),
                     owner: data.user_id,
-                    created_at: Common.convertTimeToGMT(data.created_at ? data.created_at : null),
-                    updated_at: Common.convertTimeToGMT(data.updated_at ? data.updated_at : null),
-                    deleted_at: null
+                    created_at: createdAt,
+                    updated_at: Common.convertTimeToGMT(),
+                    deleted_at: data?.deleted_at ? Common.convertTimeToGMT(data.deleted_at) : null
                 };
-
 
                 let sql = `INSERT INTO ${this.tableName} SET ?`;
                 this.pool.query(sql, _p, (err, result) => {

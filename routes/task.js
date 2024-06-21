@@ -26,23 +26,9 @@ router.patch('/', authMiddleware, TasksController.updateTask);
 router.delete('/', authMiddleware, TasksController.deleteTask);
 
 // subtasks
-// router.get('/:id/subtasks/:subId?', authMiddleware, (req, res) => {
-//     if (req.params.subId) {
-//         return TasksController.getSubtask(req, res);
-//     }
-//     return TasksController.getSubtasks(req, res);
-// });
-// router.post('/:id/subtasks', authMiddleware, TasksController.createSubtask);
-
-// projects
-// router.get('/projects/:id?', authMiddleware, (req, res) => {
-//     if (req.params.id) {
-//         return ProjectsController.getProject(req, res);
-//     }
-//     return ProjectsController.getProjects(req, res);
-// });
-// router.post('/projects', authMiddleware, ProjectsController.createProject);
-// router.patch('/projects/:id', authMiddleware, ProjectsController.updateProject);
-// router.delete('/projects/:id', authMiddleware, ProjectsController.deleteProject);
+router.post('/subtasks', authMiddleware, TasksController.createSubtask);
+router.patch('/subtasks', authMiddleware, TasksController.updateSubtask);
+router.delete('/subtasks', authMiddleware, TasksController.deleteSubtask);
+router.get('/subtasks/:taskId?', authMiddleware, TasksController.getSubtasks);
 
 module.exports = router;

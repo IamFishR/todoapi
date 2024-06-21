@@ -24,7 +24,9 @@ class TasksController {
                     tasks: tasks
                 });
             }).catch((error) => {
-                throw new Error(error.message);
+                res.status(400).json({
+                    error: error.message
+                });
             });
         } catch (error) {
             logme.error(error.message);
@@ -46,7 +48,9 @@ class TasksController {
                     task: task
                 });
             }).catch((error) => {
-                throw new Error(error.message);
+                res.status(400).json({
+                    error: error.message
+                });
             });
         } catch (error) {
             logme.error(error.message);
@@ -87,7 +91,9 @@ class TasksController {
                     task: task
                 });
             }).catch((error) => {
-                throw new Error(error.message);
+                res.status(400).json({
+                    error: error.message
+                });
             });
         } catch (error) {
             res.status(400).json({
@@ -117,7 +123,9 @@ class TasksController {
                     task: updatedTask
                 });
             }).catch((error) => {
-                throw new Error(error.message);
+                res.status(400).json({
+                    error: error.message
+                });
             });
 
         } catch (error) {
@@ -144,7 +152,9 @@ class TasksController {
                     task: id
                 });
             }).catch((error) => {
-                throw new Error(error.message);
+                res.status(400).json({
+                    error: error.message
+                });
             });
 
         } catch (error) {
@@ -171,7 +181,9 @@ class TasksController {
                     tasks: tasks
                 });
             }).catch((error) => {
-                throw new Error(error.message);
+                res.status(400).json({
+                    error: error.message
+                });
             });
         } catch (error) {
             logme.error({ message: 'getTasksByUser failed', data: error });
@@ -182,263 +194,136 @@ class TasksController {
         }
     }
 
-    // async createSubtask(req, res) {
-    //     try {
-    //         if (!req.body.task_id) {
-    //             throw new Error('No task id provided');
-    //         }
-    //         if (!req.body.title) {
-    //             throw new Error('No title provided');
-    //         }
-    //         if (!req.body.description) {
-    //             throw new Error('No description provided');
-    //         }
-    //         if (!req.body.due_date) {
-    //             throw new Error('No due date provided');
-    //         }
-    //         const currentDate = new Date();
-    //         // get unix timestamp
-    //         const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+    async createSubtask(req, res) {
+        try {
+            let errors = {};
+            const data = req.body;
+            if (!data.task_id) {
+                errors.task_id = 'task id is required';
+            }
+            if (!data.title) {
+                errors.title = 'title is required';
+            }
+            if (!data.description) {
+                errors.description = 'description is required';
+            }
+            if (!data.due_date) {
+                errors.due_date = 'due date is required';
+            }
 
-    //         let dueDate = new Date(req.body.due_date);
-    //         // get unix timestamp
-    //         dueDate = dueDate.toISOString().slice(0, 19).replace('T', ' ');
+            if (Object.keys(errors).length > 0) {
+                throw new Error(JSON.stringify(errors));
+            }
 
-    //         let createdAt = req.body.created_at ? new Date(req.body.created_at) : currentDate;
-    //         createdAt = createdAt.toISOString().slice(0, 19).replace('T', ' ');
+            Tasks.createSubtask(data).then((subtask) => {
+                if (subtask.error) {
+                    throw new Error(subtask.error);
+                }
+                res.status(200).json({
+                    status: 'success',
+                    subtask: subtask
+                });
+            }).catch((error) => {
+                res.status(400).json({
+                    error: error.message
+                });
+            });
+        } catch (error) {
+            res.status(400).json({
+                error: error.message,
+                message: 'failed to create subtask'
+            });
+        }
+    }
 
-    //         let updatedAt = formattedDate;
+    async getSubtask(req, res) {
+        try {
+            const taskId = req.params.id;
+            const subId = req.params.subId;
+            if (!taskId) {
+                throw new Error('No task id provided');
+            }
+            Tasks.getSubtask(taskId, subId).then((subtask) => {
+                if (subtask.error) {
+                    throw new Error(subtask.error);
+                }
+                res.status(200).json({
+                    status: 'success',
+                    subtask: subtask
+                });
+            }).catch((error) => {
+                res.status(400).json({
+                    error: error.message
+                });
+            });
+        } catch (error) {
+            res.status(400).json({
+                error: error.message,
+                message: 'failed to get subtask'
+            });
+        }
+    }
 
-    //         const newSubTask = {
-    //             subtask_id: Common.generateUniqueId(),
-    //             task_id: req.body.task_id,
-    //             user_id: req.body.userid,
-    //             title: req.body.title,
-    //             description: req.body.description,
-    //             status: req.body.status || 'todo',
-    //             priority: req.body.priority || 'low',
-    //             due_date: dueDate || null,
-    //             created_at: createdAt,
-    //             updated_at: updatedAt,
-    //             tags: req.body.tags.trim() || null,
-    //             assign_to: req.body.assign_to || null,
-    //             assign_by: req.body.assign_by || null,
-    //             assign_at: req.body.assign_at || null,
-    //             completed_at: req.body.completed_at || null,
-    //             deleted_at: req.body.deleted_at || null,
-    //             attachment_id: req.body.attachment_id || null,
-    //             comment_id: req.body.comment_id || null,
-    //         };
-    //         const subtask = await createSubtask(newSubTask);
-    //         if (subtask.error) {
-    //             throw new Error(subtask.error);
-    //         }
-    //         res.status(201).json({
-    //             status: 'success',
-    //             subtask: subtask
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error.message
-    //         });
-    //     }
-    // }
+    async getSubtasks(req, res) {
+        try {
+            const taskId = req.params.id;
+            if (!taskId) {
+                throw new Error('No task id provided');
+            }
+            Tasks.getSubtasks(taskId).then((subtasks) => {
+                if (subtasks.error) {
+                    throw new Error(subtasks.error);
+                }
+                res.status(200).json({
+                    status: 'success',
+                    subtasks: subtasks
+                });
+            }).catch((error) => {
+                res.status(400).json({
+                    error: error.message
+                });
+            });
+        } catch (error) {
+            res.status(400).json({
+                error: error.message,
+                message: 'failed to get subtasks'
+            });
+        }
+    }
 
-    // async getSubtask(req, res) {
-    //     try {
-    //         if (!req.params.subId) {
-    //             throw new Error('No subtask id provided');
-    //         }
-    //         if (!req.params.id) {
-    //             throw new Error('No task id provided');
-    //         }
-    //         const subtask = await getSubtask(req.params.id, req.params.subId);
-    //         if (subtask.error) {
-    //             throw new Error(subtask.error);
-    //         }
-    //         res.status(200).json({
-    //             status: 'success',
-    //             subtask: subtask
-    //         });
-    //     } catch (error) {
-    //         logme.error(error.message);
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error.message
-    //         });
-    //     }
-    // }
+    async updateSubtask(req, res) {
+        try {
+            let subtask = req.body;
+            let errors = {};
+            if (!subtask.subtask_id) {
+                errors.subtask_id = 'subtask id is required';
+            }
+            if (Object.keys(errors).length > 0) {
+                throw new Error(JSON.stringify(errors));
+            }
 
-    // async getSubtasks(req, res) {
-    //     try {
-    //         if (!req.params.id) {
-    //             throw new Error('No task id provided');
-    //         }
-    //         const subtasks = await getSubtask(req.params.id);
-    //         if (subtasks.error) {
-    //             throw new Error(subtasks.error);
-    //         }
-    //         res.status(200).json({
-    //             status: 'success',
-    //             subtasks: subtasks
-    //         });
-    //     } catch (error) {
-    //         logme.error(error.message);
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error.message
-    //         });
-    //     }
-    // }
+            Tasks.updateSubtask(subtask).then((updatedSubtask) => {
+                if (updatedSubtask.error) {
+                    throw new Error(updatedSubtask.error);
+                }
+                res.status(200).json({
+                    status: 'success',
+                    subtask: updatedSubtask
+                });
+            }).catch((error) => {
+                res.status(400).json({
+                    error: error.message
+                });
+            });
 
-    // async updateSubtask(req, res) {
-    //     try {
-    //         if (!req.body.id) {
-    //             throw new Error('No subtask id provided');
-    //         }
-    //         const subtask = await getTask(req.body.id);
-    //         if (subtask.error) {
-    //             throw new Error(subtask.error);
-    //         }
-    //         const currentDate = new Date();
-    //         // get unix timestamp
-    //         const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
-
-    //         if (req.body.due_date) {
-    //             let dueDate = req.body.due_date ? new Date(req.body.due_date) : new Date(subtask.due_date);
-    //             // get unix timestamp
-    //             dueDate = dueDate.toISOString().slice(0, 19).replace('T', ' ');
-    //         }
-    //         if (req.body.completed_at) {
-    //             let createdAt = req.body.created_at ? new Date(req.body.created_at) : new Date(subtask.created_at);
-    //             createdAt = createdAt.toISOString().slice(0, 19).replace('T', ' ');
-    //         }
-    //         let updatedAt = formattedDate;
-
-    //         const updatedSubTask = {
-    //             updated_at: updatedAt,
-    //         };
-    //         if (req.body.title) updatedSubTask.title = req.body.title;
-    //         if (req.body.description) updatedSubTask.description = req.body.description;
-    //         if (req.body.status) updatedSubTask.status = req.body.status;
-    //         if (req.body.priority) updatedSubTask.priority = req.body.priority;
-    //         if (req.body.due_date) updatedSubTask.due_date = dueDate;
-    //         if (req.body.tags) updatedSubTask.tags = req.body.tags;
-    //         if (req.body.assign_to) updatedSubTask.assign_to = req.body.assign_to;
-    //         if (req.body.assign_by) updatedSubTask.assign_by = req.body.assign_by;
-    //         if (req.body.assign_at) updatedSubTask.assign_at = req.body.assign_at;
-    //         if (req.body.completed_at) updatedSubTask.completed_at = req.body.completed_at;
-    //         if (req.body.attachment_id) updatedSubTask.attachment_id = req.body.attachment_id;
-    //         if (req.body.comment_id) updatedSubTask.comment_id = req.body.comment_id;
-
-    //         const updated = await updateTaskWithParams(req.body.id, updatedSubTask);
-    //         if (updated.error) {
-    //             throw new Error(updated.error);
-    //         }
-    //         res.status(200).json({
-    //             status: 'success',
-    //             subtask: updated
-    //         });
-
-    //     } catch (error) {
-    //         logme.error(error.message);
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error.message
-    //         });
-    //     }
-    // }
-
-    // async getSubtasks(req, res) {
-    //     try {
-    //         const subTasks = await subTasksModel.find();
-    //         res.status(200).json({
-    //             status: 'success',
-    //             data: {
-    //                 subTasks
-    //             }
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
-
-    // async getSubtask(req, res) {
-    //     try {
-    //         const subtask = await subTasksModel.findById(req.params.subId);
-    //         const comments = await CommentsController.getComments(req, res);
-    //         res.status(200).json({
-    //             status: 'success',
-    //             data: {
-    //                 subtask,
-    //                 comments
-    //             }
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
-
-    // async createSubtask(req, res) {
-    //     try {
-    //         const subtask = await subTasksModel.create(req.body);
-    //         res.status(201).json({
-    //             status: 'success',
-    //             data: {
-    //                 subtask
-    //             }
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
-
-    // async updateSubtask(req, res) {
-    //     try {
-    //         const subtask = await subTasksModel.findByIdAndUpdate(req.params.subId, req.body, {
-    //             new: true,
-    //             runValidators: true
-    //         });
-
-    //         res.status(200).json({
-    //             status: 'success',
-    //             data: {
-    //                 subtask
-    //             }
-    //         });
-
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
-
-    // async deleteSubtask(req, res) {
-    //     try {
-    //         await subTasksModel.findByIdAndDelete(req.params.subId);
-    //         res.status(204).json({
-    //             status: 'success',
-    //             data: null
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({
-    //             status: 'fail',
-    //             message: error
-    //         });
-    //     }
-    // }
+        } catch (error) {
+            logme.error({ message: 'subtask update failed', data: error });
+            res.status(400).json({
+                status: 'fail',
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = new TasksController();
