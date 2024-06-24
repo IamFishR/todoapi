@@ -1,22 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const TasksController = require('../controllers/tasksController');
-// const ProjectsController = require('../controllers/projectsController');
 const { authMiddleware } = require('../config/authMiddleware');
-
-// tasks
-// url: /tasks/:id
-// router.get('/:id', authMiddleware, (req, res) => {
-//     return TasksController.getTask(req, res);
-//     // if (req.params.id) {
-//     // }
-//     // return TasksController.getTasks(req, res);
-// });
 
 // url: /tasks/:id
 router.get('/:id?', authMiddleware, TasksController.getTask);
-
-// url: /tasks/project/:projectId
+// url: /tasks/project/:projectId - get all tasks for a project
 router.get('/project/:projectId?', authMiddleware, TasksController.getTasks);
 
 // url: /tasks/user/:userId

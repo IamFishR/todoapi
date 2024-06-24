@@ -1,5 +1,4 @@
 const Tasks = require('../models/db/tasksModel');
-const Common = require('../helper/common');
 const logme = require('../helper/logme');
 
 class TasksController {
@@ -318,6 +317,43 @@ class TasksController {
 
         } catch (error) {
             logme.error({ message: 'subtask update failed', data: error });
+            res.status(400).json({
+                status: 'fail',
+                message: error.message
+            });
+        }
+    }
+
+    async deleteSubtask(req, res) {
+        try {
+            const id = req.body.subtask_id;
+            if (!id) {
+                throw new Error('No subtask id provided');
+            }
+            Tasks.getSubtask(id).then((subtask) => {
+                if (subtask.error) {
+                    throw new Error(subtask.error);
+                }
+                Tasks.deleteSubtask(id).then((deletedSubtask) => {
+                    if (deletedSubtask.error) {
+                        throw new Error(deletedSubtask.error);
+                    }
+                    res.status(200).json({
+                        status: 'success',
+                        subtask: id
+                    });
+                }).catch((error) => {
+                    res.status(400).json({
+                        error: error.message
+                    });
+                });
+            }).catch((error) => {
+                res.status(400).json({
+                    error: error.message
+                });
+            });
+        } catch (error) {
+            logme.error({ message: 'subtask delete failed', data: error });
             res.status(400).json({
                 status: 'fail',
                 message: error.message

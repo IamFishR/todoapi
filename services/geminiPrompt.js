@@ -45,7 +45,6 @@ class Prompts {
       - any other important information mentioned in the message? the information?
       - response should be in json format. start the json with -- { -- and end the json with -- } --
       - use columns like type, amount, name, date, reference, information, account number, etc.
-
     `
   }
 }

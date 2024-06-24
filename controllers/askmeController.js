@@ -2,7 +2,6 @@ const AskMeService = require('../services/askMeService');
 const Prompts = require('../services/geminiPrompt');
 const logme = require('../helper/logme');
 const GenerativeOperation = require('../models/dboperations/generativeOperation');
-const Common = require('../helper/common');
 
 class AskMeController {
     constructor() {

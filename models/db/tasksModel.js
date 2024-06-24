@@ -113,17 +113,26 @@ class Tasks {
     async getAllTasks(id) {
         try {
             return new Promise((resolve, reject) => {
-                const sql = `SELECT * FROM tasks WHERE project_id = ?`;
-                this.pool.query(sql, [id], (err, result) => {
-                    if (err) {
-                        logme.error({
-                            message: 'getAllTasks failed',
-                            data: { query: sql, error: err }
-                        });
-                        return reject(err);
+                // check for the project exists
+                ProjectsModel.getProjects(id).then((result) => {
+                    if (result.length === 0) {
+                        throw new Error('Project not found');
                     }
-                    resolve(result);
+                    const sql = `SELECT * FROM tasks WHERE project_id = ?`;
+                    this.pool.query(sql, [id], (err, result) => {
+                        if (err) {
+                            logme.error({
+                                message: 'getAllTasks failed',
+                                data: { query: sql, error: err }
+                            });
+                            return reject(err);
+                        }
+                        resolve(result);
+                    });
+                }).catch((error) => {
+                    return reject(error);
                 });
+
             });
         } catch (error) {
             return error;

@@ -157,7 +157,7 @@ class UserController {
 
             const user = await dbOperation.copyPaste({
                 copy_paste_id: data.copy_paste_id,
-                user_id: data.user_id,
+                owner: data.user_id,
                 content: data.content,
                 created_at: data.created_at
             });
