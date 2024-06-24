@@ -1,4 +1,4 @@
-
+const DbOperation = require('../dbOperation');
 
 
 class AiModel {
@@ -30,15 +30,16 @@ class AiModel {
     //     return this.model.train(data);
     // }
 
-    async chat(query) {
+    async chat(data) {
+        const _this = this;
         try {
             return new Promise(async (resolve, reject) => {
                 const model = this.models.phi3;
                 const url = `${model.base_url}/${model.endpoints.generate_completion.url}`;
                 const body = {
                     "model": model.model,
-                    "prompt": query,
-                    "format": "json",
+                    "prompt": data.query,
+                    // "format": "json",
                     "stream": true,
                     "options": {
                         "temperature": 0.5,
@@ -59,34 +60,74 @@ class AiModel {
 
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
                     body: JSON.stringify(body),
                 });
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                let result = '';
+                let themedResponse = {};
+                let text = '';
 
                 while (true) {
                     const { done, value } = await reader.read();
+                    const _d = decoder.decode(value, { stream: true }).slice(0, -1); // remove trailing newline
+
                     if (done) {
                         break;
                     }
-                    result += decoder.decode(value, { stream: true });
+                    let _p = JSON.parse(_d);
+                    if (_p?.done) {
+                        themedResponse = _p;
+                    }
+                    text += _p?.response || '';
                 }
 
-                const parsedResponse = JSON.parse(result);
-                tokensUsed = parsedResponse.eval_count;
-                timeTaken = parsedResponse.eval_duration;
+                tokensUsed = themedResponse.eval_count;
+                timeTaken = themedResponse.eval_duration;
+                if (timeTaken != 0 || tokensUsed != 0) {
+                    themedResponse.token_per_second = (tokensUsed / timeTaken * 10 ** 9).toFixed(2);
+                }
 
-                const responseObj = {
-                    ...parsedResponse,
-                    token_per_second: tokensUsed / timeTaken * 10 ** 9,
-                };
+                // remove context from response
+                delete themedResponse.context;
 
-                resolve(responseObj);
+                themedResponse["user_id"] = data.owner;
+                themedResponse["chat_id"] = data.chat_id;
+                themedResponse["question"] = data.query;
+                themedResponse["answer"] = text;
+                resolve(themedResponse);
+            }).then((result) => {
+                return new Promise(async (resolve, reject) => {
+                    _this.saveChat(result).then((response) => {
+                        if (response.error) {
+                            reject(response.error);
+                        }
+                        resolve(result);
+                    }).catch((error) => {
+                        reject(error);
+                    });
+                });
+            }).catch((error) => {
+                return {
+                    error: error.message
+                }
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async saveChat(data) {
+        try {
+            return new Promise(async (resolve, reject) => {
+                DbOperation.aichat(data).then((result) => {
+                    if (result.error) {
+                        reject(result);
+                    }
+                    resolve(result);
+                }).catch((error) => {
+                    reject(error);
+                });
             });
         } catch (error) {
             return error;

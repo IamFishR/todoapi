@@ -1,28 +1,12 @@
 
 const bcrypt = require('bcryptjs');
 const User = require('./dboperations/userOperations');
+const dbconnection = require('../config/db');
 
 class DbOperation {
-    // async getAllUsers() {
-    //     try {
-    //         const users = await User.getAllUsersProc();
-    //         if (!users[0].length) {
-    //             throw new Error("No users found");
-    //         }
-    //         if (users.error) {
-    //             throw new Error(users.error);
-    //         }
-    //         const finalResult = users[0].map(async (user) => {
-    //             return await this.removeSecrets(user);
-    //         });
-    //         return await Promise.all(finalResult);
-    //     } catch (error) {
-    //         return {
-    //             error: error
-    //         }
-    //     }
-    // }
-
+    constructor() {
+        this.pool = dbconnection;
+    }
     async getUserById(userid) {
         try {
             return new Promise((resolve, reject) => {
@@ -119,6 +103,41 @@ class DbOperation {
             return {
                 error: error
             }
+        }
+    }
+
+    async aichat(data) {
+        try {
+            /**
+             * chat_id
+             * owner
+             * conversation : [[question, answer]]
+             * created_at
+             * updated_at
+             */
+            const values = {
+                chat_id: data.chat_id,
+                owner: data.user_id,
+                conversation: JSON.stringify(data),
+                created_at: new Date(),
+                updated_at: new Date()
+            };
+            let sql = `INSERT INTO ai_chat SET ?`;
+            return new Promise((resolve, reject) => {
+                this.pool.query(sql, values, (err, result) => {
+                    if (err) {
+                        reject({
+                            error: err.message
+                        });
+                    }
+                    resolve({
+                        message: "Chat saved successfully"
+                    });
+                });
+            });
+
+        } catch (error) {
+            return error;
         }
     }
 }

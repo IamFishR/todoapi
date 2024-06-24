@@ -35,13 +35,22 @@ class AiController {
 
     async chat(req, res) {
         try {
-            const query = req.body.query;
-            if (!query) {
+            const data = req.body;
+            if (!data.query) {
                 throw new Error("Query is required");
             }
-
-            AiModel.chat(query).then((response) => {
-                res.status(200).send(response);
+            if (!data.user_id) {
+                throw new Error("User id is required");
+            }
+            if (!data.chat_id) {
+                throw new Error("Chat id is required");
+            }
+            AiModel.chat({
+                query: data.query,
+                owner: data.user_id,
+                chat_id: data.chat_id,
+            }).then((aiResponse) => {
+                res.status(200).send(aiResponse);
             }).catch((error) => {
                 res.status(400).json({
                     message: error.message,
