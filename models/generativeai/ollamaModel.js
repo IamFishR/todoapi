@@ -6,7 +6,6 @@ class AiModel {
         this.modelType = {
             "chat": {
                 "model": "phi3",
-
             }
         }
         // params:
@@ -86,6 +85,9 @@ class AiModel {
                 timeTaken = themedResponse.eval_duration;
                 if (timeTaken != 0 || tokensUsed != 0) {
                     themedResponse.token_per_second = (tokensUsed / timeTaken * 10 ** 9).toFixed(2);
+                    // convert time taken to seconds
+                    themedResponse.eval_duration = (timeTaken / 10 ** 9).toFixed(2);
+                    themedResponse.prompt_eval_duration = (themedResponse.prompt_eval_duration / 10 ** 9).toFixed(2);
                 }
 
                 // remove context from response
