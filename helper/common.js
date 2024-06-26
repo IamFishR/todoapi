@@ -55,10 +55,10 @@ class Common {
 
     convertTimeToGMT(time) {
         time = time ? time : new Date().getTime();
-        const gmttime = new Date(time).toGMTString();
+        // const gmttime = new Date(time).toGMTString();
 
         // gmttime format to 2024-06-21 13:54:43
-        let date = new Date(gmttime);
+        let date = new Date(time);
         const month = date.getMonth() + 1;
         const day = date.getDate();
         const year = date.getFullYear();
