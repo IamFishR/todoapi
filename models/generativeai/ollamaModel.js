@@ -33,16 +33,17 @@ class AiModel {
         const _this = this;
         try {
             return new Promise(async (resolve, reject) => {
-                const model = this.models.phi3;
+                const model = this.models['gemma:2b'];
                 const url = `${model.base_url}/${model.endpoints.generate_completion.url}`;
                 const body = {
                     "model": model.model,
-                    "prompt": data.query,
+                    // "prompt": data.query,
+                    "prompt": `technical chat: ${data.query}`,
                     // "format": "json",
                     "stream": true,
                     "options": {
-                        "temperature": 0.5,
-                        "max_tokens": 100,
+                        "temperature": 1,
+                        "max_tokens": 1000,
                         "top_p": 1,
                         "frequency_penalty": 0,
                         "presence_penalty": 0,
@@ -140,6 +141,33 @@ class AiModel {
         "phi3": {
             "base_url": "http://localhost:11434",
             "model": "phi3",
+            "endpoints": {
+                "generate_completion": {
+                    "url": "api/generate",
+                    "response": {
+                        "model": "phi3",
+                        "created_at": "2023-08-04T08:52:19.385406455-07:00",
+                        "response": "The",
+                        "done": false,
+                        "total_duration": "time spent generating the response",
+                        "load_duration": "time spent in nanoseconds loading the model",
+                        "prompt_eval_count": "number of tokens in the prompt",
+                        "prompt_eval_duration": "time spent in nanoseconds evaluating the prompt",
+                        "eval_count": "number of tokens in the response",
+                        "eval_duration": "time in nanoseconds spent generating the response",
+                        "context": "an encoding of the conversation used in this response, this can be sent in the next request to keep a conversational memory",
+                        "response": "empty if the response was streamed, if not streamed, this will contain the full response",
+                    },
+                    "token_per_second": {
+                        "info": "To calculate how fast the response is generated in tokens per second (token/s), divide eval_count / eval_duration * 10^9.",
+                        "formula": "eval_count / eval_duration * 10^9",
+                    },
+                },
+            }
+        },
+        'gemma:2b': {
+            "base_url": "http://localhost:11434",
+            "model": "gemma:2b",
             "endpoints": {
                 "generate_completion": {
                     "url": "api/generate",
