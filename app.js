@@ -23,6 +23,7 @@ app.use('/projects', require('./routes/project'));
 app.use('/logs', require('./routes/log'));
 app.use('/finances', require('./routes/finance'));
 app.use('/ai', require('./routes/ai'));
+app.use('/reports', require('./routes/report'));
 
 // invalid route
 app.get('*', (req, res) => {
