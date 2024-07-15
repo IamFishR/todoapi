@@ -2,6 +2,17 @@ const dbconnection = require('../config/db');
 class Fees {
     constructor() {
         this.pool = dbconnection;
+
+        this.market_timings = {
+            equity: {
+                open: '09:15',
+                close: '15:30'
+            },
+            fno: {
+                open: '09:15',
+                close: '15:30'
+            }
+        }
     }
 
     async fnoFees(data) { }
@@ -387,13 +398,83 @@ class Fees {
         },
     }
 
-    async calculate_fno_fees(data) {}
+    async calculate_fno_fees(txnData) { }
 
-    fno_nifty_fees(amount) {
+    async fno_nifty_fees(txnData) {
+        const _this = this;
         try {
+            if (txnData.txn_type === 'buy') {
+                let total_fees = 0;
+                let total_tax = 0;
+                let total_net_amount = 0;
+                let total_amount = 0;
 
+                let order_amount = txnData.stock_qty * txnData.stock_price;
+
+                // brokerage
+                let brokerage = 0;
+
+                // calculate brokerage
+                const fees = _this.fees.groww.brokerage.futures_options;
+                brokerage = _this.fee_type(fees, order_amount);
+
+                // stt no charge for buy
+                let stt = 0;
+
+                // stamp duty
+                let stamp_duty = 0;
+                const stamp_duty_fees = _this.fees.groww.regulatory_statutory_charges.stamp_duty.futures;
+                stamp_duty = _this.fee_type(stamp_duty_fees, order_amount);
+
+                // exchange transaction charge
+                let exchange_transaction_charge = 0;
+                if(txnData.exchange_name === 'nse') {
+                    const exchange_transaction_charge_fees = _this.fees.groww.regulatory_statutory_charges.exchange_transaction_charge.futures.nse.buy;
+                    exchange_transaction_charge = _this.fee_type(exchange_transaction_charge_fees, order_amount);
+                }
+
+                // sebi turnover charge
+                let sebi_turnover_charge = 0;
+                const sebi_turnover_charge_fees = _this.fees.groww.regulatory_statutory_charges.sebi_turnover_charge.futures.buy;
+                sebi_turnover_charge = _this.fee_type(sebi_turnover_charge_fees, order_amount);
+
+                // any penalty
+                let penalty = 0;
+                // const time = new Date(txnData.trade_date);
+                // const today = new Date();
+
+                // if (time > today ) {
+                //     penalty = _this.fees.groww.penalties.delayed_payment_charges;
+                // }
+
+                total_tax = stt + stamp_duty + exchange_transaction_charge + sebi_turnover_charge + penalty;
+
+                total_fees = brokerage + total_tax;
+
+                total_net_amount = order_amount + total_fees;
+
+                return {
+                    total_fees: total_fees,
+                    total_tax: total_tax,
+                    total_net_amount: total_net_amount,
+                    total_amount: total_amount
+                }
+            }
+            if (txnData.txn_type === 'sell') {
+            }
         } catch (error) {
             return error;
         }
+    }
+
+    async fee_type(fee, price) {
+        if (fee.type === 'flat') {
+            return price;
+        }
+        if (fee.type === 'percentage') {
+            return (price * fee.price) / 100;
+        }
+
+        return fee.price;
     }
 }
