@@ -1,52 +1,44 @@
-const dbOperation = require("../models/adminDbOperation");
+const multerModule = require('../module/multerConfig');
 
 class AdminController {
-    constructor() {
-        // super();
+
+    async uploadFile(req, res) {
+        // get the type of the file
+        const type = req.body.type;
+        // get the file
+        const file = req.file;
+        // get the user
+        const user = req.user;
+
+        if (!file) {
+            return res.status(400).json({ error: "File is required" });
+        }
+        if (!type) {
+            return res.status(400).json({ error: "Type is required" });
+        }
+
+        let upload;
+        if (file.mimetype === 'application/pdf') {
+            upload = multerModule.pdf;
+        } else if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+            upload = multerModule.image;
+        } else if (file.mimetype === 'video/mp4') {
+            upload = multerModule.video;
+        } else if (file.mimetype === 'audio/mpeg') {
+            upload = multerModule.audio;
+        } else {
+            upload = multerModule.other;
+        }
+
+        upload.single('file')(req, res, (err) => {
+            if (err) {
+                return res.status(400).json({ error: err });
+            }
+
+            res.status(201).json({ message: "File uploaded successfully" });
+        });
     }
 
-    // Create a new role
-    async createRole(req, res) {
-        try {
-            const data = req.body;
-            const role = await dbOperation.createRole(data);
-            res.status(201).json(role);
-        } catch (error) {
-            const message = error.message;
-            res.status(400).json({ error: message });
-        }
-    }
-
-    async getRoles(req, res) {
-        try {
-            const roles = await dbOperation.getRoles();
-            res.status(200).json(roles);
-        } catch (error) {
-            const message = error.message;
-            res.status(400).json({ error: message });
-        }
-    }
-
-    async createCategory(req, res) {
-        try {
-            const data = req.body;
-            const category = await dbOperation.createCategory(data);
-            res.status(201).json(category);
-        } catch (error) {
-            const message = error.message;
-            res.status(400).json({ error: message });
-        }
-    }
-
-    async getCategories(req, res) {
-        try {
-            const categories = await dbOperation.getCategories();
-            res.status(200).json(categories);
-        } catch (error) {
-            const message = error.message;
-            res.status(400).json({ error: message });
-        }
-    }
 }
 
 module.exports = new AdminController();

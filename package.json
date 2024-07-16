@@ -8,21 +8,22 @@
     "test": "jest"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.2.0",
+    "@google/generative-ai": "^0.2.1",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
-    "dotenv": "^16.4.1",
-    "express": "~4.16.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
+    "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "tesseract.js": "^5.1.0",
-    "winston": "^3.13.0"
+    "winston": "^3.13.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "nodemon": "^3.0.3"
+    "nodemon": "^3.1.4"
   }
 }

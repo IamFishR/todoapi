@@ -16,7 +16,7 @@ CREATE TABLE `stock_txn` (
     `txn_fee` DECIMAL(10, 2),
     `txn_amount` DECIMAL(10, 2),
     `txn_net_amount` DECIMAL(10, 2),
-    `txn_status` VARCHAR(255),
+    `txn_status` VARCHAR(255), -- pending, completed, failed
     `txn_order_number` VARCHAR(255),
     `txn_trade_number` VARCHAR(255),
     `contract_note_number` VARCHAR(255),
@@ -31,6 +31,49 @@ CREATE TABLE `stock_txn` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+{
+    "txn_id": "ab9eb4f5140d897c07481118",
+    "fee_id": "d103f483e54b592ee2b1a472",
+    "user_id": "8",
+    "stock_id": "46bf74e4ddc424021a225f17",
+    "exchange_id": "d10e0560118faa2b5730f694",
+    "broker_id": "1fa9d6292a3f070286dadf0f",
+    "txn_type": "buy",
+    "txn_nature": "delivery",
+    "market_type": "NSE",
+    "instrument_type": "EQ",
+    "stock_name": "NHPC Ltd",
+    "stock_price": "90.55",
+    "stock_qty": "4",
+    "txn_date": "2024-07-03 11:11:46",
+    "txn_fee": "0.22",
+    "txn_amount": "362.20",
+    "txn_net_amount": "362.42",
+    "txn_status": "completed",
+    "txn_order_number": "SET2407552075534975849710",
+    "txn_trade_number": "43163935",
+    "contract_note_number": "CN/23-24/0179139766",
+    "trade_date": "2024-07-03 11:11:46",
+    "settlement_date_nse_eq": "11-03-2024",
+    "settlement_date_nse_fno": "11-03-2024",
+    "settlement_date_bse_eq": "11-03-2024",
+    "settlement_date_bse_fno": "11-03-2024",
+    "settlement_number": "2024048",
+    "txn_remakrs": "Buy NHPC Ltd",
+    "txn_info": {
+        "brokerage": "0.18",
+        "Exchange Transaction Charges": "0.01",
+        "CGST (9% on Brokerage, Exchange transaction charges & SEBI turnover fees)": "0.00",
+        "SGST (9% on Brokerage, Exchange transaction charges & SEBI turnover fees)": "0.00",
+        "IGST (18% on Brokerage, Exchange transaction charges & SEBI turnover fees)": "0.03",
+        "UTT": "0.00",
+        "Securities Transaction Tax": "0.00",
+        "SEBI Turnover Fees": "0.00",
+        "Stamp Duty": "0.00",
+        "IPFT Charges": "0.00",
+    }, 
+}
 
 
 CREATE TABLE `exchange` (

@@ -5,8 +5,6 @@ const Reports = require('../controllers/reportController');
 
 
 // stock market reporting
-router.post('/stock/txn', authMiddleware, (req, res) => {
-    return Reports.stockTxn(req, res);
-});
+router.post('/stock/txn', authMiddleware, Reports.stockTxn);
 
 module.exports = router;
