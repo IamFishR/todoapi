@@ -363,6 +363,28 @@ class Fees {
                 "delayed_payment_charges": "0.045% per day, simple interest, compounded monthly",
                 "gst": "18% on various charges"
             },
+            "tax": {
+                "cgst": {
+                    "type": "percentage",
+                    "price": "9",
+                    "on": ["brokerage", "exchange_transaction_charge", "sebi_turnover_charge"]
+                },
+                "sgst": {
+                    "type": "percentage",
+                    "price": "9",
+                    "on": ["brokerage", "exchange_transaction_charge", "sebi_turnover_charge"]
+                },
+                "igst": {
+                    "type": "percentage",
+                    "price": "18",
+                    "on": ["brokerage", "exchange_transaction_charge", "sebi_turnover_charge"]
+                },
+                "utt": {
+                    "type": "percentage",
+                    "price": "0.005",
+                    "on": ["brokerage", "exchange_transaction_charge", "sebi_turnover_charge"]
+                }
+            },
             "physical_delivery_derivatives": "₹20 per executed transaction",
             "bse_equity_exchange_transaction_charges": "0.00345% for all groups except R, SS, ST, ZP (1.0%) X,XT,Z (0.1%) A,B,E,F,FC,G,GC,W,T (0.00375%)",
             "buyback_charges": {
@@ -432,6 +454,10 @@ class Fees {
                 if (txnData.instrument_type === 'futures') {
                     const stamp_duty_fees = _this.fees.groww.regulatory_statutory_charges.stamp_duty.futures;
                     stamp_duty = _this.fee_type(stamp_duty_fees, order_amount);
+
+                    if(stamp_duty < 50) {
+                        stamp_duty = 0;
+                    }
                 }
 
                 if (txnData.instrument_type === 'EQ') {
@@ -483,6 +509,29 @@ class Fees {
                 let sgst = 0;
                 let igst = 0;
                 let utt = 0;
+                if(txnData.instrument_type === 'EQ') {
+                    const cgst_fees = _this.fees.groww.tax.cgst;
+                    let cgst_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
+                    cgst = _this.fee_type(cgst_fees, cgst_on);
+                    
+                    const sgst_fees = _this.fees.groww.tax.sgst;
+                    let sgst_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
+                    sgst = _this.fee_type(sgst_fees, sgst_on);
+
+                    const igst_fees = _this.fees.groww.tax.igst;
+                    let igst_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
+                    igst = _this.fee_type(igst_fees, igst_on);
+
+                    const utt_fees = _this.fees.groww.tax.utt;
+                    let utt_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
+                    utt = _this.fee_type(utt_fees, utt_on);
+                }
+
+                let ipft = 0;
+                if(txnData.instrument_type === 'EQ') {
+                    const ipft_fees = _this.fees.groww.regulatory_statutory_charges.investor_protection_fund_trust_charge.equity.intraday.nse.buy;
+                    ipft = _this.fee_type(ipft_fees, order_amount);
+                }
 
                 let regulatory_statutory_charges = _this.sum_fees([stt, stamp_duty, exchange_transaction_charge, sebi_turnover_charge, penalty]);
                 total_fees = _this.sum_fees([brokerage, regulatory_statutory_charges]);
@@ -500,6 +549,12 @@ class Fees {
                         exchange_transaction_charge: exchange_transaction_charge,
                         sebi_turnover_charge: sebi_turnover_charge,
                         penalty: penalty,
+                        cgst: cgst,
+                        sgst: sgst,
+                        igst: igst,
+                        utt: utt,
+                        ipft: ipft,
+                        regulatory_statutory_charges: regulatory_statutory_charges
                     }
                 }
             }
