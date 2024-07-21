@@ -1,6 +1,6 @@
 const logme = require('../helper/logme');
 const User = require('../models/dbOperation');
-// const Reports = require('../models/db/reportsModel');
+const Reports = require('../models/db/reportsModel');
 const Fees = require('../models/feesModel');
 const Common = require('../helper/common');
 
@@ -36,11 +36,15 @@ class ReportsController {
                     });
                 }
                 const txn_id = Common.generateUniqueId();
+                const stock_id = Common.generateUniqueId();
+                const fee_id = Common.generateUniqueId();
+
+
                 let txnData = {
                     "txn_id": txn_id,
-                    "fee_id": txn.fee_id,
+                    "fee_id": fee_id,
                     "user_id": txn.user_id,
-                    "stock_id": txn.stock_id,
+                    "stock_id": stock_id,
                     "exchange_id": txn.exchange_id,
                     "broker_id": txn.broker_id,
                     "txn_type": txn.txn_type,
@@ -74,12 +78,53 @@ class ReportsController {
                 // 4. update the txn with the fee_id
                 // 5. save the stock in traded_stock
 
-
-
                 Fees.fno_nifty_fees(txnData).then((result) => {
-                    return res.status(200).json({
-                        status: 'success',
-                        result: result
+                    if (result.error) {
+                        return res.status(500).send({
+                            status: 'error',
+                            message: result.error
+                        });
+                    }
+
+                    // save the fees record
+                    result.fee_id = fee_id;
+                    result.txn_id = txn_id;
+                    result.fee_info = JSON.stringify(txnData.txn_info);
+
+                    Reports.addFeeRecord(result).then((feeResult) => {
+                        if (feeResult.error) {
+                            return res.status(500).send({
+                                status: 'error',
+                                message: feeResult.error
+                            });
+                        }
+                        // save the txn
+                        Reports.addTxnRecord(txnData).then((txnResult) => {
+                            if (txnResult.error) {
+                                return res.status(500).send({
+                                    status: 'error',
+                                    message: txnResult.error
+                                });
+                            }
+
+                            res.status(200).json({
+                                status: 'success',
+                                data: {
+                                    txn: txnResult,
+                                    fees: result
+                                }
+                            });
+                        }).catch((error) => {
+                            res.status(400).json({
+                                status: 'error',
+                                message: error
+                            });
+                        });
+                    }).catch((error) => {
+                        res.status(400).json({
+                            status: 'error',
+                            message: error
+                        });
                     });
                 }).catch((error) => {
                     res.status(400).json({
@@ -87,25 +132,6 @@ class ReportsController {
                         message: error
                     });
                 });
-
-
-                // Reports.stockTxn(txn).then((result) => {
-                //     if (result.error) {
-                //         return res.status(500).send({
-                //             status: 'error',
-                //             message: result.error
-                //         });
-                //     }
-                //     res.status(200).json({
-                //         status: 'success',
-                //         result: result
-                //     });
-                // }).catch((error) => {
-                //     res.status(400).json({
-                //         status: 'error',
-                //         message: error
-                //     });
-                // });
             });
 
         } catch (error) {
