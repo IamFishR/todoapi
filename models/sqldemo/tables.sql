@@ -220,6 +220,14 @@ CREATE TABLE `stocks` (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- add new columns series, date_of_listing, paid_up_value, market_lot, face_value
+ALTER TABLE `stocks` ADD `series` VARCHAR(255) AFTER `seo_symbol`;
+ALTER TABLE `stocks` ADD `date_of_listing` DATE AFTER `series`;
+ALTER TABLE `stocks` ADD `paid_up_value` DECIMAL(10, 2) AFTER `date_of_listing`;
+ALTER TABLE `stocks` ADD `market_lot` INT AFTER `paid_up_value`;
+ALTER TABLE `stocks` ADD `face_value` DECIMAL(10, 2) AFTER `market_lot`;
+
+
 
 CREATE TABLE `stock_daily_price` (
     `id` VARCHAR(255) NOT NULL,

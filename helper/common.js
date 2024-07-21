@@ -5,7 +5,7 @@ class Common {
 
     }
 
-    generateUniqueId() {
+    async generateUniqueId() {
         return crypto.randomBytes(12).toString('hex');
     }
 

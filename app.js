@@ -2,12 +2,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var morgan = require('morgan');
+const bodyParser = require('body-parser');
 
 var app = express();
 
 // Define log format
 const logFormat = '[:date[iso]] :method :url :status :response-time ms - :res[content-length]';
 app.use(morgan(logFormat));
+app.use(bodyParser.json({ limit: '1mb' }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -8,64 +8,32 @@ const Common = require('../helper/common');
 class Stocks {
     constructor() { }
     async addStock(req, res) {
-        //     `stock_id` VARCHAR(100) PRIMARY KEY,
-        // `stock_symbol` VARCHAR(255),
-        // `stock_name` VARCHAR(255),
-        // `display_name` VARCHAR(255),
-        // `exchange` VARCHAR(255),
-        // `sector` VARCHAR(255),
-        // `industry` VARCHAR(255),
-        // `stock_currency` VARCHAR(255),
-        // `stock_status` VARCHAR(255),
-        // `day_rsi_14_current_candle` DECIMAL(10, 2),
-        // `day_sma_200_current_candle` DECIMAL(10, 2),
-        // `day_sma_50_current_candle` DECIMAL(10, 2),
-        // `divident_yeild` DECIMAL(10, 2),
-        // `eps` DECIMAL(10, 2),
-        // `high_1_year` DECIMAL(10, 2),
-        // `industry_pe` DECIMAL(10, 2),
-        // `instrument` VARCHAR(255),
-        // `isin` VARCHAR(255),
-        // `lot_size` INT,
-        // `low_1_year` DECIMAL(10, 2),
-        // `ltp` DECIMAL(10, 2),
-        // `market_cap` DECIMAL(10, 2),
-        // `net_profit_margin` DECIMAL(10, 2),
-        // `percent_change` DECIMAL(10, 2),
-        // `percent_change_1_year` DECIMAL(10, 2),
-        // `percent_change_3_year` DECIMAL(10, 2),
-        // `percent_change_5_year` DECIMAL(10, 2),
-        // `pe` DECIMAL(10, 2),
-        // `revenue` DECIMAL(10, 2),
-        // `segment` VARCHAR(255),
-        // `seo_symbol` VARCHAR(255),
-        // `symbol_id` INT,
-        // `tick_size` DECIMAL(10, 2),
-        // `volume` BIGINT,
-        // `year_1_roce` DECIMAL(10, 2),
-        // `year_1_roe` DECIMAL(10, 2),
-        // `year_1_revenue_growth` DECIMAL(10, 2),
-        // `yoy_last_quarterly_profit_growth` DECIMAL(10, 2),
         try {
-            const stock = req.body;
+            let stock = req.body;
             let errors = [];
+            if (Object.prototype.toString.call(stock) == '[object Object]') {
+                stock = [stock];
+            }
             const requiredFields = [
                 'stock_symbol',
                 'stock_name',
-                'display_name',
-                'exchange',
-                'sector',
-                'stock_currency',
-                'instrument',
-                'isin',
+                // 'exchange',
+                // 'sector',
+                // 'stock_currency',
+                // 'instrument',
+                // 'isin',
             ];
-            requiredFields.forEach(field => {
-                if (!stock[field]) {
-                    errors.push({
-                        type: field,
-                        message: `${field} is required`
-                    });
-                }
+
+            stock.forEach((stock) => {
+                requiredFields.forEach((field) => {
+                    if (!stock[field]) {
+                        errors.push({
+                            field: field,
+                            message: 'This field is required',
+                            count: errors.length + 1
+                        });
+                    }
+                });
             });
 
             if (errors.length) {
@@ -75,16 +43,12 @@ class Stocks {
                 });
             }
 
-            this.getStockBySymbol(stock.stock_symbol).then(async (stockData) => {
-                if (stockData.length > 0) {
-                    return res.status(400).send({
-                        status: 'error',
-                        message: 'Stock already exists'
-                    });
-                }
-
-                const data = {
-                    'stock_id': Common.generateId(),
+            let alreadyExist = [];
+            let results = [];
+            stock.forEach(async (stock) => {
+                const id = await Common.generateUniqueId();
+                let stockData = {
+                    'stock_id': id,
                     "stock_symbol": stock.stock_symbol,
                     "stock_name": stock.stock_name,
                     "display_name": stock.display_name || stock.stock_name.replace(/_/g, ' '),
@@ -115,6 +79,11 @@ class Stocks {
                     "revenue": stock.revenue || 0,
                     "segment": stock.segment || 'N/A',
                     "seo_symbol": stock.seo_symbol || 'N/A',
+                    "series": stock.series || 'EQ',
+                    "date_of_listing": stock.date_of_listing || 'N/A',
+                    "paid_up_value": stock.paid_up_value || 0,
+                    "market_lot": stock.market_lot || 0,
+                    "face_value": stock.face_value || 0,
                     "symbol_id": stock.symbol_id || 0,
                     "tick_size": stock.tick_size || 0,
                     "volume": stock.volume || 0,
@@ -122,19 +91,29 @@ class Stocks {
                     "year_1_roe": stock.year_1_roe || 0,
                     "year_1_revenue_growth": stock.year_1_revenue_growth || 0,
                     "yoy_last_quarterly_profit_growth": stock.yoy_last_quarterly_profit_growth || 0
-                };
+                }
 
-                Reports.stock_listing(data).then((resp) => {
-                    if (resp.error) {
-                        return res.status(400).send({
-                            status: 'error',
-                            message: resp
+                Reports.stock_listing(stockData).then((result) => {
+                    if (result.error) {
+                        alreadyExist.push(stock.stock_symbol);
+                    }
+                    results.push(result);
+                    if (results.length == stock.length) {
+                        return res.status(200).send({
+                            status: 'success',
+                            message: 'Stock added successfully',
+                            data: results,
+                            alreadyExist: alreadyExist
                         });
                     }
-
-                    
-                })
-            }).catch((error) => { });
+                }).catch((error) => {
+                    logme("error", error);
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'Internal server error'
+                    });
+                });
+            });
 
         } catch (error) {
             logme("error", error);

@@ -202,7 +202,7 @@ class ReportsModel {
                         });
                     }
                     const query = `INSERT INTO ${this.tb_stocks} SET ?`;
-                    this.pool.query(query, stockData, (error, result) => {
+                    this.pool.query(query, stockData, (err, result) => {
                         if (err) {
                             if (Common.ErrorMessages[err.code]) {
                                 reject({
@@ -229,7 +229,7 @@ class ReportsModel {
         try {
             return new Promise((resolve, reject) => {
                 const query = `SELECT * FROM ${this.tb_stocks} WHERE stock_symbol = ?`;
-                this.pool.query(query, symbol, (error, result) => {
+                this.pool.query(query, symbol, (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
                             reject({
