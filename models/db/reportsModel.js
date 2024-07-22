@@ -90,31 +90,32 @@ class ReportsModel {
     }
 
     async addFeeRecord(feeData) {
+        const data = feeData;
         try {
             return new Promise((resolve, reject) => {
-                const feeData = {
-                    "fee_id": feeData.fee_id,
-                    "txn_id": feeData.txn_id,
-                    "total_fees": feeData.total_fees,
-                    "total_tax": feeData.total_tax,
-                    "total_net_amount": feeData.total_net_amount,
-                    "total_amount": feeData.total_amount,
-                    "brokerage": feeData.breakdown.brokerage,
-                    "stt": feeData.breakdown.stt,
-                    "stamp_duty": feeData.breakdown.stamp_duty,
-                    "exchange_transaction_charge": feeData.breakdown.exchange_transaction_charge,
-                    "sebi_turnover_charge": feeData.breakdown.sebi_turnover_charge,
-                    "penalty": feeData.breakdown.penalty,
-                    "cgst": feeData.breakdown.cgst,
-                    "sgst": feeData.breakdown.sgst,
-                    "igst": feeData.breakdown.igst,
-                    "utt": feeData.breakdown.utt,
-                    "ipft": feeData.breakdown.ipft,
-                    "regulatory_statutory_charges": feeData.breakdown.regulatory_statutory_charges,
-                    "fee_info": feeData.fee_info
+                const db_data = {
+                    "fee_id": data.fee_id,
+                    "txn_id": data.txn_id,
+                    "total_fees": data.total_fees,
+                    "total_tax": data.total_tax,
+                    "total_net_amount": data.total_net_amount,
+                    "total_amount": data.total_amount,
+                    "brokerage": data.breakdown.brokerage,
+                    "stt": data.breakdown.stt,
+                    "stamp_duty": data.breakdown.stamp_duty,
+                    "exchange_transaction_charge": data.breakdown.exchange_transaction_charge,
+                    "sebi_turnover_charge": data.breakdown.sebi_turnover_charge,
+                    "penalty": data.breakdown.penalty,
+                    "cgst": data.breakdown.cgst,
+                    "sgst": data.breakdown.sgst,
+                    "igst": data.breakdown.igst,
+                    "utt": data.breakdown.utt,
+                    "ipft": data.breakdown.ipft,
+                    "regulatory_statutory_charges": data.breakdown.regulatory_statutory_charges,
+                    "fee_info": data.fee_info
                 };
                 const query = `INSERT INTO ${this.tb_fees_records} SET ?`;
-                this.pool.query(query, feeData, (error, result) => {
+                this.pool.query(query, db_data, (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
                             reject({
@@ -137,7 +138,7 @@ class ReportsModel {
     async addTxnRecord(txnData) {
         try {
             return new Promise((resolve, reject) => {
-                const txnData = {
+                const dt = {
                     "txn_id": txnData.txn_id,
                     "fee_id": txnData.fee_id,
                     "user_id": txnData.user_id,
@@ -169,7 +170,7 @@ class ReportsModel {
                     "txn_info": txnData.txn_info,
                 };
                 const query = `INSERT INTO ${this.tb_txn_records} SET ?`;
-                this.pool.query(query, txnData, (error, result) => {
+                this.pool.query(query, dt, (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
                             reject({
@@ -230,6 +231,35 @@ class ReportsModel {
             return new Promise((resolve, reject) => {
                 const query = `SELECT * FROM ${this.tb_stocks} WHERE stock_symbol = ?`;
                 this.pool.query(query, symbol, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async addTraded_stocks(txnData) {
+        try {
+            return new Promise((resolve, reject) => {
+                const dt = {
+                    "stock_id": txnData.stock_id,
+                    "txn_id": txnData.txn_id,
+                    "user_id": txnData.user_id,
+                };
+                const query = `INSERT INTO traded_stock SET ?`;
+                this.pool.query(query, dt, (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
                             reject({

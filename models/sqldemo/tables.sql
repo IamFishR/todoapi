@@ -53,21 +53,6 @@ INSERT INTO `exchange` (`exchange_id`, `exchange_name`, `exchange_code`, `exchan
 ('ef16d08e5b0c9ko7320d8b48', 'Multi Commodity Exchange', 'MCX', 'Commodity', 'India', 'INR', 'Asia/Kolkata', '09:00:00', '23:30:00', 'active', '2024-07-15 00:00:00', '2024-07-15 00:00:00'),
 ('ef16d08e5b0cpjh9320d8b48', 'National Commodity Exchange', 'NCDEX', 'Commodity', 'India', 'INR', 'Asia/Kolkata', '09:00:00', '23:30:00', 'active', '2024-07-15 00:00:00', '2024-07-15 00:00:00');
 
-CREATE TABLE `traded_stock` (
-    `stock_id` VARCHAR(100) PRIMARY KEY,
-    `broker_id` VARCHAR(255),
-    `exchange_id` VARCHAR(255),
-    `stock_name` VARCHAR(255),
-    `stock_symbol` VARCHAR(255),
-    `stock_sector` VARCHAR(255),
-    `stock_industry` VARCHAR(255),
-    `stock_currency` VARCHAR(255),
-    `stock_info` TEXT,
-    `stock_status` VARCHAR(255),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
 
 CREATE TABLE `sector` (
     `sector_id` VARCHAR(100) PRIMARY KEY,
@@ -242,4 +227,13 @@ CREATE TABLE `stock_daily_price` (
     `data` JSON NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
+
+CREATE TABLE `traded_stock` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `stock_id` VARCHAR(100),
+    `txn_id` VARCHAR(255),
+    `user_id` VARCHAR(255),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
