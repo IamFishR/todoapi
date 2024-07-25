@@ -173,7 +173,7 @@ class Tasks {
                     const completed_at = task?.completed_at ? Common.convertTimeToGMT(task.completed_at) : null;
                     const deleted_at = task?.deleted_at ? Common.convertTimeToGMT(task.deleted_at) : null;
                     const newTask = {
-                        task_id: Common.generateUniqueId(),
+                        task_id: task.task_id,
                         project_id: task.project_id,
                         title: task.title,
                         description: task.description,
@@ -303,7 +303,7 @@ class Tasks {
                     const completed_at = subtask?.completed_at ? Common.convertTimeToGMT(subtask.completed_at) : null;
                     const deleted_at = subtask?.deleted_at ? Common.convertTimeToGMT(subtask.deleted_at) : null;
                     const newSubtask = {
-                        subtask_id: Common.generateUniqueId(),
+                        subtask_id: subtask.subtask_id,
                         task_id: subtask.task_id,
                         title: subtask.title,
                         description: subtask.description,

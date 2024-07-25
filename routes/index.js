@@ -15,11 +15,11 @@ router.get('/ping', function (req, res, next) {
   });
 });
 
-router.get('/unique', function (req, res, next) {
-
+router.get('/unique', async (req, res, next) => {
+  const uniqueId = await Common.generateUniqueId();
   res.status(200).json({
     status: 'success',
-    uniqueId: Common.generateUniqueId()
+    uniqueId: uniqueId
   });
 });
 

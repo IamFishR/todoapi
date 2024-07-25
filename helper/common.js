@@ -5,6 +5,10 @@ class Common {
 
     }
 
+    /**
+     * Generates a unique 24-character hexadecimal identifier.
+     * @returns {string} A unique 24-character hexadecimal identifier.
+     */
     async generateUniqueId() {
         return crypto.randomBytes(12).toString('hex');
     }

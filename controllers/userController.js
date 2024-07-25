@@ -152,7 +152,7 @@ class UserController {
             } else {
                 throw new Error("User ID is required");
             }
-            data['copy_paste_id'] = common.generateUniqueId();
+            data['copy_paste_id'] = await common.generateUniqueId();
             data['created_at'] = new Date();
 
             const user = await dbOperation.copyPaste({

@@ -1,5 +1,6 @@
 const Tasks = require('../models/db/tasksModel');
 const logme = require('../helper/logme');
+const Common = require('../helper/common');
 
 class TasksController {
     constructor() {
@@ -81,6 +82,9 @@ class TasksController {
             if (Object.keys(errors).length > 0) {
                 throw new Error(JSON.stringify(errors));
             }
+
+            const task_id = await Common.generateUniqueId();
+            req.body.task_id = task_id;
             Tasks.createTask(req.body).then((task) => {
                 if (task.error) {
                     throw new Error(task.error);
@@ -213,6 +217,9 @@ class TasksController {
             if (Object.keys(errors).length > 0) {
                 throw new Error(JSON.stringify(errors));
             }
+
+            const  subtask_id = await Common.generateUniqueId();
+            data.subtask_id = subtask_id;
 
             Tasks.createSubtask(data).then((subtask) => {
                 if (subtask.error) {

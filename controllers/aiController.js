@@ -1,4 +1,6 @@
+const { json } = require("express");
 const AiModel = require("../models/generativeai/ollamaModel");
+const { stream } = require("winston");
 
 class AiController {
     constructor() {
@@ -45,18 +47,37 @@ class AiController {
             if (!data.chat_id) {
                 throw new Error("Chat id is required");
             }
-            AiModel.chat({
-                query: data.query,
-                owner: data.user_id,
-                chat_id: data.chat_id,
-            }).then((aiResponse) => {
-                res.status(200).send(aiResponse);
-            }).catch((error) => {
-                res.status(400).json({
-                    message: error.message,
-                });
-            });
 
+            const model = 'llama3:latest';
+            const url = "http://localhost:11434" + "/api/generate";
+            const query = data.query;
+            const body = {
+                model: model,
+                prompt: query,
+                "stream": false,
+                json: true,
+                "options": {
+                    "temperature": 0.8,
+                    "max_tokens": 10000,
+                },
+            };
+
+            fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(body),
+                headers: { 'Content-Type': 'application/json' },
+            }).then(response => response.json())
+                .then(data => {
+                    // remove context
+                    delete data.context;
+
+                    res.json(data);
+                })
+                .catch((error) => {
+                    res.status(400).json({
+                        message: error.message,
+                    });
+                });
         } catch (error) {
             res.status(400).json({
                 message: error.message,

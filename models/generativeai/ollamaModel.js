@@ -46,7 +46,7 @@ class AiModel {
                     "model": model.model,
                     "prompt": `${data.query}`,
                     // "format": "json",
-                    "stream": false,
+                    "stream": true,
                     "options": {
                         "temperature": 0.8,
                         "max_tokens": 10000,

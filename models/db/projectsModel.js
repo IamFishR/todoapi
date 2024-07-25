@@ -112,7 +112,7 @@ class ProjectsModel {
                 }
                 const createdAt = data?.created_at ? Common.convertTimeToGMT(data.created_at) : Common.convertTimeToGMT();
                 let _p = {
-                    project_id: Common.generateUniqueId(),
+                    project_id: data.project_id,
                     name: data.name,
                     description: data.description ? data.description : '',
                     status: data.status,
