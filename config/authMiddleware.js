@@ -2,7 +2,7 @@ const jsonWebToken = require('jsonwebtoken');
 require('dotenv').config();
 const requestCounts = new Map();
 const logme = require('../helper/logme');
-const { log } = require('winston');
+const dbOperation = require('../models/dbOperation');
 
 const authMiddleware = (req, res, next) => {
     let token = req.headers['authorization'];
@@ -49,7 +49,28 @@ const authMiddleware = (req, res, next) => {
         }
 
         req.user = decoded;
-        next();
+        dbOperation.logSession({
+            session_id: decoded.session_id,
+            endpoint: req.baseUrl,
+        }).then((result) => {
+            if (result.error) {
+                if (result.error === 'Session not found') {
+                    return res.status(401).send({ message: 'Session not found' });
+                }
+                if (result.error === 'Session not active') {
+                    return res.status(401).send({ message: 'Session expired' });
+                }
+                logme.error({
+                    message: 'Error logging session',
+                    data: {
+                        error: result.error
+                    }
+                });
+            }
+            next();
+        }).catch((error) => {
+            return res.status(401).send({ message: error });
+        });
     });
 };
 
@@ -61,8 +82,9 @@ const generateToken = async (user) => {
      */
     return jsonWebToken.sign({
         id: user.id,
-        email: user.email
-    }, process.env.JSONWEBTOKEN_SECRET_KEY, { expiresIn: '1h' });
+        email: user.email,
+        session_id: user.session_id
+    }, process.env.JSONWEBTOKEN_SECRET_KEY, { expiresIn: '2h' });
 };
 
 const verifyToken = (token) => {

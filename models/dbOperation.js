@@ -1,27 +1,85 @@
-
-const bcrypt = require('bcryptjs');
-const User = require('./dboperations/userOperations');
 const dbconnection = require('../config/db');
+const Common = require('../helper/common');
+
 
 class DbOperation {
     constructor() {
         this.pool = dbconnection;
+        this.tbl_user = 'users';
+        this.tbl_cp = 'copy_paste';
+        this.tbl_ai = 'ai_chat';
+        this.tbl_ss = 'sessions';
+        this.tbl_ss_log = 'session_logs';
     }
+    columns = {
+        user_id: {
+            type: 'string',
+            required: true,
+            unique: true
+        },
+        name: {
+            type: 'string',
+            required: true
+        },
+        email: {
+            type: 'string',
+            required: true,
+            unique: true
+        },
+        password: {
+            type: 'string',
+            required: true
+        },
+        role: 'user',
+        avatar: {
+            type: 'string',
+            required: false
+        },
+        bio: {
+            type: 'string',
+            required: false
+        },
+        facebook: {
+            type: 'string',
+            required: false
+        },
+        twitter: {
+            type: 'string',
+            required: false
+        },
+        linkedin: {
+            type: 'string',
+            required: false
+        },
+        github: {
+            type: 'string',
+            required: false
+        },
+        website: {
+            type: 'string',
+            required: false
+        },
+        google: {
+            type: 'string',
+            required: false
+        },
+        created_at: new Date(),
+        updated_at: new Date()
+    }
+
     async getUserById(userid) {
         try {
             return new Promise((resolve, reject) => {
-                User.getUserById(userid).then((user) => {
-                    if (user.error) {
-                        throw new Error(user.error);
+                const sql = `SELECT * FROM ${this.tbl_user} WHERE user_id = ?`;
+                this.pool.query(sql, [userid], (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
                     }
-                    if (user.length < 1) {
-                        throw new Error("User not found");
-                    }
-                    this.removeSecrets(user[0]).then((result) => {
-                        resolve(result);
-                    });
-                }).catch((error) => {
-                    reject(error);
+                    resolve(result);
                 });
             });
         } catch (error) {
@@ -31,20 +89,134 @@ class DbOperation {
 
     async signIn(data) {
         try {
-            const user = await User.signInProc(data);
-            if (user.error) {
-                throw new Error(user.error);
-            }
-            if (user.length < 1) {
-                throw new Error("User not found");
-            }
-            const usr = user[0].users;
-            const compare = await bcrypt.compare(data.password, usr.password);
-            if (compare) {
-                return await this.removeSecrets(usr);
-            } else {
-                throw new Error("Incorrect credentials");
-            }
+
+            return new Promise((resolve, reject) => {
+                const email = this.pool.escape(data.email);
+                const query = `SELECT * FROM ${this.tbl_user} WHERE email = ${email}`;
+                this.pool.query(query, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    if (result.length < 1) {
+                        reject("User not found");
+                    }
+                    resolve(result[0]);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async signOut(data) {
+        try {
+            return new Promise((resolve, reject) => {
+                const query = `SELECT * FROM ${this.tbl_ss} WHERE session_id = ?`;
+                this.pool.query(query, [data.session_id], (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    if (result.length < 1) {
+                        reject("Session not found");
+                    }
+
+                    if (result[0].session_status === 'active') {
+                        const date = new Date();
+                        let sql = `UPDATE ${this.tbl_ss} SET session_status = 'inactive' WHERE session_id = ? AND session_end= ?`;
+                        this.pool.query(sql, [data.session_id, date], (err, result) => {
+                            if (err) {
+                                if (Common.ErrorMessages[err.code]) {
+                                    reject(Common.ErrorMessages[err.code]);
+                                } else {
+                                    reject(err.message);
+                                }
+                            }
+                            if (result.affectedRows > 0) {
+                                resolve({
+                                    message: "Session logged out"
+                                });
+                            } else {
+                                reject("Session not updated");
+                            }
+                        });
+                    } else {
+                        reject("Session not active");
+                    }
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async createSession(data) {
+        try {
+            return new Promise((resolve, reject) => {
+                let sql = `INSERT INTO ${this.tbl_ss} SET ?`;
+                this.pool.query(sql, data, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    if (result.affectedRows > 0) {
+                        resolve(result);
+                    } else {
+                        reject("Session not created");
+                    }
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async logSession(data) {
+        try {
+            return new Promise((resolve, reject) => {
+                let sql = `INSERT INTO ${this.tbl_ss_log} SET ?`;
+                let query = `SELECT * FROM ${this.tbl_ss} WHERE session_id = ?`;
+                this.pool.query(query, [data.session_id], (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    if (result.length < 1) {
+                        reject("Session not found");
+                    }
+                    if (result[0].session_status !== 'active') {
+                        reject("Please login to continue");
+                    } else {
+                        this.pool.query(sql, data, (err, result) => {
+                            if (err) {
+                                if (Common.ErrorMessages[err.code]) {
+                                    reject(Common.ErrorMessages[err.code]);
+                                } else {
+                                    reject(err.message);
+                                }
+                            }
+                            if (result.affectedRows > 0) {
+                                resolve(result);
+                            } else {
+                                reject("Session log not created");
+                            }
+                        });
+                    }
+                });
+            });
         } catch (error) {
             return error;
         }
@@ -52,31 +224,24 @@ class DbOperation {
 
     async createUser(data) {
         try {
-            let db_columns_val = {
-                // user_id: null,
-                // name: data.name,
-                // email: data.email,
-                // password: data.password,
-                // role: data.role || 'user',
-                // avatar: data.avatar || null,
-                // bio: data.bio || null,
-                // facebook: data.facebook || null,
-                // twitter: data.twitter || null,
-                // linkedin: data.linkedin || null,
-                // github: data.github || null,
-                // website: data.website || null,
-                // google: data.google || null,
-                // created_at: new Date(),
-                // updated_at: new Date()
-            };
+            return new Promise((resolve, reject) => {
+                let sql = `INSERT INTO ${this.tbl_user} SET ?`;
+                this.pool.query(sql, data, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    if (result.affectedRows > 0) {
+                        resolve(this.removeSecrets(data));
+                    } else {
+                        reject("User not created");
+                    }
+                });
+            });
 
-
-
-            const user = await User.createUserProc(db_columns_val);
-            if (user.error) {
-                throw new Error(user.error);
-            }
-            return await this.removeSecrets(user[0]);
         } catch (error) {
             return {
                 error: error
@@ -94,11 +259,23 @@ class DbOperation {
 
     async copyPaste(data) {
         try {
-            const user = await User.copyPaste(data);
-            if (user.error) {
-                throw new Error(user.error);
-            }
-            return user;
+            return new Promise((resolve, reject) => {
+                let sql = `INSERT INTO ${this.tbl_cp} SET ?`;
+                this.pool.query(sql, data, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    if (result.affectedRows > 0) {
+                        resolve(result);
+                    } else {
+                        reject("Data not saved");
+                    }
+                });
+            });
         } catch (error) {
             return {
                 error: error
@@ -112,17 +289,13 @@ class DbOperation {
              * chat_id
              * owner
              * conversation : [[question, answer]]
-             * created_at
-             * updated_at
              */
             const values = {
                 chat_id: data.chat_id,
                 owner: data.user_id,
                 conversation: JSON.stringify(data),
-                created_at: new Date(),
-                updated_at: new Date()
             };
-            let sql = `INSERT INTO ai_chat SET ?`;
+            let sql = `INSERT INTO ${this.tbl_ai} SET ?`;
             return new Promise((resolve, reject) => {
                 this.pool.query(sql, values, (err, result) => {
                     if (err) {

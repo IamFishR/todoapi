@@ -2,6 +2,7 @@ const dbOperation = require("../models/dbOperation");
 const { generateToken, verifyToken } = require('../config/authMiddleware');
 const logme = require('../helper/logme');
 const common = require('../helper/common');
+const bcrypt = require('bcryptjs');
 
 class UserController {
     constructor() {
@@ -12,7 +13,7 @@ class UserController {
         try {
             const data = req.body;
             if (data.password !== data.confirmPassword) {
-                throw new Error("Passwords do not match");
+                throw new Error("Passwords & confirm password does not match");
             }
 
             if (data.password.length < 6) {
@@ -23,33 +24,39 @@ class UserController {
                 throw new Error("Email and password are required fields");
             }
 
-            // const user = await dbOperation.createUser(data);
             data.password = await bcrypt.hash(data.password, 10);
-            const user = await dbOperation.createUser(data);
-            if (user.error) {
-                throw new Error(user.error);
-            }
-            res.status(201).json(user);
+            const id = await common.generateUniqueId();
+            let dt = {
+                user_id: id,
+                name: data.name,
+                email: data.email,
+                password: data.password,
+                role: data.role || 'user',
+                avatar: data.avatar || null,
+                bio: data.bio || null,
+                facebook: data.facebook || null,
+                twitter: data.twitter || null,
+                linkedin: data.linkedin || null,
+                github: data.github || null,
+                website: data.website || null,
+                google: data.google || null,
+            };
+            dbOperation.createUser(dt).then((user) => {
+                if (user.error) {
+                    throw new Error(user.error);
+                }
+                res.status(200).json({
+                    message: "User created successfully",
+                    user: user
+                });
+            }).catch((error) => {
+                throw new Error(error.message);
+            });
+
         } catch (error) {
-            res.status(200).json({ error: error.message });
+            res.status(400).json({ error: error.message });
         }
     }
-
-    // Get all users
-    // async getUsers(req, res) {
-    //     try {
-    //         const users = await dbOperation.getAllUsers();
-    //         if (users.error) {
-    //             throw new Error(users.error);
-    //         }
-    //         res.status(200).json({
-    //             message: "Users retrieved successfully",
-    //             users: users
-    //         });
-    //     } catch (error) {
-    //         res.status(400).json({ error: error.message });
-    //     }
-    // }
 
     // Get a user by ID
     async getUserById(req, res) {
@@ -100,17 +107,74 @@ class UserController {
     async signIn(req, res) {
         try {
             const data = req.body;
-            const user = await dbOperation.signIn(data);
-            if (user.error) {
-                throw new Error(user.error);
-            }
-            const token = await generateToken(user);
-            res.status(200).json({
-                message: "Sign in successful",
-                token: token
+            const session_id =  await common.generateUniqueId();
+            dbOperation.signIn(data).then((user) => {
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                bcrypt.compare(data.password, user.password, (err, result) => {
+                    if (!result) {
+                        throw new Error("Incorrect credentials");
+                    }
+
+                    // remove password from user object
+                    dbOperation.removeSecrets(user).then((user_dt) => {
+                        user_dt['session_id'] = session_id; // add session id to user object
+                        generateToken(user_dt).then((token) => {
+                            dbOperation.createSession({
+                                session_id: session_id,
+                                user_id: user.user_id,
+                                ip_address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                                user_agent: req.headers['user-agent'],
+                                last_activity: 'login',
+                                session_token: token,
+                                session_status: 'active',
+                            }).then((result) => {
+                                if (result.error) {
+                                    throw new Error(result.error);
+                                }
+                                res.status(200).json({
+                                    message: "Sign in successful",
+                                    token: token
+                                });
+                            }).catch((error) => {
+                                throw new Error(error.message);
+                            });
+                        }).catch((error) => {
+                            throw new Error(error.message);
+                        });
+                    }).catch((error) => {
+                        throw new Error(error.message);
+                    });
+                });
+            }).catch((error) => {
+                throw new Error(error.message);
             });
+
         } catch (error) {
             logme.error(error.message);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    async signOut(req, res) {
+        try {
+            const token = req.headers['authorization'].replace('Bearer ', '');
+            const decoded = verifyToken(token);
+            if (!decoded) {
+                throw new Error("Invalid token");
+            }
+            dbOperation.signOut({
+                session_id: decoded.session_id,
+            }).then((result) => {
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                res.status(200).json({ message: "Sign out successful" });
+            }).catch((error) => {
+                throw new Error(error.message);
+            });
+        } catch (error) {
             res.status(400).json({ error: error.message });
         }
     }
@@ -155,18 +219,21 @@ class UserController {
             data['copy_paste_id'] = await common.generateUniqueId();
             data['created_at'] = new Date();
 
-            const user = await dbOperation.copyPaste({
+            dbOperation.copyPaste({
                 copy_paste_id: data.copy_paste_id,
                 owner: data.user_id,
                 content: data.content,
                 created_at: data.created_at
-            });
-            if (user.error) {
-                throw new Error(user.error);
-            }
-            res.status(200).json({
-                message: "Copy paste successful",
-                user: user
+            }).then((result) => {
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                res.status(200).json({
+                    message: "Copy paste successful",
+                    user: data
+                });
+            }).catch((error) => {
+                throw new Error(error.message);
             });
         } catch (error) {
             res.status(400).json({ error: error.message });

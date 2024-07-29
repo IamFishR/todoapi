@@ -237,3 +237,30 @@ CREATE TABLE `traded_stock` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- session table
+DROP TABLE IF EXISTS `sessions`;
+CREATE TABLE sessions (
+    session_id VARCHAR(128) PRIMARY KEY,
+    user_id VARCHAR(128),
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    last_activity INT,
+    session_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    session_end TIMESTAMP NULL,
+    session_token VARCHAR(255) NOT NULL,
+    session_status ENUM('active', 'inactive') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- session logs table
+DROP TABLE IF EXISTS `session_logs`;
+CREATE TABLE session_logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(128),
+    endpoint VARCHAR(255) NOT NULL,
+    access_time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT fk_session_id FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
+);
