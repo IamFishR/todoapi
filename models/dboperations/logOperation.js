@@ -1,8 +1,10 @@
 const path = require('path');
 const fs = require('fs');
-
+const dbconnection = require('../../config/db');
+const Common = require('../../helper/common');
 class LogOperation {
     constructor() {
+        this.pool = dbconnection;
         // log file name should be dd_mm_yyyy.log
         const date = new Date();
         this.months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -43,22 +45,34 @@ class LogOperation {
         }
     }
 
-    async writeSMS(date) {
+    async writeNews(data) {
         try {
             return new Promise((resolve, reject) => {
-                const fileName = 'sms_tracking.json';
-                const logFile = path.join(__dirname, '../../logs', fileName);
-                // write all json data to file
-                fs.writeFile(logFile, JSON.stringify(date), 'utf8', (error) => {
-                    if (error) {
-                        reject(error);
-                    }
+                const tbl_news = 'news';
 
-                    resolve({ message: 'Data written successfully' });
+                this.pool.query(this.pool.format('INSERT INTO ?? SET ?', [tbl_news, data]), (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    resolve(result);
                 });
+                // this.pool.query(sql, [data], (err, result) => {
+                //     if (err) {
+                //         if (Common.ErrorMessages[err.code]) {
+                //             reject(Common.ErrorMessages[err.code]);
+                //         } else {
+                //             reject(err.message);
+                //         }
+                //     }
+                //     resolve(result);
+                // });
             });
         } catch (error) {
-            reject(error);
+            return error;
         }
     }
 }

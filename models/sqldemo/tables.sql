@@ -264,3 +264,70 @@ CREATE TABLE session_logs (
     access_time DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT fk_session_id FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
 );
+
+
+-- news tables
+-- {
+--     "id": "24073038402068",
+--     "title": "Chart of the Day: Why Suzlon's orders look more resilient this time",
+--     "summary": "Suzlon Energy shares extended their gains on Monday and scaled new 52-week highs. The stock is up 18 percent from the company's June quarter (Q1 FY25) results. Suzlon Energy reported a strong performance for the June quarter.",
+--     "url": "https://www.moneycontrol.com/news/opinion/chart-of-the-day-why-suzlons-orders-look-more-resilient-this-time-12781733.html",
+--     "contifyImageUrl": "https://images.moneycontrol.com/static-mcnews/2024/07/20240730023507_Wind-turbine.jpg",
+--     "pubDate": "2024-07-30T08:20:22",
+--     "source": "Moneycontrol",
+--     "companies": [
+--         {
+--             "isin": "INE040H01021",
+--             "companyName": "Suzlon Energy",
+--             "companyShortName": "Suzlon Energy",
+--             "nseScripCode": "SUZLON",
+--             "bseScripCode": "532667",
+--             "bseScriptGroup": null,
+--             "imageUrl": null,
+--             "blogUrl": "https://www.moneycontrol.com/news/opinion/chart-of-the-day-why-suzlons-orders-look-more-resilient-this-time-12781733.html",
+--             "searchId": "suzlon-energy-ltd",
+--             "livePriceDto": {
+--                 "type": "LIVE_PRICE",
+--                 "symbol": "SUZLON",
+--                 "tsInMillis": 1722492959,
+--                 "open": 69.93,
+--                 "high": 70.99,
+--                 "low": 69.15,
+--                 "close": 69.38,
+--                 "ltp": 69.28,
+--                 "dayChange": -0.09999999999999432,
+--                 "dayChangePerc": -0.14413375612567647,
+--                 "lowPriceRange": 65.91,
+--                 "highPriceRange": 72.84,
+--                 "volume": 51925725,
+--                 "totalBuyQty": 3474974,
+--                 "totalSellQty": 22643324,
+--                 "oiDayChange": 0,
+--                 "oiDayChangePerc": 0,
+--                 "lastTradeQty": 50,
+--                 "lastTradeTime": 1722492959
+--             },
+--             "liveIndicesDto": null
+--         }
+--     ],
+--     "topics": [
+--         "Financial Results"
+--     ],
+--     "hidden": false
+-- }
+
+DROP TABLE IF EXISTS `news`;
+CREATE TABLE `news` (
+    `id` VARCHAR(100) PRIMARY KEY,
+    `title` VARCHAR(255),
+    `summary` TEXT,
+    `url` VARCHAR(255),
+    `contifyImageUrl` VARCHAR(255),
+    `pubDate` DATETIME,
+    `source` VARCHAR(255),
+    `companies` JSON,
+    `topics` JSON,
+    `hidden` BOOLEAN, 
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

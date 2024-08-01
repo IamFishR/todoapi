@@ -1,0 +1,500 @@
+{
+    "header": {
+        "searchId": "suzlon-energy-ltd",
+        "growwCompanyId": "GSTK532667",
+        "isin": "INE040H01021",
+        "industryId": 20104020,
+        "industryName": "Electrical Equip.",
+        "displayName": "Suzlon Energy",
+        "shortName": "Suzlon Energy",
+        "type": "STOCK",
+        "isFnoEnabled": false,
+        "nseScriptCode": "SUZLON",
+        "bseScriptCode": "532667",
+        "isBseTradable": true,
+        "isNseTradable": true,
+        "logoUrl": "https://assets-netstorage.groww.in/stock-assets/logos/GSTK532667.png",
+        "floatingShares": 8337072634,
+        "isBseFnoEnabled": false,
+        "isNseFnoEnabled": false
+    },
+    "details": {
+        "fullName": "Suzlon Energy",
+        "parentCompany": "Suzlon Energy",
+        "headquarters": "PUNE",
+        "ceo": "Mr. Jayarama Chalasani",
+        "managingDirector": "Mr. Vinod Tanti",
+        "businessSummary": "Suzlon Energy Limited is an India-based renewable energy solutions provider. The Company is engaged in the business of manufacturing of wind turbine generators (WTGs) and related components of various capacities. It operates in approximately 17 countries across Asia, Australia, Europe, Africa and the Americas. Its products include S144 Wind Turbine Generator, S133 Wind Turbine Generator and S120 Wind Turbine Generator. The S144 is extendable depending on the site’s wind conditions. These products offer hub heights up to 160 meters (m). The fleet delivers 40-43% higher generation over the S120. 10-12% higher generation over S133. The S133 is extendable up to 3.0 megawatts (MW) depending on the site's wind conditions. The S120 2.1 MW is available in three variants with towers up to 140 m hub height. Its services include operations and maintenance services, leadership, optimization and digitalization, value-added services and products, and multi-brand operation and maintenance services.",
+        "websiteUrl": "https://www.suzlon.com/"
+    },
+    "brandDtos": [
+        {
+            "name": "Suzlon Wind Mills",
+            "logoUrl": "https://assets-netstorage.groww.in/stock-assets/brand_logo/INE040H01021/Suzlon%20Wind%20Mills/5.%20suzlon_owler_20160226_222924_original.png"
+        }
+    ],
+    "stats": {
+        "marketCap": 83669.41,
+        "pbRatio": 21.45,
+        "peRatio": 96.73,
+        "divYield": 0,
+        "bookValue": 2.8868798,
+        "epsTtm": 0.64,
+        "roe": 16.8443,
+        "industryPe": 84.89931155342079,
+        "cappedType": "Large Cap",
+        "dividendYieldInPercent": 0,
+        "faceValue": 2,
+        "debtToEquity": 0.0383,
+        "returnOnAssets": 3.7651444851975855,
+        "returnOnEquity": 16.8443,
+        "operatingProfitMargin": 16.588000502421394,
+        "netProfitMargin": 12.88822519643281,
+        "quickRatio": 0.8880637537012468,
+        "cashRatio": 0.10366302619208702,
+        "debtToAsset": 0.22157998424598446,
+        "evToSales": 11.634653119897283,
+        "evToEbitda": 3.15,
+        "earningsYield": 0,
+        "sectorPb": 10.822899588721203,
+        "sectorDivYield": 0.17120376034964355,
+        "sectorRoe": 10.219643518380321,
+        "sectorRoce": 6.955749070082335,
+        "priceToOcf": 2519.404095152063,
+        "priceToFcf": 163.07,
+        "roic": 29.387875058506026,
+        "pePremiumVsSector": 0.13934963935643996,
+        "pbPremiumVsSector": 0.9819088058761578,
+        "divYieldVsSector": -0.17120376034964355,
+        "currentRatio": 1.808,
+        "sectorPe": 84.89931155342079,
+        "priceToSales": 11.67,
+        "pegRatio": -0.002426086956521739
+    },
+    "fundamentals": [
+        {
+            "name": "Market Cap",
+            "shortName": "Mkt Cap",
+            "value": "₹83,669Cr"
+        },
+        {
+            "name": "ROE",
+            "shortName": "ROE",
+            "value": "16.84%"
+        },
+        {
+            "name": "P/E Ratio(TTM)",
+            "shortName": "P/E Ratio(TTM)",
+            "value": "96.73"
+        },
+        {
+            "name": "EPS(TTM)",
+            "shortName": "EPS(TTM)",
+            "value": "0.64"
+        },
+        {
+            "name": "P/B Ratio",
+            "shortName": "P/B Ratio",
+            "value": "21.45"
+        },
+        {
+            "name": "Dividend Yield",
+            "shortName": "Div Yield",
+            "value": "0.00%"
+        },
+        {
+            "name": "Industry P/E",
+            "shortName": "Industry P/E",
+            "value": "84.90"
+        },
+        {
+            "name": "Book Value",
+            "shortName": "Book Value",
+            "value": "2.89"
+        },
+        {
+            "name": "Debt to Equity",
+            "shortName": "Debt to Equity",
+            "value": "0.04"
+        },
+        {
+            "name": "Face Value",
+            "shortName": "Face Value",
+            "value": "2"
+        }
+    ],
+    "shareHoldingPattern": {
+        "Aug '23": {
+            "promoters": {
+                "individual": {
+                    "percent": 13.2868
+                },
+                "government": {
+                    "percent": 0
+                },
+                "corporation": {
+                    "percent": 0
+                }
+            },
+            "mutualFunds": {
+                "percent": 4.9799
+            },
+            "otherDomesticInstitutions": {
+                "insurance": {
+                    "percent": 5.2987
+                },
+                "otherFirms": {
+                    "percent": 0
+                }
+            },
+            "foreignInstitutions": {
+                "percent": 9.9673
+            },
+            "retailAndOthers": {
+                "percent": 66.46730000000001
+            }
+        },
+        "Sep '23": {
+            "promoters": {
+                "individual": {
+                    "percent": 13.2868
+                },
+                "government": {
+                    "percent": 0
+                },
+                "corporation": {
+                    "percent": 0
+                }
+            },
+            "mutualFunds": {
+                "percent": 4.7004
+            },
+            "otherDomesticInstitutions": {
+                "insurance": {
+                    "percent": 5.1168
+                },
+                "otherFirms": {
+                    "percent": 0
+                }
+            },
+            "foreignInstitutions": {
+                "percent": 10.8805
+            },
+            "retailAndOthers": {
+                "percent": 66.0155
+            }
+        },
+        "Dec '23": {
+            "promoters": {
+                "individual": {
+                    "percent": 13.2868
+                },
+                "government": {
+                    "percent": 0
+                },
+                "corporation": {
+                    "percent": 0
+                }
+            },
+            "mutualFunds": {
+                "percent": 1.3264
+            },
+            "otherDomesticInstitutions": {
+                "insurance": {
+                    "percent": 4.281000000000001
+                },
+                "otherFirms": {
+                    "percent": 0
+                }
+            },
+            "foreignInstitutions": {
+                "percent": 17.8301
+            },
+            "retailAndOthers": {
+                "percent": 63.275699999999986
+            }
+        },
+        "Mar '24": {
+            "promoters": {
+                "individual": {
+                    "percent": 13.2868
+                },
+                "government": {
+                    "percent": 0
+                },
+                "corporation": {
+                    "percent": 0
+                }
+            },
+            "mutualFunds": {
+                "percent": 1.8559
+            },
+            "otherDomesticInstitutions": {
+                "insurance": {
+                    "percent": 4.4429
+                },
+                "otherFirms": {
+                    "percent": 0
+                }
+            },
+            "foreignInstitutions": {
+                "percent": 19.5679
+            },
+            "retailAndOthers": {
+                "percent": 60.8465
+            }
+        },
+        "Jun '24": {
+            "promoters": {
+                "individual": {
+                    "percent": 13.2663
+                },
+                "government": {
+                    "percent": 0
+                },
+                "corporation": {
+                    "percent": 0
+                }
+            },
+            "mutualFunds": {
+                "percent": 3.8241
+            },
+            "otherDomesticInstitutions": {
+                "insurance": {
+                    "percent": 5.3447
+                },
+                "otherFirms": {
+                    "percent": 0
+                }
+            },
+            "foreignInstitutions": {
+                "percent": 21.5307
+            },
+            "retailAndOthers": {
+                "percent": 56.0342
+            }
+        }
+    },
+    "fundsInvested": [
+        {
+            "name": "HSBC Midcap Fund Direct Growth",
+            "searchId": "hsbc-midcap-fund-direct-growth",
+            "investedAumPercent": 3.83,
+            "rating": 3,
+            "return3y": 26.16,
+            "return1y": 61.51,
+            "return5y": 27.59,
+            "logoUrl": "https://assets-netstorage.groww.in/mf-assets/logos/hsbc_groww.png"
+        },
+        {
+            "name": "Motilal Oswal Large and Midcap Fund Direct   Growth",
+            "searchId": "motilal-oswal-large-and-midcap-fund-direct-growth",
+            "investedAumPercent": 3.69223588,
+            "rating": 5,
+            "return3y": 26.97,
+            "return1y": 56.39,
+            "logoUrl": "https://assets-netstorage.groww.in/mf-assets/logos/motilal_groww.png"
+        },
+        {
+            "name": "Motilal Oswal ELSS Tax Saver Fund Direct Growth",
+            "searchId": "motilal-oswal-most-focused-long-term-fund-direct-growth",
+            "investedAumPercent": 2.88579748,
+            "rating": 4,
+            "return3y": 26.47,
+            "return1y": 61.3,
+            "return5y": 26.79,
+            "logoUrl": "https://assets-netstorage.groww.in/mf-assets/logos/motilal_groww.png"
+        },
+        {
+            "name": "Invesco India Infrastructure Fund Direct Growth",
+            "searchId": "invesco-india-infrastructure-fund-direct-growth",
+            "investedAumPercent": 2.71,
+            "rating": 5,
+            "return3y": 35.33,
+            "return1y": 77.11,
+            "return5y": 35.05,
+            "logoUrl": "https://assets-netstorage.groww.in/mf-assets/logos/invesco_groww.png"
+        }
+    ],
+    "priceData": {
+        "nse": {
+            "yearLowPrice": 17.7,
+            "yearHighPrice": 64.98
+        },
+        "bse": {
+            "yearLowPrice": 17.73,
+            "yearHighPrice": 65
+        }
+    },
+    "financialStatement": [
+        {
+            "title": "Revenue",
+            "yearly": {
+                "2019": 5074.64,
+                "2020": 3000.45,
+                "2021": 3365.59,
+                "2022": 6603.97,
+                "2023": 5990.16
+            },
+            "quarterly": {
+                "Jun '23": 1361.68,
+                "Sep '23": 1428.69,
+                "Dec '23": 1569.71,
+                "Mar '24": 2207.43,
+                "Jun '24": 2044.35
+            }
+        },
+        {
+            "title": "Profit",
+            "yearly": {
+                "2019": -1531.09,
+                "2020": -2691.39,
+                "2021": 100.34,
+                "2022": -166.19,
+                "2023": 2887.29
+            },
+            "quarterly": {
+                "Jun '23": 100.9,
+                "Sep '23": 102.29,
+                "Dec '23": 203.04,
+                "Mar '24": 254.12,
+                "Jun '24": 302.29
+            }
+        },
+        {
+            "title": "Net Worth",
+            "yearly": {
+                "2019": -8503.09,
+                "2020": -11041.84,
+                "2021": -3400.71,
+                "2022": -3561.81,
+                "2023": 1099.14
+            }
+        }
+    ],
+    "similarAssets": {
+        "type": "STOCK",
+        "size": 5,
+        "peerList": [
+            {
+                "companyHeader": {
+                    "searchId": "inox-wind-ltd",
+                    "growwCompanyId": "GSTK539083",
+                    "isin": "INE066P01011",
+                    "industryId": 20104020,
+                    "displayName": "INOX Wind",
+                    "shortName": "INOX Wind",
+                    "nseScriptCode": "INOXWIND",
+                    "bseScriptCode": "539083",
+                    "isBseTradable": true,
+                    "isNseTradable": true,
+                    "logoUrl": "https://assets-netstorage.groww.in/stock-assets/logos/GSTK539083.png",
+                    "isBseFnoEnabled": false,
+                    "isNseFnoEnabled": false
+                },
+                "nseYearLow": 46.5,
+                "nseYearHigh": 180.96,
+                "bseYearLow": 46.5,
+                "bseYearHigh": 181,
+                "marketCap": 22138.42,
+                "peRatio": -547.74,
+                "pbRatio": 13.04
+            },
+            {
+                "companyHeader": {
+                    "searchId": "triveni-turbine-ltd",
+                    "growwCompanyId": "GSTK533655",
+                    "isin": "INE152M01016",
+                    "industryId": 20104020,
+                    "displayName": "Triveni Turbine",
+                    "shortName": "Triveni Turbine",
+                    "nseScriptCode": "TRITURBINE",
+                    "bseScriptCode": "533655",
+                    "isBseTradable": true,
+                    "isNseTradable": true,
+                    "logoUrl": "https://assets-netstorage.groww.in/stock-assets/logos/GSTK533655.png",
+                    "isBseFnoEnabled": false,
+                    "isNseFnoEnabled": false
+                },
+                "nseYearLow": 312,
+                "nseYearHigh": 676.1,
+                "bseYearLow": 311.85,
+                "bseYearHigh": 675,
+                "marketCap": 19320.56,
+                "peRatio": 71.76,
+                "pbRatio": 20.13
+            },
+            {
+                "companyHeader": {
+                    "searchId": "td-power-systems-ltd",
+                    "growwCompanyId": "GSTK533553",
+                    "isin": "INE419M01027",
+                    "industryId": 20104020,
+                    "displayName": "TD Power Systems",
+                    "shortName": "TD Power Systems",
+                    "nseScriptCode": "TDPOWERSYS",
+                    "bseScriptCode": "533553",
+                    "isBseTradable": true,
+                    "isNseTradable": true,
+                    "logoUrl": "https://assets-netstorage.groww.in/stock-assets/logos/GSTK533553.png",
+                    "isBseFnoEnabled": false,
+                    "isNseFnoEnabled": false
+                },
+                "nseYearLow": 226.05,
+                "nseYearHigh": 423.5,
+                "bseYearLow": 225.2,
+                "bseYearHigh": 423.7,
+                "marketCap": 6101.31,
+                "peRatio": 51.54,
+                "pbRatio": 8.65
+            },
+            {
+                "companyHeader": {
+                    "searchId": "honda-siel-power-products-ltd",
+                    "growwCompanyId": "GSTK522064",
+                    "isin": "INE634A01018",
+                    "industryId": 20106020,
+                    "displayName": "Honda India Power Products",
+                    "shortName": "Honda Power Prods",
+                    "nseScriptCode": "HONDAPOWER",
+                    "bseScriptCode": "522064",
+                    "isBseTradable": true,
+                    "isNseTradable": true,
+                    "logoUrl": "https://assets-netstorage.groww.in/stock-assets/logos/GSTK522064.png",
+                    "isBseFnoEnabled": false,
+                    "isNseFnoEnabled": false
+                },
+                "nseYearLow": 2145.65,
+                "nseYearHigh": 4245,
+                "bseYearLow": 2131.05,
+                "bseYearHigh": 4233,
+                "marketCap": 4047.74,
+                "peRatio": 43.9,
+                "pbRatio": 4.98
+            },
+            {
+                "companyHeader": {
+                    "searchId": "taylormade-renewables-ltd",
+                    "growwCompanyId": "GSTK541228",
+                    "isin": "INE459Z01017",
+                    "industryId": 20104010,
+                    "displayName": "Taylormade Renewables",
+                    "shortName": "Taylormade Renew",
+                    "bseScriptCode": "541228",
+                    "isBseTradable": true,
+                    "isNseTradable": false,
+                    "logoUrl": "https://assets-netstorage.groww.in/stock-assets/logos/GSTK541228.png",
+                    "isBseFnoEnabled": false,
+                    "isNseFnoEnabled": false
+                },
+                "nseYearLow": 0,
+                "nseYearHigh": 0,
+                "bseYearLow": 381.95,
+                "bseYearHigh": 855.75,
+                "marketCap": 617.71,
+                "peRatio": 58.25,
+                "pbRatio": 12.5
+            }
+        ]
+    }
+}
