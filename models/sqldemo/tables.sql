@@ -319,6 +319,7 @@ CREATE TABLE session_logs (
 DROP TABLE IF EXISTS `news`;
 CREATE TABLE `news` (
     `id` VARCHAR(100) PRIMARY KEY,
+    `user_id` VARCHAR(255),
     `title` VARCHAR(255),
     `summary` TEXT,
     `url` VARCHAR(255),

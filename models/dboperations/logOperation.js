@@ -50,26 +50,17 @@ class LogOperation {
             return new Promise((resolve, reject) => {
                 const tbl_news = 'news';
 
-                this.pool.query(this.pool.format('INSERT INTO ?? SET ?', [tbl_news, data]), (err, result) => {
+                const sql = `INSERT INTO ${tbl_news} SET ?`;
+                this.pool.query(sql, [data], (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
+                            return reject(Common.ErrorMessages[err.code]);
                         } else {
-                            reject(err.message);
+                            return reject(err.message);
                         }
                     }
                     resolve(result);
                 });
-                // this.pool.query(sql, [data], (err, result) => {
-                //     if (err) {
-                //         if (Common.ErrorMessages[err.code]) {
-                //             reject(Common.ErrorMessages[err.code]);
-                //         } else {
-                //             reject(err.message);
-                //         }
-                //     }
-                //     resolve(result);
-                // });
             });
         } catch (error) {
             return error;

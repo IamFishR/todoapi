@@ -48,36 +48,78 @@ class LogController {
     async storeNews(req, res) {
         try {
             let dt = req.body;
-            const id = await Common.generateUniqueId();
-            dt['id'] = id;
-            const logs = await dbOperation.writeNews({
-                id: id,
-                title: dt.title,
-                summary: dt.summary,
-                url: dt.url,
-                contifyImageUrl: dt.contifyImageUrl,
-                pubDate: dt.pubDate,
-                source: dt.source,
-                companies: dt.companies,
-                topics: dt.topics,
-                hidden: dt.hidden
-            });
-            if (logs.error) {
-                throw new Error(logs.error);
+            let newsArr = [];
+            if (dt.length) {
+                newsArr = dt;
+            } else {
+                newsArr.push(dt);
             }
 
+            // {
+            //     id: id,
+            //     title: news.title,
+            //     summary: news.summary,
+            //     url: news.url,
+            //     contifyImageUrl: news.contifyImageUrl,
+            //     pubDate: news.pubDate,
+            //     source: news.source,
+            //     companies: JSON.stringify(news.companies),
+            //     topics: JSON.stringify(news.topics),
+            //     hidden: news.hidden
+            // }
+
+            let errors = [];
+            let logs = [];
+
+            for (let i = 0; i < newsArr.length; i++) {
+                const news = newsArr[i];
+                const id = await Common.generateUniqueId();
+                const result = await dbOperation.writeNews({
+                    id: id,
+                    user_id: news.user_id,
+                    title: news.title,
+                    summary: news.summary,
+                    url: news.url,
+                    contifyImageUrl: news.contifyImageUrl,
+                    pubDate: news.pubDate,
+                    source: news.source,
+                    companies: JSON.stringify(news.companies),
+                    topics: JSON.stringify(news.topics),
+                    hidden: news.hidden
+                });
+                if (result.error) {
+                    errors.push({
+                        news: news,
+                        error: result.error
+                    });
+                } else {
+                    logs.push({
+                        news: news,
+                    });
+                }
+            }
+
+            // if (errors.length) {
+            //     throw new Error(errors.join(', '));
+            // }
+
             res.status(200).json({
-                'status': 'success',
-                'data': logs
+                message: 'News written successfully',
+                logs,
+                success: logs.length,
+                errors: errors.length,
+                not_inserted: errors
             });
+
         } catch (error) {
+            const msg = error?.message || error;
             logme.error({
-                message: error,
+                message: msg,
                 method: 'storeNews',
                 controller: 'LogController',
                 action: 'storeNews'
             });
-            res.status(500).json({ error: error });
+            res.status(500).json({ error: msg });
         }
     }
 }

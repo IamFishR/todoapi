@@ -189,31 +189,32 @@ class DbOperation {
                 this.pool.query(query, [data.session_id], (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
+                            return reject(Common.ErrorMessages[err.code]);
                         } else {
-                            reject(err.message);
+                            return reject(err.message);
                         }
-                    }
-                    if (result.length < 1) {
-                        reject("Session not found");
-                    }
-                    if (result[0].session_status !== 'active') {
-                        reject("Please login to continue");
                     } else {
-                        this.pool.query(sql, data, (err, result) => {
-                            if (err) {
-                                if (Common.ErrorMessages[err.code]) {
-                                    reject(Common.ErrorMessages[err.code]);
-                                } else {
-                                    reject(err.message);
+                        if (result.length < 1) {
+                            return reject("Session not found");
+                        }
+                        if (result[0].session_status !== 'active') {
+                            return reject("Please login to continue");
+                        } else {
+                            this.pool.query(sql, data, (err, result) => {
+                                if (err) {
+                                    if (Common.ErrorMessages[err.code]) {
+                                        return reject(Common.ErrorMessages[err.code]);
+                                    } else {
+                                        return reject(err.message);
+                                    }
                                 }
-                            }
-                            if (result.affectedRows > 0) {
-                                resolve(result);
-                            } else {
-                                reject("Session log not created");
-                            }
-                        });
+                                if (result.affectedRows > 0) {
+                                    return resolve(result);
+                                } else {
+                                    return reject("Session log not created");
+                                }
+                            });
+                        }
                     }
                 });
             });

@@ -69,7 +69,7 @@ const authMiddleware = (req, res, next) => {
             }
             next();
         }).catch((error) => {
-            return res.status(401).send({ message: error });
+            return res.status(401).send("Not authorized");
         });
     });
 };
