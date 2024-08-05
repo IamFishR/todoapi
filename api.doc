@@ -1,0 +1,49 @@
+# API Documentation
+
+## Introduction
+Provide a brief introduction to the API and its purpose.
+
+## Authentication
+Explain the authentication mechanism required to access the API endpoints.
+
+## Endpoints
+List all the available endpoints along with their descriptions, request methods, and request/response formats.
+
+### Endpoint 1
+- Description: 
+- Method: 
+- Request:
+    - Parameters:
+    - Headers:
+    - Body:
+- Response:
+    - Status Codes:
+    - Body:
+
+### Endpoint 2
+- Description: 
+- Method: 
+- Request:
+    - Parameters:
+    - Headers:
+    - Body:
+- Response:
+    - Status Codes:
+    - Body:
+
+## Error Handling
+    1. for validation (use Common.checkRequiredFields({data}, ['requiredfieldname']))
+        res.status(400).json({
+            status: 'error',
+            message: 'Missing required fields',
+            missing_fields: missingFields
+        })
+
+## Rate Limiting
+If applicable, describe any rate limiting mechanisms in place for the API.
+
+## Examples
+Provide some example requests and responses to demonstrate how to use the API.
+
+## Conclusion
+Wrap up the documentation with any additional information or resources that might be helpful.

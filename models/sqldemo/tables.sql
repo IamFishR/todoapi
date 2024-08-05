@@ -266,56 +266,6 @@ CREATE TABLE session_logs (
 );
 
 
--- news tables
--- {
---     "id": "24073038402068",
---     "title": "Chart of the Day: Why Suzlon's orders look more resilient this time",
---     "summary": "Suzlon Energy shares extended their gains on Monday and scaled new 52-week highs. The stock is up 18 percent from the company's June quarter (Q1 FY25) results. Suzlon Energy reported a strong performance for the June quarter.",
---     "url": "https://www.moneycontrol.com/news/opinion/chart-of-the-day-why-suzlons-orders-look-more-resilient-this-time-12781733.html",
---     "contifyImageUrl": "https://images.moneycontrol.com/static-mcnews/2024/07/20240730023507_Wind-turbine.jpg",
---     "pubDate": "2024-07-30T08:20:22",
---     "source": "Moneycontrol",
---     "companies": [
---         {
---             "isin": "INE040H01021",
---             "companyName": "Suzlon Energy",
---             "companyShortName": "Suzlon Energy",
---             "nseScripCode": "SUZLON",
---             "bseScripCode": "532667",
---             "bseScriptGroup": null,
---             "imageUrl": null,
---             "blogUrl": "https://www.moneycontrol.com/news/opinion/chart-of-the-day-why-suzlons-orders-look-more-resilient-this-time-12781733.html",
---             "searchId": "suzlon-energy-ltd",
---             "livePriceDto": {
---                 "type": "LIVE_PRICE",
---                 "symbol": "SUZLON",
---                 "tsInMillis": 1722492959,
---                 "open": 69.93,
---                 "high": 70.99,
---                 "low": 69.15,
---                 "close": 69.38,
---                 "ltp": 69.28,
---                 "dayChange": -0.09999999999999432,
---                 "dayChangePerc": -0.14413375612567647,
---                 "lowPriceRange": 65.91,
---                 "highPriceRange": 72.84,
---                 "volume": 51925725,
---                 "totalBuyQty": 3474974,
---                 "totalSellQty": 22643324,
---                 "oiDayChange": 0,
---                 "oiDayChangePerc": 0,
---                 "lastTradeQty": 50,
---                 "lastTradeTime": 1722492959
---             },
---             "liveIndicesDto": null
---         }
---     ],
---     "topics": [
---         "Financial Results"
---     ],
---     "hidden": false
--- }
-
 DROP TABLE IF EXISTS `news`;
 CREATE TABLE `news` (
     `id` VARCHAR(100) PRIMARY KEY,
@@ -329,6 +279,84 @@ CREATE TABLE `news` (
     `companies` JSON,
     `topics` JSON,
     `hidden` BOOLEAN, 
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- income
+DROP TABLE IF EXISTS `income`;
+CREATE TABLE `income` (
+    `id` VARCHAR(100) PRIMARY KEY,
+    `user_id` VARCHAR(255),
+    `income_source` VARCHAR(255),
+    `amount` DECIMAL(10, 2),
+    `income_date` DATE,
+    `income_info` TEXT,
+    `source_sms_id` VARCHAR(255),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- expense
+DROP TABLE IF EXISTS `expense`;
+CREATE TABLE `daily_expense` (
+    `id` VARCHAR(100) PRIMARY KEY,
+    `user_id` VARCHAR(255),
+    `category` VARCHAR(255),
+    `amount` DECIMAL(10, 2),
+    `date` DATE,
+    `expense_source` VARCHAR(255),
+    `source_sms_id` VARCHAR(255),
+    `expense_info` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- expense
+DROP TABLE IF EXISTS `monthly_expense`;
+CREATE TABLE `monthly_expense` (
+    `id` VARCHAR(100) PRIMARY KEY,
+    `user_id` VARCHAR(255),
+    `category` VARCHAR(255),
+    `amount` DECIMAL(10, 2),
+    `start_date` DATE,
+    `expense_source` VARCHAR(255),
+    `recurrence_interval` ENUM('None', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly') DEFAULT 'None',
+    `source_sms_id` VARCHAR(255),
+    `expense_info` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- expense
+DROP TABLE IF EXISTS `recurring_expense`;
+CREATE TABLE `recurring_expense` (
+    `id` VARCHAR(100) PRIMARY KEY,
+    `user_id` VARCHAR(255),
+    `category` VARCHAR(255),
+    `amount` DECIMAL(10, 2),
+    `start_date` DATE,
+    `end_date` DATE,
+    `expense_source` VARCHAR(255),
+    `recurrence_interval` ENUM('None', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly') DEFAULT 'None',
+    `source_sms_id` VARCHAR(255),
+    `expense_info` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+-- sms logs
+DROP TABLE IF EXISTS `sms_logs`;
+CREATE TABLE `sms_logs` (
+    `id` VARCHAR(100) PRIMARY KEY,
+    `user_id` VARCHAR(255),
+    `sms_type` VARCHAR(255), -- transaction, otp, promotional, reminder
+    `sms_source` VARCHAR(255),
+    `sms_body` TEXT,
+    `sms_date` DATETIME,
+    `sms_info` TEXT,
+    `ai` TEXT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

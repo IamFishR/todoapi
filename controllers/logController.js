@@ -28,7 +28,27 @@ class LogController {
 
     async sendSms(req, res) {
         try {
-            const logs = await dbOperation.writeSMS(date);
+            const data = req.body;
+            const requiredFields = ['user_id', 'sms_body'];
+            const missingFields = Common.checkRequiredFields(data, requiredFields);
+            if (missingFields.length) {
+                res.status(400).json({
+                    status: 'error',
+                    message: 'Missing required fields',
+                    missing_fields: missingFields
+                })
+            }
+            const id = await Common.generateUniqueId();
+            const logs = await dbOperation.writeSMS({
+                id: id,
+                user_id: data.user_id,
+                sms_type: data.sms_type || '', // transaction, otp, promotional, reminder
+                sms_source: data.sms_source || '',
+                sms_body: data.sms_body,
+                sms_date: data.sms_date || '',
+                sms_info: data.sms_info || '',
+                ai: data.ai || ''
+            });
             if (logs.error) {
                 throw new Error(logs.error);
             }

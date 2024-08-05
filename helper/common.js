@@ -72,6 +72,17 @@ class Common {
 
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
+
+    checkRequiredFields(data, requiredFields) {
+        const missingFields = [];
+        requiredFields.forEach(field => {
+            if (!data[field]) {
+                missingFields.push(field);
+            }
+        });
+
+        return missingFields;
+    }
 }
 
 module.exports = new Common();
