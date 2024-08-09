@@ -58,7 +58,7 @@ class Common {
     }
 
     convertTimeToGMT(time) {
-        time = time ? time : new Date().getTime();
+        time = time ? parseInt(time) : new Date().getTime();
         // const gmttime = new Date(time).toGMTString();
 
         // gmttime format to 2024-06-21 13:54:43

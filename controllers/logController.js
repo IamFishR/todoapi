@@ -29,31 +29,56 @@ class LogController {
     async sendSms(req, res) {
         try {
             const data = req.body;
-            const requiredFields = ['user_id', 'sms_body'];
-            const missingFields = Common.checkRequiredFields(data, requiredFields);
-            if (missingFields.length) {
-                res.status(400).json({
-                    status: 'error',
-                    message: 'Missing required fields',
-                    missing_fields: missingFields
-                })
-            }
-            const id = await Common.generateUniqueId();
-            const logs = await dbOperation.writeSMS({
-                id: id,
-                user_id: data.user_id,
-                sms_type: data.sms_type || '', // transaction, otp, promotional, reminder
-                sms_source: data.sms_source || '',
-                sms_body: data.sms_body,
-                sms_date: data.sms_date || '',
-                sms_info: data.sms_info || '',
-                ai: data.ai || ''
-            });
-            if (logs.error) {
-                throw new Error(logs.error);
+            const requiredFields = ['user_id'];
+            for (let i = 0; i < requiredFields.length; i++) {
+                if (!data[requiredFields[i]]) {
+                    throw new Error(`${requiredFields[i]} is required`);
+                }
             }
 
-            res.status(200).json({ message: 'SMS written successfully' });
+            let smsArr = [];
+            if (data?.sms.length) {
+                smsArr = data.sms;
+            } else {
+                smsArr.push(data.sms);
+            }
+
+            let errors = [];
+            let logs = [];
+
+            for (let i = 0; i < smsArr.length; i++) {
+                const sms = smsArr[i];
+                const id = await Common.generateUniqueId();
+                const time = Common.convertTimeToGMT(sms.sms_date);
+                const result = await dbOperation.writeSMS({
+                    id: id,
+                    user_id: sms.user_id,
+                    sms_type: sms.sms_type || '', // transaction, otp, promotional, reminder
+                    sms_source: sms.sms_source || '',
+                    sms_body: sms.sms_body,
+                    sms_date: time,
+                    sms_info: sms.sms_info || '',
+                    ai: sms.ai || ''
+                });
+                if (result.error) {
+                    errors.push({
+                        sms: sms,
+                        error: result.error
+                    });
+                } else {
+                    logs.push({
+                        sms: sms,
+                    });
+                }
+            }
+
+            res.status(200).json({
+                message: 'SMS written successfully',
+                logs,
+                success: logs.length,
+                errors: errors.length,
+                not_inserted: errors
+            });
         } catch (error) {
             logme.error({
                 message: error.message,
