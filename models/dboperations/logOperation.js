@@ -2,6 +2,8 @@ const path = require('path');
 const fs = require('fs');
 const dbconnection = require('../../config/db');
 const Common = require('../../helper/common');
+const logme = require('../../helper/logme');
+const { log } = require('console');
 class LogOperation {
     constructor() {
         this.pool = dbconnection;
@@ -74,14 +76,32 @@ class LogOperation {
                 const tbl_sms = 'sms_logs';
 
                 const sql = `INSERT INTO ${tbl_sms} SET ?`;
+                logme.info({
+                    message: `query: ${sql}`,
+                    method: 'writeSMS',
+                    controller: 'LogOperation',
+                    action: 'writeSMS'
+                });
                 this.pool.query(sql, [data], (err, result) => {
                     if (err) {
+                        logme.error({
+                            message: err.message,
+                            method: 'writeSMS',
+                            controller: 'LogOperation',
+                            action: 'writeSMS'
+                        });
                         if (Common.ErrorMessages[err.code]) {
                             return reject(Common.ErrorMessages[err.code]);
                         } else {
                             return reject(err.message);
                         }
                     }
+                    logme.info({
+                        message: `SMS written successfully with id: ${result.insertId}`,
+                        method: 'writeSMS',
+                        controller: 'LogOperation',
+                        action: 'writeSMS'
+                    });
                     resolve(result);
                 });
             });

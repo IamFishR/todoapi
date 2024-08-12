@@ -49,7 +49,19 @@ class LogController {
             for (let i = 0; i < smsArr.length; i++) {
                 const sms = smsArr[i];
                 const id = await Common.generateUniqueId();
+                logme.info({
+                    message: `Writing sms with id: ${id}`,
+                    method: 'sendSms',
+                    controller: 'LogController',
+                    action: 'sendSms'
+                });
                 const time = Common.convertTimeToGMT(sms.sms_date);
+                logme.info({
+                    message: `Converted time to GMT: ${time}`,
+                    method: 'sendSms',
+                    controller: 'LogController',
+                    action: 'sendSms'
+                });
                 const result = await dbOperation.writeSMS({
                     id: id,
                     user_id: sms.user_id,
