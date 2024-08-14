@@ -179,6 +179,42 @@ class LogController {
             res.status(500).json({ error: msg });
         }
     }
+
+    async storeReminder(req, res) {
+        try {
+            const data = req.body;
+            const requiredFields = ['user_id', 'title', 'date', 'time'];
+            for (let i = 0; i < requiredFields.length; i++) {
+                if (!data[requiredFields[i]]) {
+                    throw new Error(`${requiredFields[i]} is required`);
+                }
+            }
+
+            const id = await Common.generateUniqueId();
+            dbOperation.writeReminder({
+                id: id,
+                user_id: data.user_id,
+                title: data.title,
+                description: data.description || '',
+                action: data.action || '',
+                date: data.date,
+                time: data.time
+            }).then(result => {
+                res.status(200).json({
+                    message: 'Reminder written successfully',
+                    id: id
+                });
+            }).catch(error => { });
+        } catch (error) {
+            logme.error({
+                message: error.message,
+                method: 'storeReminder',
+                controller: 'LogController',
+                action: 'storeReminder'
+            });
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new LogController();

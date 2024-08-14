@@ -2,8 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const dbconnection = require('../../config/db');
 const Common = require('../../helper/common');
-const logme = require('../../helper/logme');
-const { log } = require('console');
 class LogOperation {
     constructor() {
         this.pool = dbconnection;
@@ -12,10 +10,11 @@ class LogOperation {
         this.months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         this.logFileName = date.getDate() + '_' + this.months[date.getMonth()] + '_' + date.getFullYear() + '.log';
         this.tbl_sms = 'sms_logs';
+        this.tbl_reminder = 'reminder';
 
     }
 
-    createLogFileName(date) {xxxz
+    createLogFileName(date) {
         try {
             const _date = new Date(date);
             const fileName = _date.getDate() + '_' + this.months[_date.getMonth()] + '_' + _date.getFullYear() + '.log';
@@ -76,32 +75,36 @@ class LogOperation {
                 const tbl_sms = 'sms_logs';
 
                 const sql = `INSERT INTO ${tbl_sms} SET ?`;
-                logme.info({
-                    message: `query: ${sql}`,
-                    method: 'writeSMS',
-                    controller: 'LogOperation',
-                    action: 'writeSMS'
-                });
                 this.pool.query(sql, [data], (err, result) => {
                     if (err) {
-                        logme.error({
-                            message: err.message,
-                            method: 'writeSMS',
-                            controller: 'LogOperation',
-                            action: 'writeSMS'
-                        });
                         if (Common.ErrorMessages[err.code]) {
                             return reject(Common.ErrorMessages[err.code]);
                         } else {
                             return reject(err.message);
                         }
                     }
-                    logme.info({
-                        message: `SMS written successfully with id: ${result.insertId}`,
-                        method: 'writeSMS',
-                        controller: 'LogOperation',
-                        action: 'writeSMS'
-                    });
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async writeReminder(data) {
+        try {
+            return new Promise((resolve, reject) => {
+                const tbl_reminder = 'reminder';
+
+                const sql = `INSERT INTO ${tbl_reminder} SET ?`;
+                this.pool.query(sql, [data], (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            return reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            return reject(err.message);
+                        }
+                    }
                     resolve(result);
                 });
             });

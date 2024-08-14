@@ -7,5 +7,8 @@ router.get('/', authMiddleware, logController.getLogs);
 router.post('/sms', authMiddleware, logController.sendSms);
 router.post('/news', authMiddleware, logController.storeNews);
 
+// reminder/notification
+router.post('/reminder', authMiddleware, logController.storeReminder);
+
 
 module.exports = router;

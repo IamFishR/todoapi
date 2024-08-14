@@ -53,7 +53,22 @@ class AiController {
             const query = data.query;
             const body = {
                 model: model,
-                prompt: query,
+                prompt: `
+                    user have requested to get your help in completing the following task:
+                    1. read the given sms and provide the category of the sms like below:
+                        category: {{category}}
+                    2. below are the categories:
+                        a. expense
+                        b. transaction
+                        c. income
+                        d. sip
+                        e. emi
+                        f. promotion
+                        g. insurance
+                        h. otp
+                        i. other
+                    3. the sms is: ${query}
+                `,
                 "stream": false,
                 json: true,
                 "options": {
