@@ -2,6 +2,7 @@ const Projects = require('../models/db/projectsModel');
 const User = require('../models/dbOperation');
 const logme = require('../helper/logme');
 const common = require('../helper/common');
+const taskModel = require('../models/db/tasksModel');
 // const Common = require('../helper/common');
 class ProjectsController {
     constructor() {
@@ -14,6 +15,7 @@ class ProjectsController {
                 if (projects.error) {
                     return res.status(500).send(projects.error);
                 }
+
                 res.status(200).json({
                     status: 'success',
                     projects: projects,
@@ -25,6 +27,24 @@ class ProjectsController {
             });
         } catch (error) {
             logme.error({ message: 'getProjects failed', data: error });
+            res.status(500).send('Internal Server Error');
+        }
+    }
+
+    async getProjectsWithTasks(req, res) {
+        try {
+            Projects.getProjectsWithTasks().then((projects) => {
+                if (projects.error) {
+                    return res.status(500).send(projects.error);
+                }
+
+                res.status(200).json({
+                    status: 'success',
+                    projects: projects,
+                });
+            });
+        } catch (error) {
+            logme.error({ message: 'getProjectsWithTasks failed', data: error });
             res.status(500).send('Internal Server Error');
         }
     }
@@ -58,6 +78,12 @@ class ProjectsController {
     async createProject(req, res) {
         try {
             const project = req.body;
+            const requiredFields = ['name', 'user_id', 'status', 'priority'];
+            for (let field of requiredFields) {
+                if (!project[field]) {
+                    return res.status(400).send(`${field} is required`);
+                }
+            }
             if (!project) {
                 return res.status(400).send('Project data is required');
             }
@@ -99,8 +125,11 @@ class ProjectsController {
         try {
             const project = req.body;
             const id = project.id;
-            if (!id) {
-                return res.status(400).send('Project ID is required');
+            const requiredFields = ['id'];
+            for (let field of requiredFields) {
+                if (!project[field]) {
+                    return res.status(400).send(`${field} is required`);
+                }
             }
             if (!project) {
                 return res.status(400).send('Project data is required');

@@ -5,66 +5,12 @@ class ProjectsModel {
     constructor() {
         this.pool = dbconnection;
         this.tableName = 'projects';
-    }
-
-    columns = {
-        project_id: {
-            type: 'VARCHAR',
-            length: 255,
-            primaryKey: true
-        },
-        name: {
-            type: 'VARCHAR',
-            length: 255,
-            notNull: true
-        },
-        description: {
-            type: 'TEXT'
-        },
-        status: {
-            type: 'VARCHAR',
-            length: 255,
-            notNull: true,
-            default: 'todo'
-        },
-        tags: {
-            type: 'TEXT'
-        },
-        color: {
-            type: 'VARCHAR',
-            length: 255
-        },
-        priority: {
-            type: 'VARCHAR',
-            length: 255,
-            notNull: true,
-            default: 'medium'
-        },
-        due_date: {
-            type: 'DATE'
-        },
-        start_date: {
-            type: 'DATE'
-        },
-        owner: {
-            type: 'VARCHAR',
-            length: 255
-        },
-        created_at: {
-            type: 'TIMESTAMP'
-        },
-        updated_at: {
-            type: 'TIMESTAMP'
-        },
-        deleted_at: {
-            type: 'TIMESTAMP'
-        }
+        this.tbl_tasks = 'tasks';
     }
 
     async getProjects(id, res) {
         try {
             return new Promise((resolve, reject) => {
-                // let sql = `SELECT ${id != null ? id : '*'} FROM ${this.tableName}`;
                 let sql = `SELECT * FROM ${this.tableName}`;
 
                 if (id) {
@@ -86,30 +32,29 @@ class ProjectsModel {
         }
     }
 
+    async getProjectsWithTasks() {
+        try {
+            return new Promise((resolve, reject) => {
+                let sql = `CALL get_projects_with_tasks();`;
+                this.pool.query(sql, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
     async createProject(data) {
         try {
             return new Promise((resolve, reject) => {
-                // check if the user exists
-
-                let errors = {};
-                if (!data.name) {
-                    errors.name = 'Name is required';
-                }
-                if (!data.user_id) {
-                    errors.user_id = 'User ID is required';
-                }
-                if (!data.status) {
-                    errors.status = 'Status is required';
-                }
-                if (!data.priority) {
-                    errors.priority = 'Priority is required';
-                }
-
-                if (Object.keys(errors).length > 0) {
-                    reject({
-                        error: errors
-                    });
-                }
                 const createdAt = data?.created_at ? Common.convertTimeToGMT(data.created_at) : Common.convertTimeToGMT();
                 let _p = {
                     project_id: data.project_id,
@@ -257,3 +202,4 @@ class ProjectsModel {
 }
 
 module.exports = new ProjectsModel();
+

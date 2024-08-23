@@ -6,6 +6,9 @@ const ProjectsController = require('../controllers/projectsController');
 
 // projects
 router.get('/:id?', authMiddleware, (req, res) => {
+    if (req.params.id === 'project-tasks') {
+        return ProjectsController.getProjectsWithTasks(req, res);
+    }
     if (req.params.id) {
         return ProjectsController.getProject(req, res);
     }

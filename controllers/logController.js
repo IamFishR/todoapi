@@ -215,6 +215,25 @@ class LogController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    async getReminders(req, res) {
+        try {
+            const user_id = req.query.user_id;
+            const reminders = await dbOperation.getReminders(user_id);
+            if (reminders.error) {
+                throw new Error(reminders.error);
+            }
+            res.status(200).json({ reminders });
+        } catch (error) {
+            logme.error({
+                message: error.message,
+                method: 'getReminders',
+                controller: 'LogController',
+                action: 'getReminders'
+            });
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new LogController();

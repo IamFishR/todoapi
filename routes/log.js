@@ -9,6 +9,7 @@ router.post('/news', authMiddleware, logController.storeNews);
 
 // reminder/notification
 router.post('/reminder', authMiddleware, logController.storeReminder);
+router.get('/reminder', authMiddleware, logController.getReminders);
 
 
 module.exports = router;

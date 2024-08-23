@@ -112,6 +112,26 @@ class LogOperation {
             return error;
         }
     }
+
+    async getReminders() {
+        try {
+            return new Promise((resolve, reject) => {
+                const sql = `SELECT * FROM ${this.tbl_reminder}`;
+                this.pool.query(sql, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            return reject(Common.ErrorMessages[err.code]);
+                        } else {
+                            return reject(err.message);
+                        }
+                    }
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
 }
 
 module.exports = new LogOperation();
