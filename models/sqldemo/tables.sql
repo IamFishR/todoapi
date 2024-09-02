@@ -373,3 +373,44 @@ CREATE TABLE reminder (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE products (
+    product_id VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    description TEXT,
+    image_url TEXT,
+    status VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE orders (
+    order_id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100),
+    product_id VARCHAR(100),
+    order_type VARCHAR(100),
+    quantity INT,
+    price DECIMAL(10, 2),
+    status VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+DROP TABLE IF EXISTS `product_stock`;
+CREATE TABLE product_stock (
+    stock_id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(255),
+    product_id VARCHAR(255),
+    quantity INT,
+    price DECIMAL(10, 2),
+    status VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);

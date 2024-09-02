@@ -107,7 +107,7 @@ class UserController {
     async signIn(req, res) {
         try {
             const data = req.body;
-            const session_id =  await common.generateUniqueId();
+            const session_id = await common.generateUniqueId();
             dbOperation.signIn(data).then((user) => {
                 if (!user) {
                     throw new Error("User not found");
@@ -135,7 +135,22 @@ class UserController {
                                 }
                                 res.status(200).json({
                                     message: "Sign in successful",
-                                    token: token
+                                    token: token,
+                                    user: {
+                                        user_id: user.user_id,
+                                        name: user.name,
+                                        email: user.email,
+                                        role: user.role,
+                                        avatar: user.avatar,
+                                        bio: user.bio,
+                                        facebook: user.facebook,
+                                        twitter: user.twitter,
+                                        linkedin: user.linkedin,
+                                        github: user.github,
+                                        website: user.website,
+                                        google: user.google,
+                                        created_at: user.created_at,
+                                    }
                                 });
                             }).catch((error) => {
                                 throw new Error(error.message);
