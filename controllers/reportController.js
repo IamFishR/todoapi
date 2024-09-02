@@ -167,6 +167,208 @@ class ReportsController {
             res.status(500).send('Internal Server Error');
         }
     }
+
+    // monthly expense report
+    /**
+     * id	user_id	category	amount	start_date	expense_source	recurrence_interval	source_sms_id	expense_info	created_at	updated_at	
+     */
+    async monthlyExpense(req, res) {
+        try {
+            const expense = req.body;
+            let errors = [];
+            const requiredFields = [
+                'user_id',
+                'category',
+                'amount',
+                'start_date',
+                'recurrence_interval',
+            ];
+            requiredFields.forEach(field => {
+                if (expense[field] === undefined || expense[field] === null || expense[field] === '') {
+                    errors.push({
+                        type: field,
+                        message: `${field} is required`
+                    });
+                }
+            });
+
+            if (errors.length > 0) {
+                return res.status(400).json({
+                    status: "error",
+                    errors: errors
+                });
+            }
+
+            const expense_id = await Common.generateUniqueId();
+
+            let expenseData = {
+                "expense_id": expense_id,
+                "user_id": expense.user_id,
+                "category": expense.category,
+                "amount": expense.amount,
+                "start_date": expense.start_date,
+                "expense_source": expense.expense_source || 'manual',
+                "recurrence_interval": expense.recurrence_interval || 'monthly',
+                "source_sms_id": expense.source_sms_id || null,
+                "expense_info": expense.expense_info || '{}',
+            }
+
+            Reports.addmonthlyExpenseRecord(expenseData).then((result) => {
+                if (result.error) {
+                    return res.status(500).send({
+                        status: 'error',
+                        message: result.error
+                    });
+                }
+
+                res.status(200).json({
+                    status: 'success',
+                    data: result
+                });
+            }).catch((error) => {
+                logme.error({ message: 'failed to save expense record', data: error });
+                res.status(400).json({
+                    status: 'error',
+                    message: error
+                });
+            });
+
+        } catch (error) {
+            logme.error({ message: 'dailyExpense failed', data: error });
+            res.status(500).send('Internal Server Error');
+        }
+    }
+
+    // daily expense report
+    async dailyExpense(req, res) {
+        try {
+            const expense = req.body;
+            let errors = [];
+            const requiredFields = [
+                'user_id',
+                'category',
+                'amount',
+                'date',
+            ];
+            requiredFields.forEach(field => {
+                if (expense[field] === undefined || expense[field] === null || expense[field] === '') {
+                    errors.push({
+                        type: field,
+                        message: `${field} is required`
+                    });
+                }
+            });
+
+            if (errors.length > 0) {
+                return res.status(400).json({
+                    status: "error",
+                    errors: errors
+                });
+            }
+
+            const expense_id = await Common.generateUniqueId();
+
+            let expenseData = {
+                "expense_id": expense_id,
+                "user_id": expense.user_id,
+                "category": expense.category,
+                "amount": expense.amount,
+                "date": expense.date,
+                "expense_source": expense.expense_source || 'manual',
+                "source_sms_id": expense.source_sms_id || null,
+                "expense_info": expense.expense_info || '{}',
+            }
+
+            Reports.adddailyExpenseRecord(expenseData).then((result) => {
+                if (result.error) {
+                    return res.status(500).send({
+                        status: 'error',
+                        message: result.error
+                    });
+                }
+
+                res.status(200).json({
+                    status: 'success',
+                    data: result
+                });
+            }).catch((error) => {
+                logme.error({ message: 'failed to save expense record', data: error });
+                res.status(400).json({
+                    status: 'error',
+                    message: error
+                });
+            });
+
+        } catch (error) {
+            logme.error({ message: 'monthlyExpense failed', data: error });
+            res.status(500).send('Internal Server Error');
+        }
+    }
+
+    // income
+    async income(req, res) {
+        try {
+            const income = req.body;
+            let errors = [];
+            const requiredFields = [
+                'user_id',
+                'income_source',
+                'amount',
+                'income_date',
+            ];
+            requiredFields.forEach(field => {
+                if (income[field] === undefined || income[field] === null || income[field] === '') {
+                    errors.push({
+                        type: field,
+                        message: `${field} is required`
+                    });
+                }
+            });
+
+            if (errors.length > 0) {
+                return res.status(400).json({
+                    status: "error",
+                    errors: errors
+                });
+            }
+
+            const income_id = await Common.generateUniqueId();
+
+            let incomeData = {
+                "income_id": income_id,
+                "user_id": income.user_id,
+                "income_source": income.income_source,
+                "amount": income.amount,
+                "income_date": income.income_date,
+                "income_info": income.income_info || '{}',
+                "source_sms_id": income.source_sms_id || null,
+            }
+
+            Reports.addIncomeRecord(incomeData).then((result) => {
+                if (result.error) {
+                    return res.status(500).send({
+                        status: 'error',
+                        message: result.error
+                    });
+                }
+
+                res.status(200).json({
+                    status: 'success',
+                    data: result
+                });
+            }).catch((error) => {
+                logme.error({ message: 'failed to save income record', data: error });
+                res.status(400).json({
+                    status: 'error',
+                    message: error
+                });
+            });
+
+        } catch (error) {
+            logme.error({ message: 'income failed', data: error });
+            res.status(500).send('Internal Server Error');
+        }
+    }
 }
 
 module.exports = new ReportsController();

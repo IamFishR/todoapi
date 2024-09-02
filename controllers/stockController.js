@@ -123,6 +123,22 @@ class Stocks {
             });
         }
     }
+
+    async getSectors(req, res) {
+        try {
+            const sectors = await Reports.get_sectors();
+            return res.status(200).send({
+                status: 'success',
+                data: sectors
+            });
+        } catch (error) {
+            // logme.error(error);
+            return res.status(500).send({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    }
 }
 
 module.exports = new Stocks();

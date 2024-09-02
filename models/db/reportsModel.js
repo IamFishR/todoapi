@@ -8,6 +8,11 @@ class ReportsModel {
         this.tb_fees_records = 'txn_fees_record';
         this.tb_txn_records = 'stock_txn';
         this.tb_stocks = 'stocks';
+        this.tbl_sectors = 'sector';
+
+        this.tbl_income = 'income';
+        this.tbl_monthly_expense = 'monthly_expense';
+        this.tbl_daily_expense = 'daily_expense';
     }
 
     columns = {
@@ -278,6 +283,105 @@ class ReportsModel {
             return error;
         }
     }
+
+    async get_sectors() {
+        try {
+            return new Promise((resolve, reject) => {
+                const query = `SELECT * FROM ${this.tbl_sectors}`;
+                this.pool.query(query, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    
+    async addmonthlyExpenseRecord(expenseData) {
+        try {
+            return new Promise((resolve, reject) => {
+                const query = `INSERT INTO ${this.tbl_monthly_expense} SET ?`;
+                this.pool.query(query, expenseData, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async adddailyExpenseRecord(expenseData) {
+        try {
+            return new Promise((resolve, reject) => {
+                const query = `INSERT INTO ${this.tbl_daily_expense} SET ?`;
+                this.pool.query(query, expenseData, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    // addIncomeRecord
+    async addIncomeRecord(incomeData) {
+        try {
+            return new Promise((resolve, reject) => {
+                const query = `INSERT INTO ${this.tbl_income} SET ?`;
+                this.pool.query(query, incomeData, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
 }
 
 module.exports = new ReportsModel();

@@ -3,6 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var morgan = require('morgan');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 var app = express();
 
@@ -15,6 +16,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+// app.use(cors({
+//     origin: '*',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
