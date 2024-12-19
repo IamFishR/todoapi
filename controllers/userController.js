@@ -110,60 +110,62 @@ class UserController {
             const session_id = await common.generateUniqueId();
             dbOperation.signIn(data).then((user) => {
                 if (!user) {
-                    throw new Error("User not found");
-                }
-                bcrypt.compare(data.password, user.password, (err, result) => {
-                    if (!result) {
-                        throw new Error("Incorrect credentials");
-                    }
-
-                    // remove password from user object
-                    dbOperation.removeSecrets(user).then((user_dt) => {
-                        user_dt['session_id'] = session_id; // add session id to user object
-                        generateToken(user_dt).then((token) => {
-                            dbOperation.createSession({
-                                session_id: session_id,
-                                user_id: user.user_id,
-                                ip_address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-                                user_agent: req.headers['user-agent'],
-                                last_activity: 'login',
-                                session_token: token,
-                                session_status: 'active',
-                            }).then((result) => {
-                                if (result.error) {
-                                    throw new Error(result.error);
-                                }
-                                res.status(200).json({
-                                    message: "Sign in successful",
-                                    token: token,
-                                    user: {
+                    res.status(400).json({ error: "User not found" });
+                } else {
+                    bcrypt.compare(data.password, user.password, (err, result) => {
+                        if (!result) {
+                            res.status(400).json({ error: "Invalid password" });
+                        } else {
+                            // remove password from user object
+                            dbOperation.removeSecrets(user).then((user_dt) => {
+                                user_dt['session_id'] = session_id; // add session id to user object
+                                generateToken(user_dt).then((token) => {
+                                    dbOperation.createSession({
+                                        session_id: session_id,
                                         user_id: user.user_id,
-                                        name: user.name,
-                                        email: user.email,
-                                        role: user.role,
-                                        avatar: user.avatar,
-                                        bio: user.bio,
-                                        facebook: user.facebook,
-                                        twitter: user.twitter,
-                                        linkedin: user.linkedin,
-                                        github: user.github,
-                                        website: user.website,
-                                        google: user.google,
-                                        created_at: user.created_at,
-                                    }
+                                        ip_address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                                        user_agent: req.headers['user-agent'],
+                                        last_activity: 'login',
+                                        session_token: token,
+                                        session_status: 'active',
+                                    }).then((result) => {
+                                        if (result.error) {
+                                            res.status(400).json({ error: result.error });
+                                        }
+                                        res.status(200).json({
+                                            message: "Sign in successful",
+                                            token: token,
+                                            user: {
+                                                user_id: user.user_id,
+                                                name: user.name,
+                                                email: user.email,
+                                                role: user.role,
+                                                avatar: user.avatar,
+                                                bio: user.bio,
+                                                facebook: user.facebook,
+                                                twitter: user.twitter,
+                                                linkedin: user.linkedin,
+                                                github: user.github,
+                                                website: user.website,
+                                                google: user.google,
+                                                created_at: user.created_at,
+                                            }
+                                        });
+                                    }).catch((error) => {
+                                        res.status(400).json({ error: error.message });
+                                    });
+                                }).catch((error) => {
+                                    res.status(400).json({ error: error.message });
                                 });
                             }).catch((error) => {
-                                throw new Error(error.message);
+                                res.status(400).json({ error: error.message });
                             });
-                        }).catch((error) => {
-                            throw new Error(error.message);
-                        });
-                    }).catch((error) => {
-                        throw new Error(error.message);
+                        }
+    
                     });
-                });
+                }
             }).catch((error) => {
-                throw new Error(error.message);
+                res.status(400).json({ error: error.message });
             });
 
         } catch (error) {

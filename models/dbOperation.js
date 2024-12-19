@@ -96,13 +96,13 @@ class DbOperation {
                 this.pool.query(query, (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
+                            return reject(Common.ErrorMessages[err.code]);
                         } else {
-                            reject(err.message);
+                            return reject(err.message);
                         }
                     }
                     if (result.length < 1) {
-                        reject("User not found");
+                        return reject("User not found");
                     }
                     resolve(result[0]);
                 });

@@ -34,6 +34,7 @@ app.use('/ai', require('./routes/ai'));
 app.use('/reports', require('./routes/report'));
 app.use('/uploads', require('./routes/admin'));
 app.use('/stock', require('./routes/stock'));
+app.use('/shop', require('./routes/shop'));
 
 // invalid route
 app.get('*', (req, res) => {

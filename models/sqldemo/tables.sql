@@ -374,43 +374,125 @@ CREATE TABLE reminder (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-DROP TABLE IF EXISTS `products`;
-CREATE TABLE products (
-    product_id VARCHAR(100) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    description TEXT,
-    image_url TEXT,
-    status VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- DROP TABLE IF EXISTS `products`;
+-- CREATE TABLE products (
+--     product_id VARCHAR(100) PRIMARY KEY,
+--     name VARCHAR(255) NOT NULL,
+--     price DECIMAL(10, 2) NOT NULL,
+--     description TEXT,
+--     image_url TEXT,
+--     status VARCHAR(50),
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+
+-- DROP TABLE IF EXISTS `orders`;
+-- CREATE TABLE orders (
+--     order_id VARCHAR(100) PRIMARY KEY,
+--     user_id VARCHAR(100),
+--     product_id VARCHAR(100),
+--     order_type VARCHAR(100),
+--     quantity INT,
+--     price DECIMAL(10, 2),
+--     status VARCHAR(50),
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES users(user_id),
+--     FOREIGN KEY (product_id) REFERENCES products(product_id)
+-- );
+
+-- DROP TABLE IF EXISTS `product_stock`;
+-- CREATE TABLE product_stock (
+--     stock_id VARCHAR(100) PRIMARY KEY,
+--     user_id VARCHAR(255),
+--     product_id VARCHAR(255),
+--     quantity INT,
+--     price DECIMAL(10, 2),
+--     status VARCHAR(50),
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES users(user_id),
+--     FOREIGN KEY (product_id) REFERENCES products(product_id)
+-- );
+
+-- shop here
+CREATE TABLE `shop` (
+    `id` VARCHAR(255) PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `address` TEXT,
+    `phone` VARCHAR(50),
+    `email` VARCHAR(255),
+    `status` VARCHAR(50),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-DROP TABLE IF EXISTS `orders`;
-CREATE TABLE orders (
-    order_id VARCHAR(100) PRIMARY KEY,
-    user_id VARCHAR(100),
-    product_id VARCHAR(100),
-    order_type VARCHAR(100),
-    quantity INT,
-    price DECIMAL(10, 2),
-    status VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+
+CREATE TABLE `category` (
+    `id` VARCHAR(255) PRIMARY KEY,
+    `shop_id` VARCHAR(255) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `status` VARCHAR(50),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`shop_id`) REFERENCES `shop`(`id`)
 );
 
-DROP TABLE IF EXISTS `product_stock`;
-CREATE TABLE product_stock (
-    stock_id VARCHAR(100) PRIMARY KEY,
-    user_id VARCHAR(255),
-    product_id VARCHAR(255),
-    quantity INT,
-    price DECIMAL(10, 2),
-    status VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+CREATE TABLE `product` (
+    `id` VARCHAR(255) PRIMARY KEY,
+    `shop_id` VARCHAR(255) NOT NULL,
+    `category_id` VARCHAR(255) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `price` DECIMAL(10, 2) NOT NULL,
+    `status` VARCHAR(50),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`shop_id`) REFERENCES `shop`(`id`),
+    FOREIGN KEY (`category_id`) REFERENCES `category`(`id`)
+);
+
+
+CREATE TABLE `product_quantity_history` (
+    `id` VARCHAR(255) PRIMARY KEY,
+    `product_id` VARCHAR(255) NOT NULL,
+    `quantity` INT NOT NULL,
+    `change_type` VARCHAR(50) NOT NULL, -- e.g., added, removed
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`product_id`) REFERENCES `product`(`id`)
+);
+
+CREATE TABLE `orders` (
+    `id` VARCHAR(255) PRIMARY KEY,
+    `shop_id` VARCHAR(255) NOT NULL,
+    `user_id` VARCHAR(128) NOT NULL,
+    `total_amount` DECIMAL(10, 2) NOT NULL,
+    `order_type` VARCHAR(50) NOT NULL, -- e.g., online, offline
+    `status` VARCHAR(50) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- FOREIGN KEY (`shop_id`) REFERENCES `shop`(`id`),
+    -- FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+);
+
+CREATE TABLE `promotions` (
+    `id` VARCHAR(255) PRIMARY KEY,
+    `code` VARCHAR(50) NOT NULL,
+    `discount` DECIMAL(10, 2) NOT NULL,
+    `start_date` DATE NOT NULL,
+    `end_date` DATE NOT NULL,
+    `status` VARCHAR(50) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE `reviews` (
+    `id` VARCHAR(255) PRIMARY KEY,
+    `product_id` VARCHAR(255) NOT NULL,
+    `user_id` VARCHAR(255) NOT NULL,
+    `rating` VARCHAR(255) NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    `comment` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- FOREIGN KEY (`product_id`) REFERENCES `product`(`id`),
+    -- FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
 );
