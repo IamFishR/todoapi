@@ -13,6 +13,10 @@ class Common {
         return crypto.randomBytes(12).toString('hex');
     }
 
+    generateuuid() {
+        return crypto.randomBytes(16).toString('hex');
+    }
+
     getTodaysDateWithTime() {
         // mm-dd-yyyy hh:mm:ss
         const date = new Date();

@@ -19,7 +19,9 @@ class ShopOperation {
     }
 
     async deleteShop(id) {
-        const sql = `DELETE FROM ${this.tbl_shop} WHERE id = ?`;
+        // const sql = `DELETE FROM ${this.tbl_shop} WHERE id = ?`;
+        // just make the shop inactive
+        const sql = `UPDATE ${this.tbl_shop} SET status = 'inactive' WHERE id = ?`;
         return this.query(sql, [id]);
     }
 
@@ -106,6 +108,11 @@ class ShopOperation {
     async deleteReview(id) {
         const sql = `DELETE FROM reviews WHERE id = ?`;
         return this.query(sql, [id]);
+    }
+
+    async getShopByName(name) {
+        const sql = `SELECT * FROM ${this.tbl_shop} WHERE name = ?`;
+        return this.query(sql, [name]);
     }
 
     query(sql, params) {

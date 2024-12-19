@@ -15,12 +15,12 @@ exports.addShop = [
         }
         try {
             const shop = await ShopOperation.getShopByName(req.body.name);
-            if (shop) {
+            if (shop.length > 0) {
                 return res.status(400).json({ error: 'Shop already exists' });
             }
 
             // Generate shop ID
-            req.body.id = Common.generateId();
+            req.body.id = Common.generateuuid();
             const result = await ShopOperation.addShop(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -80,7 +80,7 @@ exports.addCategory = [
             }
 
             // Generate category ID
-            req.body.id = Common.generateId();
+            req.body.id = Common.generateuuid();
             const result = await ShopOperation.addCategory(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -132,7 +132,7 @@ exports.addProduct = [
         }
         try {
             // Generate product ID
-            req.body.id = Common.generateId();
+            req.body.id = Common.generateuuid();
             const result = await ShopOperation.addProduct(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -185,7 +185,7 @@ exports.addProductQuantityHistory = [
         }
         try {
             // Generate product quantity ID
-            req.body.id = Common.generateId();
+            req.body.id = Common.generateuuid();
             const result = await ShopOperation.addProductQuantityHistory(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -216,7 +216,7 @@ exports.addOrder = [
         }
         try {
             // Generate order ID
-            req.body.id = Common.generateId();
+            req.body.id = Common.generateuuid();
             const result = await ShopOperation.addOrder(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -269,7 +269,7 @@ exports.addPromotion = [
         }
         try {
             // Generate promotion ID
-            req.body.id = Common.generateId();
+            req.body.id = Common.generateuuid();
             const result = await ShopOperation.addPromotion(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -322,7 +322,7 @@ exports.addReview = [
         }
         try {
             // Generate review ID
-            req.body.id = Common.generateId();
+            req.body.id = Common.generateuuid();
             const result = await ShopOperation.addReview(req.body);
             res.status(201).json(result);
         } catch (error) {
