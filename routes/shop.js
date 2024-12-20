@@ -3,9 +3,13 @@ var router = express.Router();
 const shopController = require('../controllers/shopController');
 
 // Shop routes
+router.get('/', shopController.getShops);
 router.post('/', shopController.addShop);
 router.put('/:id', shopController.updateShop);
 router.delete('/:id', shopController.deleteShop);
+
+// Shop detail routes
+router.get('/:shopId', shopController.getShopDetail);
 
 // Category routes
 router.post('/:shopId/category', shopController.addCategory);

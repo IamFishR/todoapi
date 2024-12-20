@@ -29,6 +29,15 @@ exports.addShop = [
     }
 ];
 
+exports.getShops = async (req, res) => {
+    try {
+        const result = await ShopOperation.getShops();
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 exports.updateShop = [
     param('id').notEmpty().withMessage('Invalid shop ID'),
     body('name').optional().notEmpty().withMessage('Name cannot be empty'),
@@ -75,12 +84,14 @@ exports.addCategory = [
         }
         try {
             const category = await ShopOperation.getCategoryByName(req.body.name);
-            if (category) {
+            if (category.length > 0) {
                 return res.status(400).json({ error: 'Category already exists' });
             }
 
             // Generate category ID
             req.body.id = Common.generateuuid();
+
+            req.body.shop_id = req.params.shopId;
             const result = await ShopOperation.addCategory(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -364,3 +375,33 @@ exports.deleteReview = [
         }
     }
 ];
+
+exports.getShopDetail = async (req, res) => {
+    try {
+        const shopId = req.params.shopId;
+
+        const shop = await ShopOperation.getShopById(shopId);
+        if (shop.length === 0) {
+            return res.status(404).json({ error: 'Shop not found' });
+        }
+
+        const categories = await ShopOperation.getCategories(shopId);
+        const products = await ShopOperation.getProducts(shopId);
+        const orders = await ShopOperation.getOrders(shopId);
+        // const promotions = await ShopOperation.getPromotions(shopId);
+        const reviews = await ShopOperation.getReviews(shopId);
+
+        const result = {
+            shop: shop[0],
+            categories: categories,
+            products: products,
+            orders: orders,
+            promotions: [],
+            reviews: reviews
+        };
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

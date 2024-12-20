@@ -13,6 +13,16 @@ class ShopOperation {
         return this.query(sql, data);
     }
 
+    async getShops() {
+        const sql = `SELECT * FROM ${this.tbl_shop}`;
+        return this.query(sql);
+    }
+
+    async getShopById(id) {
+        const sql = `SELECT * FROM ${this.tbl_shop} WHERE id = ?`;
+        return this.query(sql, [id]);
+    }
+
     async updateShop(id, data) {
         const sql = `UPDATE ${this.tbl_shop} SET ? WHERE id = ?`;
         return this.query(sql, [data, id]);
@@ -30,6 +40,11 @@ class ShopOperation {
         return this.query(sql, data);
     }
 
+    async getCategories(shopId) {
+        const sql = `SELECT * FROM ${this.tbl_category} WHERE shop_id = ?`;
+        return this.query(sql, [shopId]);
+    }
+
     async updateCategory(id, data) {
         const sql = `UPDATE ${this.tbl_category} SET ? WHERE id = ?`;
         return this.query(sql, [data, id]);
@@ -43,6 +58,11 @@ class ShopOperation {
     async addProduct(data) {
         const sql = `INSERT INTO ${this.tbl_product} SET ?`;
         return this.query(sql, data);
+    }
+
+    async getProducts(categoryId) {
+        const sql = `SELECT * FROM ${this.tbl_product} WHERE category_id = ?`;
+        return this.query(sql, [categoryId]);
     }
 
     async updateProduct(id, data) {
@@ -70,6 +90,11 @@ class ShopOperation {
         return this.query(sql, data);
     }
 
+    async getOrders(shopId) {
+        const sql = `SELECT * FROM orders WHERE shop_id = ?`;
+        return this.query(sql, [shopId]);
+    }
+
     async updateOrder(id, data) {
         const sql = `UPDATE orders SET ? WHERE id = ?`;
         return this.query(sql, [data, id]);
@@ -85,6 +110,11 @@ class ShopOperation {
         return this.query(sql, data);
     }
 
+    async getPromotions(id) {
+        const sql = `SELECT * FROM promotions WHERE id = ?`;
+        return this.query(sql, [shopId]);
+    }
+
     async updatePromotion(id, data) {
         const sql = `UPDATE promotions SET ? WHERE id = ?`;
         return this.query(sql, [data, id]);
@@ -98,6 +128,11 @@ class ShopOperation {
     async addReview(data) {
         const sql = `INSERT INTO reviews SET ?`;
         return this.query(sql, data);
+    }
+
+    async getReviews(productId) {
+        const sql = `SELECT * FROM reviews WHERE product_id = ?`;
+        return this.query(sql, [productId]);
     }
 
     async updateReview(id, data) {
@@ -125,6 +160,11 @@ class ShopOperation {
                 }
             });
         });
+    }
+
+    async getCategoryByName(name) {
+        const sql = `SELECT * FROM ${this.tbl_category} WHERE name = ?`;
+        return this.query(sql, [name]);
     }
 }
 
