@@ -32,6 +32,7 @@ app.use('/logs', require('./routes/log'));
 app.use('/finances', require('./routes/finance'));
 app.use('/ai', require('./routes/ai'));
 app.use('/reports', require('./routes/report'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', require('./routes/admin'));
 app.use('/stock', require('./routes/stock'));
 app.use('/shop', require('./routes/shop'));

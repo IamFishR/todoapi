@@ -1,6 +1,7 @@
 const { body, param, validationResult } = require('express-validator');
 const ShopOperation = require('../models/shopOperation');
 const Common = require('../helper/common');
+const upload = require('../modules/multerConfig');
 
 exports.addShop = [
     body('name').notEmpty().withMessage('Name is required'),
@@ -19,8 +20,21 @@ exports.addShop = [
                 return res.status(400).json({ error: 'Shop already exists' });
             }
 
+            if (req.body.image != undefined) {
+                upload(req, res, (err) => {
+                    if (err) {
+                        return res.status(400).json({ error: err });
+                    }
+                    if (!req.file) {
+                        return res.status(400).json({ error: 'No file uploaded' });
+                    }
+                    req.body.image = req.file.filename;
+                });
+            }
+
             // Generate shop ID
             req.body.id = Common.generateuuid();
+            req.body.user_id = req.user.id;
             const result = await ShopOperation.addShop(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -92,6 +106,7 @@ exports.addCategory = [
             req.body.id = Common.generateuuid();
 
             req.body.shop_id = req.params.shopId;
+            req.body.user_id = req.user.id;
             const result = await ShopOperation.addCategory(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -144,8 +159,24 @@ exports.addProduct = [
         try {
             // Generate product ID
             req.body.id = Common.generateuuid();
+            req.body.category_id = req.params.categoryId;
+            req.body.shop_id = req.params.shopId;
+            req.body.user_id = req.user.id;
+            if (req.body.status === undefined) {
+                req.body.status = 'active';
+            }
             const result = await ShopOperation.addProduct(req.body);
-            res.status(201).json(result);
+            if (result.affectedRows === 0) {
+                return res.status(400).json({ error: 'Category not found' });
+            }
+            res.status(201).json({
+                id: req.body.id,
+                name: req.body.name,
+                price: req.body.price,
+                category_id: req.body.category_id,
+                shop_id: req.body.shop_id,
+                status: req.body.status
+            });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
@@ -385,9 +416,20 @@ exports.getShopDetail = async (req, res) => {
             return res.status(404).json({ error: 'Shop not found' });
         }
 
-        const categories = await ShopOperation.getCategories(shopId);
-        const products = await ShopOperation.getProducts(shopId);
-        const orders = await ShopOperation.getOrders(shopId);
+        const categories = await ShopOperation.getCategories(shopId, req.user.user_id);
+        const products = await ShopOperation.getProducts(shopId, req.user.user_id);
+
+        // should have each category with its products
+        const categoriesWithProducts = {};
+
+        categories.forEach(category => {
+            const productsInCategory = products.filter(product => product.category_id === category.id);
+            categoriesWithProducts[category.name] = productsInCategory;
+        });
+
+
+
+        const orders = await ShopOperation.getOrders(shopId, req.user.id);
         // const promotions = await ShopOperation.getPromotions(shopId);
         const reviews = await ShopOperation.getReviews(shopId);
 
@@ -395,6 +437,7 @@ exports.getShopDetail = async (req, res) => {
             shop: shop[0],
             categories: categories,
             products: products,
+            categoriesWithProducts: categoriesWithProducts,
             orders: orders,
             promotions: [],
             reviews: reviews
@@ -404,4 +447,16 @@ exports.getShopDetail = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+};
+
+exports.uploadImage = (req, res) => {
+    upload(req, res, (err) => {
+        if (err) {
+            return res.status(400).json({ error: err });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+        res.status(200).json({ message: 'File uploaded successfully', file: req.file });
+    });
 };

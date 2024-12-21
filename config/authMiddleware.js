@@ -52,6 +52,8 @@ const authMiddleware = (req, res, next) => {
         dbOperation.logSession({
             session_id: decoded.session_id,
             endpoint: req.baseUrl,
+            // method: req.method,
+            // user_id: decoded.user_id
         }).then((result) => {
             if (result.error) {
                 if (result.error === 'Session not found') {
@@ -67,6 +69,7 @@ const authMiddleware = (req, res, next) => {
                     }
                 });
             }
+
             next();
         }).catch((error) => {
             return res.status(401).send("Not authorized");
@@ -81,7 +84,7 @@ const generateToken = async (user) => {
      * @param {string} user.email
      */
     return jsonWebToken.sign({
-        id: user.id,
+        user_id: user.user_id,
         email: user.email,
         session_id: user.session_id
     }, process.env.JSONWEBTOKEN_SECRET_KEY, { expiresIn: '2h' });
@@ -96,6 +99,7 @@ const verifyToken = (token) => {
     decoded.exp = convertDate(decoded.exp);
     decoded.iat = convertDate(decoded.iat);
     decoded.email = decoded.email;
+    decoded.user_id = decoded.user_id;
     return decoded;
 };
 

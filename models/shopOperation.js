@@ -40,9 +40,9 @@ class ShopOperation {
         return this.query(sql, data);
     }
 
-    async getCategories(shopId) {
-        const sql = `SELECT * FROM ${this.tbl_category} WHERE shop_id = ?`;
-        return this.query(sql, [shopId]);
+    async getCategories(shopId, userId) {
+        const sql = `SELECT * FROM ${this.tbl_category} WHERE shop_id = ? AND user_id = ?`;
+        return this.query(sql, [shopId, userId]);
     }
 
     async updateCategory(id, data) {
@@ -60,9 +60,9 @@ class ShopOperation {
         return this.query(sql, data);
     }
 
-    async getProducts(categoryId) {
-        const sql = `SELECT * FROM ${this.tbl_product} WHERE category_id = ?`;
-        return this.query(sql, [categoryId]);
+    async getProducts(shopId, userId) {
+        const sql = `SELECT * FROM ${this.tbl_product} WHERE shop_id = ? AND user_id = ?`;
+        return this.query(sql, [shopId, userId]);
     }
 
     async updateProduct(id, data) {
@@ -90,9 +90,9 @@ class ShopOperation {
         return this.query(sql, data);
     }
 
-    async getOrders(shopId) {
-        const sql = `SELECT * FROM orders WHERE shop_id = ?`;
-        return this.query(sql, [shopId]);
+    async getOrders(shopId, userId) {
+        const sql = `SELECT * FROM orders WHERE shop_id = ? AND user_id = ?`;
+        return this.query(sql, [shopId, userId]);
     }
 
     async updateOrder(id, data) {
