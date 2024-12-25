@@ -107,7 +107,7 @@ exports.addCategory = [
             req.body.id = Common.generateuuid();
 
             req.body.shop_id = req.params.shopId;
-            req.body.user_id = req.user.id;
+            req.body.user_id = req.user.user_id;
             const result = await ShopOperation.addCategory(req.body);
             res.status(201).json(result);
         } catch (error) {
@@ -162,7 +162,7 @@ exports.addProduct = [
             req.body.id = Common.generateuuid();
             req.body.category_id = req.params.categoryId;
             req.body.shop_id = req.params.shopId;
-            req.body.user_id = req.user.id;
+            req.body.user_id = req.user.user_id;
             if (req.body.status === undefined) {
                 req.body.status = 'active';
             }
@@ -430,7 +430,7 @@ exports.getShopDetail = async (req, res) => {
 
 
 
-        const orders = await ShopOperation.getOrders(shopId, req.user.id);
+        const orders = await ShopOperation.getOrders(shopId, req.user.user_id);
         // const promotions = await ShopOperation.getPromotions(shopId);
         const reviews = await ShopOperation.getReviews(shopId);
 
