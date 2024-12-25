@@ -8,7 +8,7 @@ exports.addShop = [
     body('address').notEmpty().withMessage('Address is required'),
     body('phone').notEmpty().withMessage('Phone is required'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('status').notEmpty().withMessage('Status is required'),
+    // body('status').notEmpty().withMessage('Status is required'),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -34,7 +34,8 @@ exports.addShop = [
 
             // Generate shop ID
             req.body.id = Common.generateuuid();
-            req.body.user_id = req.user.id;
+            req.body.user_id = req.user.user_id;
+            req.body.status = req.body.status || 'active';
             const result = await ShopOperation.addShop(req.body);
             res.status(201).json(result);
         } catch (error) {
