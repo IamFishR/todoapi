@@ -139,6 +139,115 @@ class Stocks {
             });
         }
     }
+
+    async getStocks(req, res) {
+        try {
+            const stocks = await Reports.get_stocks();
+            return res.status(200).send({
+                status: 'success',
+                data: stocks
+            });
+        } catch (error) {
+            // logme.error(error);
+            return res.status(500).send({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    }
+
+    async updateStock(req, res) {
+        try {
+            let stocks = req.body;
+            let results = 0;
+
+            for (const stock of stocks) {
+                let data = {};
+
+                if (stock.industryCode) data.industry = stock.industryCode;
+                if (stock.yearlyHighPrice) data.high_1_year = stock.yearlyHighPrice;
+                if (stock.yearlyLowPrice) data.low_1_year = stock.yearlyLowPrice;
+                if (stock.marketCap) data.market_cap = stock.marketCap;
+                if (stock.volume) data.volume = stock.volume;
+
+                try {
+                    let result = await Reports.update_stock(stock.livePriceDto.symbol, data);
+                    if (result) {
+                        results++;
+                    }
+                } catch (error) {
+                    logme("error", error);
+                }
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                message: 'Stocks updated successfully',
+                data: results
+            });
+
+        } catch (error) {
+            logme("error", error);
+            return res.status(500).send({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    }
+
+    async addLivePrice(req, res) {
+        try {
+            let stocks = req.body;
+            let results = 0;
+
+            for (const stock of stocks) {
+                try {
+                    let data = {
+                        'stock_isin': stock.stock_isin,
+                        'type': stock.livePriceDto.type,
+                        'symbol': stock.livePriceDto.symbol,
+                        'ts_in_millis': stock.livePriceDto.tsInMillis,
+                        'open_price': stock.livePriceDto.open,
+                        'high_price': stock.livePriceDto.high,
+                        'low_price': stock.livePriceDto.low,
+                        'close_price': stock.livePriceDto.close,
+                        'ltp': stock.livePriceDto.ltp,
+                        'day_change': stock.livePriceDto.dayChange,
+                        'day_change_perc': stock.livePriceDto.dayChangePerc,
+                        'low_price_range': stock.livePriceDto.lowPriceRange,
+                        'high_price_range': stock.livePriceDto.highPriceRange,
+                        'volume': stock.livePriceDto.volume,
+                        'total_buy_qty': stock.livePriceDto.totalBuyQty,
+                        'total_sell_qty': stock.livePriceDto.totalSellQty,
+                        'oi_day_change': stock.livePriceDto.oiDayChange,
+                        'oi_day_change_perc': stock.livePriceDto.oiDayChangePerc,
+                        'last_trade_qty': stock.livePriceDto.lastTradeQty,
+                        'last_trade_time': stock.livePriceDto.lastTradeTime
+                    }
+                    let result = await Reports.addLivePrice(data, stock);
+                    if (result) {
+                        results++;
+                    }
+                } catch (error) {
+                    logme("error", error);
+                }
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                message: 'Stocks updated successfully',
+                data: results
+            });
+
+        } catch (error) {
+            // logme("error", error);
+            return res.status(500).send({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    }
+
 }
 
 module.exports = new Stocks();

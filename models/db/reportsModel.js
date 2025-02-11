@@ -8,7 +8,9 @@ class ReportsModel {
         this.tb_fees_records = 'txn_fees_record';
         this.tb_txn_records = 'stock_txn';
         this.tb_stocks = 'stocks';
-        this.tbl_sectors = 'sector';
+        this.tbl_sectors = 'sectors_new';
+        this.tbl_industry = 'industry_new';
+        this.tbl_liveprice = 'live_prices';
 
         this.tbl_income = 'income';
         this.tbl_monthly_expense = 'monthly_expense';
@@ -287,7 +289,15 @@ class ReportsModel {
     async get_sectors() {
         try {
             return new Promise((resolve, reject) => {
-                const query = `SELECT * FROM ${this.tbl_sectors}`;
+                const query = `SELECT 
+                        s.sector_name AS sector,
+                        JSON_OBJECTAGG(i.industry_id, i.industry_name) AS industries
+                    FROM 
+                        sectors_new s
+                    JOIN 
+                        industries_new i ON s.id = i.sector_id
+                    GROUP BY 
+                        s.sector_name;`;
                 this.pool.query(query, (err, result) => {
                     if (err) {
                         if (Common.ErrorMessages[err.code]) {
@@ -308,7 +318,54 @@ class ReportsModel {
         }
     }
 
-    
+    async get_stocks() {
+        try {
+            return new Promise((resolve, reject) => {
+                const query = `SELECT * FROM ${this.tb_stocks}`;
+                this.pool.query(query, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
+    async update_stock(stock_symbol, stockData) {
+        try {
+            return new Promise((resolve, reject) => {
+                const query = `UPDATE ${this.tb_stocks} SET ? WHERE stock_symbol = ?`;
+                this.pool.query(query, [stockData, stock_symbol], (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+
+                    resolve(result);
+                });
+            });
+        } catch (error) {
+            return error;
+        }
+    }
+
     async addmonthlyExpenseRecord(expenseData) {
         try {
             return new Promise((resolve, reject) => {
@@ -379,6 +436,92 @@ class ReportsModel {
             });
         } catch (error) {
             return error;
+        }
+    }
+
+    async addLivePrice(stockData, totalStockInfo) {
+        try {
+            // Check if stock exists
+            const stockExist = await this.getStockBySymbol(totalStockInfo.livePriceDto.symbol);
+            let resp = {
+                is_industry_updated: false,
+            }
+
+            if (!stockExist.length) {
+                throw {
+                    error: 'Stock not listed',
+                    message: 'Stock not listed'
+                };
+            }
+
+            const stock = stockExist[0];
+
+            // Update empty fields in stock table
+            if (stock.stock_id) {
+                const fieldsToUpdate = [];
+                const values = [];
+
+                if (!stock.industry || stock.industry === '') {
+                    fieldsToUpdate.push('industry = ?');
+                    values.push(totalStockInfo.industryCode);
+                }
+                if (!stock.high_1_year || stock.high_1_year === '') {
+                    fieldsToUpdate.push('high_1_year = ?');
+                    values.push(totalStockInfo.yearlyHighPrice);
+                }
+                if (!stock.low_1_year || stock.low_1_year === '') {
+                    fieldsToUpdate.push('low_1_year = ?');
+                    values.push(totalStockInfo.yearlyLowPrice);
+                }
+                if (!stock.market_cap || stock.market_cap === '') {
+                    fieldsToUpdate.push('market_cap = ?');
+                    values.push(totalStockInfo.marketCap);
+                }
+
+                if (fieldsToUpdate.length > 0) {
+                    const updateQuery = `UPDATE ${this.tb_stocks} SET ${fieldsToUpdate.join(', ')} WHERE stock_id = ?`;
+                    values.push(stock.stock_id);
+
+                    await new Promise((resolve, reject) => {
+                        this.pool.query(updateQuery, values, (err, result) => {
+                            if (err) {
+                                if (Common.ErrorMessages[err.code]) {
+                                    reject({
+                                        error: Common.ErrorMessages[err.code],
+                                        message: err.message
+                                    });
+                                } else {
+                                    reject(err.message);
+                                }
+                            }
+                            resp.is_fields_updated = true;
+                            resolve(result);
+                        });
+                    });
+                }
+            }
+
+            // Insert live price data
+            const insertQuery = `INSERT INTO ${this.tbl_liveprice} SET ?`;
+            return await new Promise((resolve, reject) => {
+                this.pool.query(insertQuery, stockData, (err, result) => {
+                    if (err) {
+                        if (Common.ErrorMessages[err.code]) {
+                            reject({
+                                error: Common.ErrorMessages[err.code],
+                                message: err.message
+                            });
+                        } else {
+                            reject(err.message);
+                        }
+                    }
+                    result.is_industry_updated = resp.is_industry_updated;
+                    resolve(result);
+                });
+            });
+
+        } catch (error) {
+            throw error; // Propagate error to caller
         }
     }
 

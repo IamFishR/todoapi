@@ -3,9 +3,10 @@ var router = express.Router();
 const { authMiddleware } = require('../config/authMiddleware');
 const Stocks = require('../controllers/stockController');
 
-
 // stock market reporting
-router.post('/add', authMiddleware, Stocks.addStock);
 router.get('/sectors', authMiddleware, Stocks.getSectors);
-
+router.post('/add', authMiddleware, Stocks.addStock);
+router.get('/lists', authMiddleware, Stocks.getStocks);
+router.post('/updateStock', authMiddleware, Stocks.updateStock);
+router.post('/liveprice', authMiddleware, Stocks.addLivePrice);
 module.exports = router;
