@@ -203,7 +203,7 @@ class Stocks {
             for (const stock of stocks) {
                 try {
                     let data = {
-                        'stock_isin': stock.stock_isin,
+                        'stock_isin': stock.isin,
                         'type': stock.livePriceDto.type,
                         'symbol': stock.livePriceDto.symbol,
                         'ts_in_millis': stock.livePriceDto.tsInMillis,
@@ -247,7 +247,6 @@ class Stocks {
             });
         }
     }
-
 }
 
 module.exports = new Stocks();
