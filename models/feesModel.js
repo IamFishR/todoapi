@@ -15,8 +15,8 @@ class Fees {
         }
     }
 
-    async fnoFees(data) { }
 
+    // brokerage regulation
     fees = {
         groww: {
             "account_opening": {
@@ -39,7 +39,7 @@ class Fees {
                     "fees_two": {
                         "type": "percentage",
                         "price": "0.05"
-                    },
+                    }
                 },
                 "futures_options": {
                     "type": "flat",
@@ -65,7 +65,7 @@ class Fees {
                             "sell": {
                                 "type": "percentage",
                                 "price": "0.025"
-                            },
+                            }
                         },
                         "delivery": {
                             "sell": {
@@ -119,13 +119,13 @@ class Fees {
                         "buy": {
                             "type": "percentage",
                             "price": "0.002"
-                        },
+                        }
                     },
                     "options": {
                         "buy": {
                             "type": "percentage",
                             "price": "0.003"
-                        },
+                        }
                     }
                 },
                 "exchange_transaction_charge": {
@@ -278,8 +278,8 @@ class Fees {
                                 "depositary": {
                                     "by": "CDSL",
                                     "price": "5.5",
-                                    "type": "flat",
-                                },
+                                    "type": "flat"
+                                }
                             }
                         }
                     },
@@ -351,7 +351,7 @@ class Fees {
                             "price": "0.0005"
                         }
                     }
-                },
+                }
             },
             "penalties": {
                 "auto_square_off_charges": {
@@ -411,216 +411,199 @@ class Fees {
                 "margin_re_pledge": "₹5",
                 "release_margin_re_pledge": "₹5",
                 "restat_soa_redemption": "₹20 + GST"
+            },
+            "additional_charges": {
+                "fund_transfer": {
+                    "type": "flat",
+                    "price": "0",
+                    "info": "Free online fund transfer; bank charges may apply separately"
+                },
+                "account_closing_fee": {
+                    "type": "flat",
+                    "price": "0",
+                    "info": "No fee for closing demat account"
+                },
+                "annual_demat_maintenance": {
+                    "type": "flat",
+                    "price": "0",
+                    "info": "Free demat maintenance"
+                }
             }
-        },
+        }
     }
 
-    async calculate_fno_fees(txnData) { }
-
     async fno_nifty_fees(txnData) {
-        const _this = this;
         try {
-            if (txnData.txn_type === 'buy') {
-                let total_fees = 0;
-                let total_tax = 0;
-                let total_net_amount = 0;
-                let total_amount = 0;
+            // Helper function to sum an array of fees
+            const sumFees = (feesArray) => feesArray.reduce((acc, fee) => acc + fee, 0);
+            // Helper function to compute fee using fee_type method
+            const computeFee = (feeConfig, amount) => this.fee_type(feeConfig, amount);
 
-                let order_amount = txnData.stock_qty * txnData.stock_price;
+            // Destructure common fields from txnData and calculate order amount
+            const {
+                txn_type,
+                instrument_type,
+                txn_nature,
+                stock_qty,
+                stock_price,
+                market_type,
+                exchange_name
+            } = txnData;
+            const orderAmount = stock_qty * stock_price;
 
-                // brokerage
-                let brokerage = 0;
+            // Get the fee configuration (assumed to be under this.fees.groww)
+            const feeConfig = this.fees.groww;
 
-                // calculate brokerage
-                if (txnData.instrument_type === 'futures') {
-                    const fees = _this.fees.groww.brokerage.futures_options;
-                    brokerage = _this.fee_type(fees, order_amount);
+            // Initialize fee breakdown variables
+            let brokerage = 0,
+                stt = 0,
+                stampDuty = 0,
+                exchangeTxnCharge = 0,
+                sebiTurnoverCharge = 0,
+                penalty = 0,
+                cgst = 0,
+                sgst = 0,
+                igst = 0,
+                utt = 0,
+                ipft = 0;
+
+            // --------------------- BUY TRANSACTION ---------------------
+            if (txn_type === 'buy') {
+                // Calculate Brokerage
+                if (instrument_type === 'futures') {
+                    brokerage = computeFee(feeConfig.brokerage.futures_options, orderAmount);
+                } else if (instrument_type === 'EQ') {
+                    const feeOne = computeFee(feeConfig.brokerage.equity.fees_one, orderAmount);
+                    const feeTwo = computeFee(feeConfig.brokerage.equity.fees_two, orderAmount);
+                    brokerage = Math.min(feeOne, feeTwo);
                 }
 
-                if (txnData.instrument_type === 'EQ') {
-                    const fees = _this.fees.groww.brokerage.equity;
-                    let fees_one = _this.fee_type(fees.fees_one, order_amount);
-                    let fees_two = _this.fee_type(fees.fees_two, order_amount);
+                // STT is zero for buy orders
+                stt = 0;
 
-                    // whichever is lower
-                    brokerage = fees_one < fees_two ? fees_one : fees_two;
+                // Stamp Duty Calculation
+                if (instrument_type === 'futures') {
+                    stampDuty = computeFee(feeConfig.regulatory_statutory_charges.stamp_duty.futures, orderAmount);
+                    // Minimum threshold check (if less than ₹50, set to 0)
+                    if (stampDuty < 50) stampDuty = 0;
+                } else if (instrument_type === 'EQ') {
+                    const eqStampDuty = feeConfig.regulatory_statutory_charges.stamp_duty.equity;
+                    stampDuty =
+                        txn_nature === 'intraday'
+                            ? computeFee(eqStampDuty.intraday.buy, orderAmount)
+                            : txn_nature === 'delivery'
+                                ? computeFee(eqStampDuty.delivery.buy, orderAmount)
+                                : 0;
                 }
 
-                // stt no charge for buy
-                let stt = 0;
-
-                // stamp duty
-                let stamp_duty = 0;
-                if (txnData.instrument_type === 'futures') {
-                    const stamp_duty_fees = _this.fees.groww.regulatory_statutory_charges.stamp_duty.futures;
-                    stamp_duty = _this.fee_type(stamp_duty_fees, order_amount);
-
-                    if(stamp_duty < 50) {
-                        stamp_duty = 0;
+                // Exchange Transaction Charge Calculation
+                if (instrument_type === 'futures') {
+                    if (market_type === 'NSE') {
+                        exchangeTxnCharge = computeFee(feeConfig.regulatory_statutory_charges.exchange_transaction_charge.futures.nse.buy, orderAmount);
+                    }
+                } else if (instrument_type === 'EQ') {
+                    if (market_type === 'NSE') {
+                        // For equities, using the intraday fee config (adjust if needed for delivery)
+                        exchangeTxnCharge = computeFee(feeConfig.regulatory_statutory_charges.exchange_transaction_charge.equity.intrady.nse.buy, orderAmount);
                     }
                 }
 
-                if (txnData.instrument_type === 'EQ') {
-                    const stamp_duty_fees = _this.fees.groww.regulatory_statutory_charges.stamp_duty.equity;
-                    if (txnData.txn_nature === 'intraday') {
-                        stamp_duty = _this.fee_type(stamp_duty_fees.intraday.buy, order_amount);
-                    }
-                    if (txnData.txn_nature === 'delivery') {
-                        stamp_duty = _this.fee_type(stamp_duty_fees.delivery.buy, order_amount);
-                    }
+                // SEBI Turnover Charge Calculation
+                if (instrument_type === 'futures') {
+                    sebiTurnoverCharge = computeFee(feeConfig.regulatory_statutory_charges.sebi_turnover_charge.futures.buy, orderAmount);
+                } else if (instrument_type === 'EQ') {
+                    sebiTurnoverCharge = computeFee(feeConfig.regulatory_statutory_charges.sebi_turnover_charge.equity.intraday.buy, orderAmount);
                 }
 
-                // exchange transaction charge
-                let exchange_transaction_charge = 0;
-                if (txnData.market_type === 'NSE') {
-                    if (txnData.instrument_type === 'futures') {
-                        const exchange_transaction_charge_fees = _this.fees.groww.regulatory_statutory_charges.exchange_transaction_charge.futures.nse.buy;
-                        exchange_transaction_charge = _this.fee_type(exchange_transaction_charge_fees, order_amount);
-                    }
+                // Penalty is currently not applied (could add delayed payment penalty logic if needed)
+                penalty = 0;
 
-                    if (txnData.instrument_type === 'EQ') {
-                        const exchange_transaction_charge_fees = _this.fees.groww.regulatory_statutory_charges.exchange_transaction_charge.equity.intrady.nse.buy;
-                        exchange_transaction_charge = _this.fee_type(exchange_transaction_charge_fees, order_amount);
-                    }
+                // For Equity transactions, calculate tax components based on the taxable base (brokerage + exchangeTxnCharge + sebiTurnoverCharge)
+                if (instrument_type === 'EQ') {
+                    const taxableBase = sumFees([brokerage, exchangeTxnCharge, sebiTurnoverCharge]);
+                    cgst = computeFee(feeConfig.tax.cgst, taxableBase);
+                    sgst = computeFee(feeConfig.tax.sgst, taxableBase);
+                    igst = computeFee(feeConfig.tax.igst, taxableBase);
+                    utt = computeFee(feeConfig.tax.utt, taxableBase);
                 }
 
-                // sebi turnover charge
-                let sebi_turnover_charge = 0;
-                if (txnData.instrument_type === 'futures') {
-                    const sebi_turnover_charge_fees = _this.fees.groww.regulatory_statutory_charges.sebi_turnover_charge.futures.buy;
-                    sebi_turnover_charge = _this.fee_type(sebi_turnover_charge_fees, order_amount);
+                // Investor Protection Fund Trust Charge for equities
+                if (instrument_type === 'EQ') {
+                    ipft = computeFee(feeConfig.regulatory_statutory_charges.investor_protection_fund_trust_charge.equity.intraday.nse.buy, orderAmount);
                 }
 
-                if (txnData.instrument_type === 'EQ') {
-                    const sebi_turnover_charge_fees = _this.fees.groww.regulatory_statutory_charges.sebi_turnover_charge.equity.intraday.buy;
-                    sebi_turnover_charge = _this.fee_type(sebi_turnover_charge_fees, order_amount);
-                }
-                // any penalty
-                let penalty = 0;
-                // const time = new Date(txnData.trade_date);
-                // const today = new Date();
-
-                // if (time > today ) {
-                //     penalty = _this.fees.groww.penalties.delayed_payment_charges;
-                // }
-
-
-                let cgst = 0;
-                let sgst = 0;
-                let igst = 0;
-                let utt = 0;
-                if(txnData.instrument_type === 'EQ') {
-                    const cgst_fees = _this.fees.groww.tax.cgst;
-                    let cgst_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
-                    cgst = _this.fee_type(cgst_fees, cgst_on);
-                    
-                    const sgst_fees = _this.fees.groww.tax.sgst;
-                    let sgst_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
-                    sgst = _this.fee_type(sgst_fees, sgst_on);
-
-                    const igst_fees = _this.fees.groww.tax.igst;
-                    let igst_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
-                    igst = _this.fee_type(igst_fees, igst_on);
-
-                    const utt_fees = _this.fees.groww.tax.utt;
-                    let utt_on = _this.sum_fees([brokerage, exchange_transaction_charge, sebi_turnover_charge]);
-                    utt = _this.fee_type(utt_fees, utt_on);
-                }
-
-                let ipft = 0;
-                if(txnData.instrument_type === 'EQ') {
-                    const ipft_fees = _this.fees.groww.regulatory_statutory_charges.investor_protection_fund_trust_charge.equity.intraday.nse.buy;
-                    ipft = _this.fee_type(ipft_fees, order_amount);
-                }
-
-                let regulatory_statutory_charges = _this.sum_fees([stt, stamp_duty, exchange_transaction_charge, sebi_turnover_charge, penalty]);
-                total_fees = _this.sum_fees([brokerage, regulatory_statutory_charges]);
-                total_net_amount = _this.sum_fees([order_amount, total_fees]);
+                // Sum up all regulatory/statutory charges
+                const regulatoryCharges = sumFees([stt, stampDuty, exchangeTxnCharge, sebiTurnoverCharge, penalty]);
+                // Total fees is the sum of brokerage and regulatory charges
+                const totalFees = sumFees([brokerage, regulatoryCharges]);
+                // Total tax is the sum of applicable GST, etc.
+                const totalTax = sumFees([cgst, sgst, igst, utt]);
+                // For buy transactions, total net amount can be defined as order amount plus fees (if fees are added)
+                const totalNetAmount = orderAmount + totalFees;
 
                 return {
-                    total_fees: total_fees,
-                    total_tax: total_tax,
-                    total_net_amount: total_net_amount,
-                    total_amount: total_amount,
-                    'breakdown': {
-                        brokerage: brokerage,
-                        stt: stt,
-                        stamp_duty: stamp_duty,
-                        exchange_transaction_charge: exchange_transaction_charge,
-                        sebi_turnover_charge: sebi_turnover_charge,
-                        penalty: penalty,
-                        cgst: cgst,
-                        sgst: sgst,
-                        igst: igst,
-                        utt: utt,
-                        ipft: ipft,
-                        regulatory_statutory_charges: regulatory_statutory_charges
+                    total_fees: totalFees,
+                    total_tax: totalTax,
+                    total_net_amount: totalNetAmount,
+                    total_amount: orderAmount,
+                    breakdown: {
+                        brokerage,
+                        stt,
+                        stamp_duty: stampDuty,
+                        exchange_transaction_charge: exchangeTxnCharge,
+                        sebi_turnover_charge: sebiTurnoverCharge,
+                        penalty,
+                        cgst,
+                        sgst,
+                        igst,
+                        utt,
+                        ipft,
+                        regulatory_statutory_charges: regulatoryCharges
                     }
-                }
+                };
             }
-            if (txnData.txn_type === 'sell') {
-                let total_fees = 0;
-                let total_tax = 0;
-                let total_net_amount = 0;
-                let total_amount = 0;
 
-                let order_amount = txnData.stock_qty * txnData.stock_price;
+            // --------------------- SELL TRANSACTION ---------------------
+            if (txn_type === 'sell') {
+                // For sell orders, brokerage is calculated from futures_options fees (adjust if needed for equities)
+                brokerage = computeFee(feeConfig.brokerage.futures_options, orderAmount);
 
-                // brokerage
-                let brokerage = 0;
+                // STT for sell transactions (using futures sell fee)
+                stt = computeFee(feeConfig.regulatory_statutory_charges.stt.futures.sell, orderAmount);
 
-                // calculate brokerage
-                const fees = _this.fees.groww.brokerage.futures_options;
-                brokerage = _this.fee_type(fees, order_amount);
+                // Stamp Duty for sell transactions (using futures configuration)
+                stampDuty = computeFee(feeConfig.regulatory_statutory_charges.stamp_duty.futures, orderAmount);
 
-                // stt
-                let stt = 0;
-                const stt_fees = _this.fees.groww.regulatory_statutory_charges.stt.futures.sell;
-                stt = _this.fee_type(stt_fees, order_amount);
-
-                // stamp duty
-                let stamp_duty = 0;
-                const stamp_duty_fees = _this.fees.groww.regulatory_statutory_charges.stamp_duty.futures;
-                stamp_duty = _this.fee_type(stamp_duty_fees, order_amount);
-
-                // exchange transaction charge
-                let exchange_transaction_charge = 0;
-                if (txnData.exchange_name === 'nse') {
-                    const exchange_transaction_charge_fees = _this.fees.groww.regulatory_statutory_charges.exchange_transaction_charge.futures.nse.sell;
-                    exchange_transaction_charge = _this.fee_type(exchange_transaction_charge_fees, order_amount);
+                // Exchange Transaction Charge for sell; check exchange name
+                if (exchange_name === 'nse') {
+                    exchangeTxnCharge = computeFee(feeConfig.regulatory_statutory_charges.exchange_transaction_charge.futures.nse.sell, orderAmount);
                 }
 
-                // sebi turnover charge
-                let sebi_turnover_charge = 0;
-                const sebi_turnover_charge_fees = _this.fees.groww.regulatory_statutory_charges.sebi_turnover_charge.futures.sell;
-                sebi_turnover_charge = _this.fee_type(sebi_turnover_charge_fees, order_amount);
+                // SEBI Turnover Charge for sell transactions (futures)
+                sebiTurnoverCharge = computeFee(feeConfig.regulatory_statutory_charges.sebi_turnover_charge.futures.sell, orderAmount);
 
-                // any penalty
-                let penalty = 0;
-                // const time = new Date(txnData.trade_date);
-                // const today = new Date();
+                // Penalty remains zero unless additional logic is added
+                penalty = 0;
 
-                // if (time > today ) {
-                //     penalty = _this.fees.groww.penalties.delayed_payment_charges;
-                // }
-
-                total_tax = stt + stamp_duty + exchange_transaction_charge + sebi_turnover_charge + penalty;
-
-                total_fees = brokerage + total_tax;
-
-                total_net_amount = order_amount - total_fees;
+                // Total tax is the sum of stt, stamp duty, exchange transaction charge, sebi turnover charge, and any penalty
+                const totalTax = sumFees([stt, stampDuty, exchangeTxnCharge, sebiTurnoverCharge, penalty]);
+                const totalFees = brokerage + totalTax;
+                const totalNetAmount = orderAmount - totalFees;
 
                 return {
-                    total_fees: total_fees,
-                    total_tax: total_tax,
-                    total_net_amount: total_net_amount,
-                    total_amount: total_amount
-                }
+                    total_fees: totalFees,
+                    total_tax: totalTax,
+                    total_net_amount: totalNetAmount,
+                    total_amount: orderAmount
+                };
             }
+
+            throw new Error("Invalid transaction type");
         } catch (error) {
             return error;
         }
     }
+
 
     fee_type(fee, price) {
         let fees;
@@ -639,9 +622,9 @@ class Fees {
     }
 
     sum_fees(fees) {
-        const sum =  fees.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+        const sum = fees.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
         return parseFloat(sum).toFixed(2);
     }
 }
 
-module.exports = new Fees();
+module.exports = Fees;
