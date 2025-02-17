@@ -37,6 +37,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', require('./routes/admin'));
 app.use('/stock', require('./routes/stock'));
 app.use('/shop', require('./routes/shop'));
+app.use('/company', require('./routes/company'));
 
 // invalid route
 app.get('*', (req, res) => {
