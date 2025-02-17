@@ -295,7 +295,7 @@ class ReportsModel {
                     FROM 
                         sectors_new s
                     JOIN 
-                        industries_new i ON s.id = i.sector_id
+                        industry i ON s.id = i.sector
                     GROUP BY 
                         s.sector_name;`;
                 this.pool.query(query, (err, result) => {

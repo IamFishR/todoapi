@@ -112,19 +112,6 @@ class LogController {
                 newsArr.push(dt);
             }
 
-            // {
-            //     id: id,
-            //     title: news.title,
-            //     summary: news.summary,
-            //     url: news.url,
-            //     contifyImageUrl: news.contifyImageUrl,
-            //     pubDate: news.pubDate,
-            //     source: news.source,
-            //     companies: JSON.stringify(news.companies),
-            //     topics: JSON.stringify(news.topics),
-            //     hidden: news.hidden
-            // }
-
             let errors = [];
             let logs = [];
 

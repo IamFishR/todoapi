@@ -247,6 +247,32 @@ class Stocks {
             });
         }
     }
+
+    async calculateFees(req, res) {
+        try {
+            const { txn_type, instrument_type, txn_nature, stock_qty, stock_price, market_type, exchange_name } = req.body;
+
+            if (!txn_type || !instrument_type || !txn_nature || !stock_qty || !stock_price || !market_type || !exchange_name) {
+                return res.status(400).send({
+                    status: 'error',
+                    message: 'Missing required fields'
+                });
+            }
+
+            const feesModel = new Fees();
+            const feesData = await feesModel.fno_nifty_fees(req.body);
+
+            return res.status(200).send({
+                status: 'success',
+                data: feesData
+            });
+        } catch (error) {
+            return res.status(500).send({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    }
 }
 
 module.exports = new Stocks();
