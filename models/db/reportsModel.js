@@ -293,9 +293,9 @@ class ReportsModel {
                         s.sector_name AS sector,
                         JSON_OBJECTAGG(i.industry_id, i.industry_name) AS industries
                     FROM 
-                        sectors_new s
+                        Sectors s
                     JOIN 
-                        industry i ON s.id = i.sector
+                        Industries i ON s.sector_id = i.sector_id
                     GROUP BY 
                         s.sector_name;`;
                 this.pool.query(query, (err, result) => {

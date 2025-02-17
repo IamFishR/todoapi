@@ -23,8 +23,8 @@
  */
 // revenue, profitMargins, debtLevels, dividendPolicies
 
-const dbconnection = require('../config/db');
-const Common = require('../helper/common');
+const dbconnection = require('../../../config/db');
+const Common = require('../../../helper/common');
 
 class CompanyModal {
     constructor() {
