@@ -1,6 +1,6 @@
 const dbconnection = require('../config/db');
 const Common = require('../helper/common');
-
+const runQuery = require('../helper/dbQuery');
 
 class DbOperation {
     constructor() {
@@ -11,77 +11,11 @@ class DbOperation {
         this.tbl_ss = 'sessions';
         this.tbl_ss_log = 'session_logs';
     }
-    columns = {
-        user_id: {
-            type: 'string',
-            required: true,
-            unique: true
-        },
-        name: {
-            type: 'string',
-            required: true
-        },
-        email: {
-            type: 'string',
-            required: true,
-            unique: true
-        },
-        password: {
-            type: 'string',
-            required: true
-        },
-        role: 'user',
-        avatar: {
-            type: 'string',
-            required: false
-        },
-        bio: {
-            type: 'string',
-            required: false
-        },
-        facebook: {
-            type: 'string',
-            required: false
-        },
-        twitter: {
-            type: 'string',
-            required: false
-        },
-        linkedin: {
-            type: 'string',
-            required: false
-        },
-        github: {
-            type: 'string',
-            required: false
-        },
-        website: {
-            type: 'string',
-            required: false
-        },
-        google: {
-            type: 'string',
-            required: false
-        },
-        created_at: new Date(),
-        updated_at: new Date()
-    }
 
     async getUserById(userid) {
         try {
-            return new Promise((resolve, reject) => {
-                const sql = `SELECT * FROM ${this.tbl_user} WHERE user_id = ?`;
-                this.pool.query(sql, [userid], (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(result);
-                });
-            });
+            const sql = `SELECT * FROM ${this.tbl_user} WHERE user_id = ?`;
+            return await runQuery(this.pool, sql, [userid]);
         } catch (error) {
             return error;
         }
@@ -89,24 +23,9 @@ class DbOperation {
 
     async signIn(data) {
         try {
-
-            return new Promise((resolve, reject) => {
-                const email = this.pool.escape(data.email);
-                const query = `SELECT * FROM ${this.tbl_user} WHERE email = ${email}`;
-                this.pool.query(query, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            return reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            return reject(err.message);
-                        }
-                    }
-                    if (result.length < 1) {
-                        return reject("User not found");
-                    }
-                    resolve(result[0]);
-                });
-            });
+            const email = this.pool.escape(data.email);
+            const sql = `SELECT * FROM ${this.tbl_user} WHERE email = ${email}`;
+            return await runQuery(this.pool, sql);
         } catch (error) {
             return error;
         }
@@ -114,44 +33,23 @@ class DbOperation {
 
     async signOut(data) {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `SELECT * FROM ${this.tbl_ss} WHERE session_id = ?`;
-                this.pool.query(query, [data.session_id], (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    if (result.length < 1) {
-                        reject("Session not found");
-                    }
-
-                    if (result[0].session_status === 'active') {
-                        const date = new Date();
-                        let sql = `UPDATE ${this.tbl_ss} SET session_status = 'inactive' WHERE session_id = ? AND session_end= ?`;
-                        this.pool.query(sql, [data.session_id, date], (err, result) => {
-                            if (err) {
-                                if (Common.ErrorMessages[err.code]) {
-                                    reject(Common.ErrorMessages[err.code]);
-                                } else {
-                                    reject(err.message);
-                                }
-                            }
-                            if (result.affectedRows > 0) {
-                                resolve({
-                                    message: "Session logged out"
-                                });
-                            } else {
-                                reject("Session not updated");
-                            }
-                        });
-                    } else {
-                        reject("Session not active");
-                    }
-                });
-            });
+            const sql = `SELECT * FROM ${this.tbl_ss} WHERE session_id = ?`;
+            const result = await runQuery(this.pool, sql, [data.session_id]);
+            if (result.length < 1) {
+                throw new Error("Session not found");
+            }
+            if (result[0].session_status === 'active') {
+                const date = new Date();
+                const updateSql = `UPDATE ${this.tbl_ss} SET session_status = 'inactive', session_end = ? WHERE session_id = ?`;
+                const updateResult = await runQuery(this.pool, updateSql, [date, data.session_id]);
+                if (updateResult.affectedRows > 0) {
+                    return { message: "Session logged out" };
+                } else {
+                    throw new Error("Session not updated");
+                }
+            } else {
+                throw new Error("Session not active");
+            }
         } catch (error) {
             return error;
         }
@@ -159,23 +57,8 @@ class DbOperation {
 
     async createSession(data) {
         try {
-            return new Promise((resolve, reject) => {
-                let sql = `INSERT INTO ${this.tbl_ss} SET ?`;
-                this.pool.query(sql, data, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    if (result.affectedRows > 0) {
-                        resolve(result);
-                    } else {
-                        reject("Session not created");
-                    }
-                });
-            });
+            const sql = `INSERT INTO ${this.tbl_ss} SET ?`;
+            return await runQuery(this.pool, sql, [data]);
         } catch (error) {
             return error;
         }
@@ -183,41 +66,16 @@ class DbOperation {
 
     async logSession(data) {
         try {
-            return new Promise((resolve, reject) => {
-                let sql = `INSERT INTO ${this.tbl_ss_log} SET ?`;
-                let query = `SELECT * FROM ${this.tbl_ss} WHERE session_id = ?`;
-                this.pool.query(query, [data.session_id], (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            return reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            return reject(err.message);
-                        }
-                    } else {
-                        if (result.length < 1) {
-                            return reject("Session not found");
-                        }
-                        if (result[0].session_status !== 'active') {
-                            return reject("Please login to continue");
-                        } else {
-                            this.pool.query(sql, data, (err, result) => {
-                                if (err) {
-                                    if (Common.ErrorMessages[err.code]) {
-                                        return reject(Common.ErrorMessages[err.code]);
-                                    } else {
-                                        return reject(err.message);
-                                    }
-                                }
-                                if (result.affectedRows > 0) {
-                                    return resolve(result);
-                                } else {
-                                    return reject("Session log not created");
-                                }
-                            });
-                        }
-                    }
-                });
-            });
+            const querySql = `SELECT * FROM ${this.tbl_ss} WHERE session_id = ?`;
+            const result = await runQuery(this.pool, querySql, [data.session_id]);
+            if (result.length < 1) {
+                throw new Error("Session not found");
+            }
+            if (result[0].session_status !== 'active') {
+                throw new Error("Please login to continue");
+            }
+            const sql = `INSERT INTO ${this.tbl_ss_log} SET ?`;
+            return await runQuery(this.pool, sql, [data]);
         } catch (error) {
             return error;
         }
@@ -225,28 +83,15 @@ class DbOperation {
 
     async createUser(data) {
         try {
-            return new Promise((resolve, reject) => {
-                let sql = `INSERT INTO ${this.tbl_user} SET ?`;
-                this.pool.query(sql, data, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    if (result.affectedRows > 0) {
-                        resolve(this.removeSecrets(data));
-                    } else {
-                        reject("User not created");
-                    }
-                });
-            });
-
-        } catch (error) {
-            return {
-                error: error
+            const sql = `INSERT INTO ${this.tbl_user} SET ?`;
+            const result = await runQuery(this.pool, sql, [data]);
+            if (result.affectedRows > 0) {
+                return this.removeSecrets(data);
+            } else {
+                throw new Error("User not created");
             }
+        } catch (error) {
+            return { error: error };
         }
     }
 
@@ -260,56 +105,22 @@ class DbOperation {
 
     async copyPaste(data) {
         try {
-            return new Promise((resolve, reject) => {
-                let sql = `INSERT INTO ${this.tbl_cp} SET ?`;
-                this.pool.query(sql, data, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    if (result.affectedRows > 0) {
-                        resolve(result);
-                    } else {
-                        reject("Data not saved");
-                    }
-                });
-            });
+            const sql = `INSERT INTO ${this.tbl_cp} SET ?`;
+            return await runQuery(this.pool, sql, [data]);
         } catch (error) {
-            return {
-                error: error
-            }
+            return { error: error };
         }
     }
 
     async aichat(data) {
         try {
-            /**
-             * chat_id
-             * owner
-             * conversation : [[question, answer]]
-             */
             const values = {
                 chat_id: data.chat_id,
                 owner: data.user_id,
                 conversation: JSON.stringify(data),
             };
-            let sql = `INSERT INTO ${this.tbl_ai} SET ?`;
-            return new Promise((resolve, reject) => {
-                this.pool.query(sql, values, (err, result) => {
-                    if (err) {
-                        reject({
-                            error: err.message
-                        });
-                    }
-                    resolve({
-                        message: "Chat saved successfully"
-                    });
-                });
-            });
-
+            const sql = `INSERT INTO ${this.tbl_ai} SET ?`;
+            return await runQuery(this.pool, sql, [values]);
         } catch (error) {
             return error;
         }

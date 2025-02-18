@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const dbconnection = require('../../config/db');
 const Common = require('../../helper/common');
+const runQuery = require('../../helper/dbQuery');
 class LogOperation {
     constructor() {
         this.pool = dbconnection;
@@ -49,21 +50,9 @@ class LogOperation {
 
     async writeNews(data) {
         try {
-            return new Promise((resolve, reject) => {
-                const tbl_news = 'news';
-
-                const sql = `INSERT INTO ${tbl_news} SET ?`;
-                this.pool.query(sql, [data], (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            return reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            return reject(err.message);
-                        }
-                    }
-                    resolve(result);
-                });
-            });
+            const tbl_news = 'news';
+            const sql = `INSERT INTO ${tbl_news} SET ?`;
+            return await runQuery(this.pool, sql, [data]);
         } catch (error) {
             return error;
         }
@@ -71,21 +60,9 @@ class LogOperation {
 
     async writeSMS(data) {
         try {
-            return new Promise((resolve, reject) => {
-                const tbl_sms = 'sms_logs';
-
-                const sql = `INSERT INTO ${tbl_sms} SET ?`;
-                this.pool.query(sql, [data], (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            return reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            return reject(err.message);
-                        }
-                    }
-                    resolve(result);
-                });
-            });
+            const tbl_sms = 'sms_logs';
+            const sql = `INSERT INTO ${tbl_sms} SET ?`;
+            return await runQuery(this.pool, sql, [data]);
         } catch (error) {
             return error;
         }
@@ -93,21 +70,9 @@ class LogOperation {
 
     async writeReminder(data) {
         try {
-            return new Promise((resolve, reject) => {
-                const tbl_reminder = 'reminder';
-
-                const sql = `INSERT INTO ${tbl_reminder} SET ?`;
-                this.pool.query(sql, [data], (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            return reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            return reject(err.message);
-                        }
-                    }
-                    resolve(result);
-                });
-            });
+            const tbl_reminder = 'reminder';
+            const sql = `INSERT INTO ${tbl_reminder} SET ?`;
+            return await runQuery(this.pool, sql, [data]);
         } catch (error) {
             return error;
         }
@@ -115,19 +80,8 @@ class LogOperation {
 
     async getReminders() {
         try {
-            return new Promise((resolve, reject) => {
-                const sql = `SELECT * FROM ${this.tbl_reminder}`;
-                this.pool.query(sql, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            return reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            return reject(err.message);
-                        }
-                    }
-                    resolve(result);
-                });
-            });
+            const sql = `SELECT * FROM ${this.tbl_reminder}`;
+            return await runQuery(this.pool, sql);
         } catch (error) {
             return error;
         }

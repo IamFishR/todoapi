@@ -1,6 +1,7 @@
 const dbconnection = require('../config/db');
 const { deleteProduct } = require('../controllers/productController');
 const Common = require('../helper/common');
+const runQuery = require('../helper/dbQuery');
 
 class ProductOperation {
     constructor() {
@@ -12,23 +13,11 @@ class ProductOperation {
 
     async getProducts(user_id) {
         try {
-            return new Promise((resolve, reject) => {
-                let query = `SELECT * FROM ${this.tbl_product}`;
-                if (user_id) {
-                    query = `SELECT * FROM ${this.tbl_product} WHERE user_id = ${user_id}`;
-                }
-
-                this.pool.query(query, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            let query = `SELECT * FROM ${this.tbl_product}`;
+            if (user_id) {
+                query = `SELECT * FROM ${this.tbl_product} WHERE user_id = ?`;
+            }
+            return await runQuery(this.pool, query, [user_id]);
         } catch (error) {
             return error;
         }
@@ -36,18 +25,8 @@ class ProductOperation {
 
     async addProduct(product) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`INSERT INTO ${this.tbl_product} SET ?`, product, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `INSERT INTO ${this.tbl_product} SET ?`;
+            return await runQuery(this.pool, query, [product]);
         } catch (error) {
             return error;
         }
@@ -55,18 +34,8 @@ class ProductOperation {
 
     async updateProduct(product, id) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`UPDATE ${this.tbl_product} SET ? WHERE product_id = ?`, [product, id], (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `UPDATE ${this.tbl_product} SET ? WHERE product_id = ?`;
+            return await runQuery(this.pool, query, [product, id]);
         } catch (error) {
             return error;
         }
@@ -74,19 +43,8 @@ class ProductOperation {
 
     async deleteProduct(product_id) {
         try {
-            return new Promise((resolve, reject) => {
-                let query = `UPDATE ${this.tbl_product} SET status=0 WHERE product_id = ?`;
-                this.pool.query(query, product_id, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `UPDATE ${this.tbl_product} SET status=0 WHERE product_id = ?`;
+            return await runQuery(this.pool, query, [product_id]);
         } catch (error) {
             return error;
         }
@@ -94,18 +52,8 @@ class ProductOperation {
 
     async orderProduct(order) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`INSERT INTO ${this.tbl_order} SET ?`, order, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `INSERT INTO ${this.tbl_order} SET ?`;
+            return await runQuery(this.pool, query, [order]);
         } catch (error) {
             return error;
         }
@@ -113,23 +61,11 @@ class ProductOperation {
 
     async getOrders(user_id) {
         try {
-            return new Promise((resolve, reject) => {
-                let query = `SELECT * FROM ${this.tbl_order}`;
-                if (user_id) {
-                    query = `SELECT * FROM ${this.tbl_order} WHERE user_id = ${user_id}`;
-                }
-
-                this.pool.query(query, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            let query = `SELECT * FROM ${this.tbl_order}`;
+            if (user_id) {
+                query = `SELECT * FROM ${this.tbl_order} WHERE user_id = ?`;
+            }
+            return await runQuery(this.pool, query, [user_id]);
         } catch (error) {
             return error;
         }
@@ -137,18 +73,8 @@ class ProductOperation {
 
     async getOrder(order_id, user_id) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`SELECT * FROM ${this.tbl_order} WHERE order_id = ? AND user_id = ?`, [order_id, user_id], (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `SELECT * FROM ${this.tbl_order} WHERE order_id = ? AND user_id = ?`;
+            return await runQuery(this.pool, query, [order_id, user_id]);
         } catch (error) {
             return error;
         }
@@ -156,18 +82,8 @@ class ProductOperation {
 
     async updateOrder(order_id, order) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`UPDATE ${this.tbl_order} SET ? WHERE order_id = ?`, [order, order_id], (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `UPDATE ${this.tbl_order} SET ? WHERE order_id = ?`;
+            return await runQuery(this.pool, query, [order, order_id]);
         } catch (error) {
             return error;
         }
@@ -175,18 +91,8 @@ class ProductOperation {
 
     async deleteOrder(order_id) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`UPDATE ${this.tbl_order} SET status=0 WHERE order_id = ?`, order_id, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `UPDATE ${this.tbl_order} SET status=0 WHERE order_id = ?`;
+            return await runQuery(this.pool, query, [order_id]);
         } catch (error) {
             return error;
         }
@@ -194,18 +100,8 @@ class ProductOperation {
 
     async addStock(stock) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`INSERT INTO ${this.tbl_product_stock} SET ?`, stock, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `INSERT INTO ${this.tbl_product_stock} SET ?`;
+            return await runQuery(this.pool, query, [stock]);
         } catch (error) {
             return error;
         }
@@ -213,23 +109,11 @@ class ProductOperation {
 
     async getUserStocks(user_id, stock_id) {
         try {
-            return new Promise((resolve, reject) => {
-                let query = `SELECT * FROM ${this.tbl_product_stock} WHERE user_id = ${user_id}`;
-                if (user_id) {
-                    query = `SELECT * FROM ${this.tbl_product_stock} WHERE user_id = ${user_id} AND stock_id = ${stock_id}`;
-                }
-
-                this.pool.query(query, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            let query = `SELECT * FROM ${this.tbl_product_stock} WHERE user_id = ?`;
+            if (stock_id) {
+                query = `SELECT * FROM ${this.tbl_product_stock} WHERE user_id = ? AND stock_id = ?`;
+            }
+            return await runQuery(this.pool, query, [user_id, stock_id]);
         } catch (error) {
             return error;
         }
@@ -237,18 +121,8 @@ class ProductOperation {
 
     async getUserStock(stock_id, user_id) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`SELECT * FROM ${this.tbl_product_stock} WHERE stock_id = ? AND user_id = ?`, [stock_id, user_id], (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `SELECT * FROM ${this.tbl_product_stock} WHERE stock_id = ? AND user_id = ?`;
+            return await runQuery(this.pool, query, [stock_id, user_id]);
         } catch (error) {
             return error;
         }
@@ -256,18 +130,8 @@ class ProductOperation {
 
     async updateUserStock(stock_id, stock) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`UPDATE ${this.tbl_product_stock} SET ? WHERE stock_id = ?`, [stock, stock_id], (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `UPDATE ${this.tbl_product_stock} SET ? WHERE stock_id = ?`;
+            return await runQuery(this.pool, query, [stock, stock_id]);
         } catch (error) {
             return error;
         }
@@ -275,18 +139,8 @@ class ProductOperation {
 
     async deleteUserStock(stock_id) {
         try {
-            return new Promise((resolve, reject) => {
-                this.pool.query(`UPDATE ${this.tbl_product_stock} SET status=0 WHERE stock_id = ?`, stock_id, (err, results) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject(Common.ErrorMessages[err.code]);
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    resolve(results);
-                });
-            });
+            const query = `UPDATE ${this.tbl_product_stock} SET status=0 WHERE stock_id = ?`;
+            return await runQuery(this.pool, query, [stock_id]);
         } catch (error) {
             return error;
         }
