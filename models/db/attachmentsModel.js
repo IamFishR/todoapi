@@ -1,5 +1,7 @@
 const dbconnection = require('../../config/db');
 const Common = require('../../helper/common');
+const runQuery = require('../../../helper/dbQuery');
+
 
 class AttachmentsModel {
     constructor() {

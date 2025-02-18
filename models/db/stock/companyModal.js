@@ -25,6 +25,7 @@
 
 const dbconnection = require('../../../config/db');
 const Common = require('../../../helper/common');
+const runQuery = require('../../../helper/dbQuery');
 
 class CompanyModal {
     constructor() {
@@ -33,105 +34,27 @@ class CompanyModal {
     }
 
     addCompany(company) {
-        return new Promise((resolve, reject) => {
-            this.pool.getConnection((err, connection) => {
-                if (err) {
-                    reject(err);
-                }
-                connection.query(`INSERT INTO ${this.tbl_stock} SET ?`, company, (err, result) => {
-                    connection.release();
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(result);
-                });
-            });
-        });
+        return runQuery(this.pool, `INSERT INTO ${this.tbl_stock} SET ?`, company);
     }
 
     removeCompany(company) {
-        return new Promise((resolve, reject) => {
-            this.pool.getConnection((err, connection) => {
-                if (err) {
-                    reject(err);
-                }
-                connection.query(`DELETE FROM ${this.tbl_stock} WHERE company_id = ?`, company.company_id, (err, result) => {
-                    connection.release();
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(result);
-                });
-            });
-        });
+        return runQuery(this.pool, `DELETE FROM ${this.tbl_stock} WHERE company_id = ?`, company.company_id);
     }
 
     getCompanies() {
-        return new Promise((resolve, reject) => {
-            this.pool.getConnection((err, connection) => {
-                if (err) {
-                    reject(err);
-                }
-                connection.query(`SELECT * FROM ${this.tbl_stock}`, (err, result) => {
-                    connection.release();
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(result);
-                });
-            });
-        });
+        return runQuery(this.pool, `SELECT * FROM ${this.tbl_stock}`, []);
     }
 
     findCompany(name) {
-        return new Promise((resolve, reject) => {
-            this.pool.getConnection((err, connection) => {
-                if (err) {
-                    reject(err);
-                }
-                connection.query(`SELECT * FROM ${this.tbl_stock} WHERE company_name = ?`, name, (err, result) => {
-                    connection.release();
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(result);
-                });
-            });
-        });
+        return runQuery(this.pool, `SELECT * FROM ${this.tbl_stock} WHERE company_name = ?`, name);
     }
 
     updateCompany(company) {
-        return new Promise((resolve, reject) => {
-            this.pool.getConnection((err, connection) => {
-                if (err) {
-                    reject(err);
-                }
-                connection.query(`UPDATE ${this.tbl_stock} SET ? WHERE company_id = ?`, [company, company.company_id], (err, result) => {
-                    connection.release();
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(result);
-                });
-            });
-        });
+        return runQuery(this.pool, `UPDATE ${this.tbl_stock} SET ? WHERE company_id = ?`, [company, company.company_id]);
     }
 
     getCompanyById(company_id) {
-        return new Promise((resolve, reject) => {
-            this.pool.getConnection((err, connection) => {
-                if (err) {
-                    reject(err);
-                }
-                connection.query(`SELECT * FROM ${this.tbl_stock} WHERE company_id = ?`, company_id, (err, result) => {
-                    connection.release();
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(result);
-                });
-            });
-        });
+        return runQuery(this.pool, `SELECT * FROM ${this.tbl_stock} WHERE company_id = ?`, company_id);
     }
 }
 

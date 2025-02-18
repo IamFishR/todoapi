@@ -1,5 +1,6 @@
 const dbconnection = require('../../../config/db');
 const Common = require('../../../helper/common');
+const runQuery = require('../../../helper/dbQuery'); // added helper
 
 class IndustryModal {
     constructor() {
@@ -25,49 +26,20 @@ class IndustryModal {
     async addbulkIndustry(industries) {
         let unknownSectors = [];
         let existingIndustries = [];
-
         try {
             const insertData = [];
-
             for (const industry of industries) {
-                // 1. Promisify the pool.query call for sector lookup
-                const sectorResult = await new Promise((resolve, reject) => {
-                    this.pool.query(
-                        `SELECT sector_id FROM ${this.tbl_sectors} WHERE sector_name = ?`,
-                        industry.sector,
-                        (err, result) => {
-                            if (err) {
-                                reject(err); // Reject the Promise on error
-                            } else {
-                                resolve(result); // Resolve the Promise with the result
-                            }
-                        }
-                    );
-                });
-
+                // Use helper runQuery for sector lookup
+                const sectorResult = await runQuery(this.pool, `SELECT sector_id FROM ${this.tbl_sectors} WHERE sector_name = ?`, industry.sector);
                 if (sectorResult.length === 0) {
                     unknownSectors.push(industry.sector);
                     continue;
                 }
-
                 const sector_id = sectorResult[0].sector_id;
 
-                // 2. Promisify the pool.query call for industry lookup
+                // Industry lookup using helper runQuery
                 for (const key of Object.keys(industry.industries)) {
-                    const industryResult = await new Promise((resolve, reject) => {
-                        this.pool.query(
-                            `SELECT industry_id FROM ${this.tbl_industries} WHERE industry_id = ?`,
-                            key,
-                            (err, result) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolve(result);
-                                }
-                            }
-                        );
-                    });
-
+                    const industryResult = await runQuery(this.pool, `SELECT industry_id FROM ${this.tbl_industries} WHERE industry_id = ?`, key);
                     if (industryResult.length > 0) {
                         existingIndustries.push(industry.industries[key]);
                     } else {
@@ -75,21 +47,11 @@ class IndustryModal {
                     }
                 }
             }
-
-            // 3. Promisify the bulk insert
+            // Bulk insert using runQuery
             if (insertData.length > 0) {
                 const insertQuery = `INSERT INTO ${this.tbl_industries} (industry_id, industry_name, sector_id) VALUES ?`;
-                await new Promise((resolve, reject) => {
-                    this.pool.query(insertQuery, [insertData], (err, result) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(result);
-                        }
-                    });
-                });
+                await runQuery(this.pool, insertQuery, [insertData]);
             }
-
             return { message: 'Industries added successfully', existingIndustries, unknownSectors };
         } catch (err) {
             throw err;
@@ -98,25 +60,8 @@ class IndustryModal {
 
     async getAllIndustries() {
         try {
-            const sectors = await new Promise((resolve, reject) => {
-                this.pool.query(`SELECT sector_id, sector_name FROM ${this.tbl_sectors}`, (err, result) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
-
-            const industries = await new Promise((resolve, reject) => {
-                this.pool.query(`SELECT industry_id, industry_name, sector_id FROM ${this.tbl_industries}`, (err, result) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
+            const sectors = await runQuery(this.pool, `SELECT sector_id, sector_name FROM ${this.tbl_sectors}`, []);
+            const industries = await runQuery(this.pool, `SELECT industry_id, industry_name, sector_id FROM ${this.tbl_industries}`, []);
 
             const response = sectors.map(sector => {
                 const sectorIndustries = industries.filter(industry => industry.sector_id === sector.sector_id);

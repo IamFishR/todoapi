@@ -8,9 +8,24 @@ class Companies {
 
     addCompany(req, res) {
         const company = req.body;
+        const requiredFields = [
+            'company_name',
+            'symbol',
+            'company_description'
+        ];
+
+        for (const field of requiredFields) {
+            if (!company[field]) {
+                res.status(400).json({
+                    message: `${field} is required`
+                });
+                return;
+            }
+        }
+
         this.company.addCompany(company)
             .then(result => {
-                res.status(200).json(result);
+                res.status(201).json(result);
             })
             .catch(err => {
                 res.status(500).json(err);

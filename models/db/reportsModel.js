@@ -1,6 +1,6 @@
 const dbconnection = require('../../config/db');
 const Common = require('../../helper/common');
-
+const runQuery = require('../../helper/dbQuery');
 
 class ReportsModel {
     constructor() {
@@ -99,44 +99,29 @@ class ReportsModel {
     async addFeeRecord(feeData) {
         const data = feeData;
         try {
-            return new Promise((resolve, reject) => {
-                const db_data = {
-                    "fee_id": data.fee_id,
-                    "txn_id": data.txn_id,
-                    "total_fees": data.total_fees,
-                    "total_tax": data.total_tax,
-                    "total_net_amount": data.total_net_amount,
-                    "total_amount": data.total_amount,
-                    "brokerage": data.breakdown.brokerage,
-                    "stt": data.breakdown.stt,
-                    "stamp_duty": data.breakdown.stamp_duty,
-                    "exchange_transaction_charge": data.breakdown.exchange_transaction_charge,
-                    "sebi_turnover_charge": data.breakdown.sebi_turnover_charge,
-                    "penalty": data.breakdown.penalty,
-                    "cgst": data.breakdown.cgst,
-                    "sgst": data.breakdown.sgst,
-                    "igst": data.breakdown.igst,
-                    "utt": data.breakdown.utt,
-                    "ipft": data.breakdown.ipft,
-                    "regulatory_statutory_charges": data.breakdown.regulatory_statutory_charges,
-                    "fee_info": data.fee_info
-                };
-                const query = `INSERT INTO ${this.tb_fees_records} SET ?`;
-                this.pool.query(query, db_data, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const db_data = {
+                "fee_id": data.fee_id,
+                "txn_id": data.txn_id,
+                "total_fees": data.total_fees,
+                "total_tax": data.total_tax,
+                "total_net_amount": data.total_net_amount,
+                "total_amount": data.total_amount,
+                "brokerage": data.breakdown.brokerage,
+                "stt": data.breakdown.stt,
+                "stamp_duty": data.breakdown.stamp_duty,
+                "exchange_transaction_charge": data.breakdown.exchange_transaction_charge,
+                "sebi_turnover_charge": data.breakdown.sebi_turnover_charge,
+                "penalty": data.breakdown.penalty,
+                "cgst": data.breakdown.cgst,
+                "sgst": data.breakdown.sgst,
+                "igst": data.breakdown.igst,
+                "utt": data.breakdown.utt,
+                "ipft": data.breakdown.ipft,
+                "regulatory_statutory_charges": data.breakdown.regulatory_statutory_charges,
+                "fee_info": data.fee_info
+            };
+            const query = `INSERT INTO ${this.tb_fees_records} SET ?`;
+            return await runQuery(this.pool, query, db_data);
         } catch (error) {
             return error;
         }
@@ -144,54 +129,39 @@ class ReportsModel {
 
     async addTxnRecord(txnData) {
         try {
-            return new Promise((resolve, reject) => {
-                const dt = {
-                    "txn_id": txnData.txn_id,
-                    "fee_id": txnData.fee_id,
-                    "user_id": txnData.user_id,
-                    "stock_id": txnData.stock_id,
-                    "exchange_id": txnData.exchange_id,
-                    "broker_id": txnData.broker_id,
-                    "txn_type": txnData.txn_type,
-                    "txn_nature": txnData.txn_nature,
-                    "market_type": txnData.market_type,
-                    "instrument_type": txnData.instrument_type,
-                    "stock_name": txnData.stock_name,
-                    "stock_price": txnData.stock_price,
-                    "stock_qty": txnData.stock_qty,
-                    "txn_date": txnData.txn_date,
-                    "txn_fee": txnData.txn_fee,
-                    "txn_amount": txnData.txn_amount,
-                    "txn_net_amount": txnData.txn_net_amount,
-                    "txn_status": txnData.txn_status,
-                    "txn_order_number": txnData.txn_order_number,
-                    "txn_trade_number": txnData.txn_trade_number,
-                    "contract_note_number": txnData.contract_note_number,
-                    "trade_date": txnData.trade_date,
-                    "settlement_date_nse_eq": txnData.settlement_date_nse_eq,
-                    "settlement_date_nse_fno": txnData.settlement_date_nse_fno,
-                    "settlement_date_bse_eq": txnData.settlement_date_bse_eq,
-                    "settlement_date_bse_fno": txnData.settlement_date_bse_fno,
-                    "settlement_number": txnData.settlement_number,
-                    "txn_remakrs": txnData.txn_remakrs,
-                    "txn_info": txnData.txn_info,
-                };
-                const query = `INSERT INTO ${this.tb_txn_records} SET ?`;
-                this.pool.query(query, dt, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const dt = {
+                "txn_id": txnData.txn_id,
+                "fee_id": txnData.fee_id,
+                "user_id": txnData.user_id,
+                "stock_id": txnData.stock_id,
+                "exchange_id": txnData.exchange_id,
+                "broker_id": txnData.broker_id,
+                "txn_type": txnData.txn_type,
+                "txn_nature": txnData.txn_nature,
+                "market_type": txnData.market_type,
+                "instrument_type": txnData.instrument_type,
+                "stock_name": txnData.stock_name,
+                "stock_price": txnData.stock_price,
+                "stock_qty": txnData.stock_qty,
+                "txn_date": txnData.txn_date,
+                "txn_fee": txnData.txn_fee,
+                "txn_amount": txnData.txn_amount,
+                "txn_net_amount": txnData.txn_net_amount,
+                "txn_status": txnData.txn_status,
+                "txn_order_number": txnData.txn_order_number,
+                "txn_trade_number": txnData.txn_trade_number,
+                "contract_note_number": txnData.contract_note_number,
+                "trade_date": txnData.trade_date,
+                "settlement_date_nse_eq": txnData.settlement_date_nse_eq,
+                "settlement_date_nse_fno": txnData.settlement_date_nse_fno,
+                "settlement_date_bse_eq": txnData.settlement_date_bse_eq,
+                "settlement_date_bse_fno": txnData.settlement_date_bse_fno,
+                "settlement_number": txnData.settlement_number,
+                "txn_remakrs": txnData.txn_remakrs,
+                "txn_info": txnData.txn_info,
+            };
+            const query = `INSERT INTO ${this.tb_txn_records} SET ?`;
+            return await runQuery(this.pool, query, dt);
         } catch (error) {
             return error;
         }
@@ -199,59 +169,25 @@ class ReportsModel {
 
     async stock_listing(stockData) {
         try {
-            return new Promise((resolve, reject) => {
-
-                // check if stock is already listed with symbol
-                this.getStockBySymbol(stockData.stock_symbol).then((stockExist) => {
-                    if (stockExist.length) {
-                        reject({
-                            error: 'Stock already listed',
-                            message: 'Stock already listed'
-                        });
-                    }
-                    const query = `INSERT INTO ${this.tb_stocks} SET ?`;
-                    this.pool.query(query, stockData, (err, result) => {
-                        if (err) {
-                            if (Common.ErrorMessages[err.code]) {
-                                reject({
-                                    error: Common.ErrorMessages[err.code],
-                                    message: err.message
-                                });
-                            } else {
-                                reject(err.message);
-                            }
-                        }
-
-                        resolve(result);
-                    });
-                }).catch((error) => {
-                    reject(error);
-                });
-            });
+            // check if stock is already listed with symbol
+            const stockExist = await this.getStockBySymbol(stockData.stock_symbol);
+            if (stockExist.length) {
+                throw {
+                    error: 'Stock already listed',
+                    message: 'Stock already listed'
+                };
+            }
+            const query = `INSERT INTO ${this.tb_stocks} SET ?`;
+            return await runQuery(this.pool, query, stockData);
         } catch (error) {
-            return error
+            return error;
         }
     }
 
     async getStockBySymbol(symbol) {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `SELECT * FROM ${this.tb_stocks} WHERE stock_symbol = ?`;
-                this.pool.query(query, symbol, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const query = `SELECT * FROM ${this.tb_stocks} WHERE stock_symbol = ?`;
+            return await runQuery(this.pool, query, symbol);
         } catch (error) {
             return error;
         }
@@ -259,28 +195,13 @@ class ReportsModel {
 
     async addTraded_stocks(txnData) {
         try {
-            return new Promise((resolve, reject) => {
-                const dt = {
-                    "stock_id": txnData.stock_id,
-                    "txn_id": txnData.txn_id,
-                    "user_id": txnData.user_id,
-                };
-                const query = `INSERT INTO traded_stock SET ?`;
-                this.pool.query(query, dt, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const dt = {
+                "stock_id": txnData.stock_id,
+                "txn_id": txnData.txn_id,
+                "user_id": txnData.user_id,
+            };
+            const query = `INSERT INTO traded_stock SET ?`;
+            return await runQuery(this.pool, query, dt);
         } catch (error) {
             return error;
         }
@@ -288,31 +209,16 @@ class ReportsModel {
 
     async get_sectors() {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `SELECT 
-                        s.sector_name AS sector,
-                        JSON_OBJECTAGG(i.industry_id, i.industry_name) AS industries
-                    FROM 
-                        Sectors s
-                    JOIN 
-                        Industries i ON s.sector_id = i.sector_id
-                    GROUP BY 
-                        s.sector_name;`;
-                this.pool.query(query, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const query = `SELECT 
+                    s.sector_name AS sector,
+                    JSON_OBJECTAGG(i.industry_id, i.industry_name) AS industries
+                FROM 
+                    Sectors s
+                JOIN 
+                    Industries i ON s.sector_id = i.sector_id
+                GROUP BY 
+                    s.sector_name;`;
+            return await runQuery(this.pool, query, []);
         } catch (error) {
             return error;
         }
@@ -320,23 +226,8 @@ class ReportsModel {
 
     async get_stocks() {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `SELECT * FROM ${this.tb_stocks}`;
-                this.pool.query(query, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const query = `SELECT * FROM ${this.tb_stocks}`;
+            return await runQuery(this.pool, query, []);
         } catch (error) {
             return error;
         }
@@ -344,23 +235,8 @@ class ReportsModel {
 
     async update_stock(stock_symbol, stockData) {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `UPDATE ${this.tb_stocks} SET ? WHERE stock_symbol = ?`;
-                this.pool.query(query, [stockData, stock_symbol], (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const query = `UPDATE ${this.tb_stocks} SET ? WHERE stock_symbol = ?`;
+            return await runQuery(this.pool, query, [stockData, stock_symbol]);
         } catch (error) {
             return error;
         }
@@ -368,23 +244,8 @@ class ReportsModel {
 
     async addmonthlyExpenseRecord(expenseData) {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `INSERT INTO ${this.tbl_monthly_expense} SET ?`;
-                this.pool.query(query, expenseData, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const query = `INSERT INTO ${this.tbl_monthly_expense} SET ?`;
+            return await runQuery(this.pool, query, expenseData);
         } catch (error) {
             return error;
         }
@@ -392,48 +253,17 @@ class ReportsModel {
 
     async adddailyExpenseRecord(expenseData) {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `INSERT INTO ${this.tbl_daily_expense} SET ?`;
-                this.pool.query(query, expenseData, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const query = `INSERT INTO ${this.tbl_daily_expense} SET ?`;
+            return await runQuery(this.pool, query, expenseData);
         } catch (error) {
             return error;
         }
     }
 
-    // addIncomeRecord
     async addIncomeRecord(incomeData) {
         try {
-            return new Promise((resolve, reject) => {
-                const query = `INSERT INTO ${this.tbl_income} SET ?`;
-                this.pool.query(query, incomeData, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-
-                    resolve(result);
-                });
-            });
+            const query = `INSERT INTO ${this.tbl_income} SET ?`;
+            return await runQuery(this.pool, query, incomeData);
         } catch (error) {
             return error;
         }
@@ -482,49 +312,21 @@ class ReportsModel {
                     const updateQuery = `UPDATE ${this.tb_stocks} SET ${fieldsToUpdate.join(', ')} WHERE stock_id = ?`;
                     values.push(stock.stock_id);
 
-                    await new Promise((resolve, reject) => {
-                        this.pool.query(updateQuery, values, (err, result) => {
-                            if (err) {
-                                if (Common.ErrorMessages[err.code]) {
-                                    reject({
-                                        error: Common.ErrorMessages[err.code],
-                                        message: err.message
-                                    });
-                                } else {
-                                    reject(err.message);
-                                }
-                            }
-                            resp.is_fields_updated = true;
-                            resolve(result);
-                        });
-                    });
+                    await runQuery(this.pool, updateQuery, values);
+                    resp.is_fields_updated = true;
                 }
             }
 
             // Insert live price data
             const insertQuery = `INSERT INTO ${this.tbl_liveprice} SET ?`;
-            return await new Promise((resolve, reject) => {
-                this.pool.query(insertQuery, stockData, (err, result) => {
-                    if (err) {
-                        if (Common.ErrorMessages[err.code]) {
-                            reject({
-                                error: Common.ErrorMessages[err.code],
-                                message: err.message
-                            });
-                        } else {
-                            reject(err.message);
-                        }
-                    }
-                    result.is_industry_updated = resp.is_industry_updated;
-                    resolve(result);
-                });
-            });
+            const result = await runQuery(this.pool, insertQuery, stockData);
+            result.is_industry_updated = resp.is_industry_updated;
+            return result;
 
         } catch (error) {
             throw error; // Propagate error to caller
         }
     }
-
 }
 
 module.exports = new ReportsModel();
