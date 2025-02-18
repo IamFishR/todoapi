@@ -38,6 +38,7 @@ app.use('/uploads', require('./routes/admin'));
 app.use('/stock', require('./routes/stock'));
 app.use('/shop', require('./routes/shop'));
 app.use('/company', require('./routes/company'));
+app.use('/industry', require('./routes/industry'));
 
 // invalid route
 app.get('*', (req, res) => {
