@@ -25,6 +25,9 @@ class Companies {
 
         this.company.addCompany(company)
             .then(result => {
+                if(result.error) {
+                    return res.status(400).json(result);
+                }
                 res.status(201).json(result);
             })
             .catch(err => {

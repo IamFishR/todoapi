@@ -25,7 +25,8 @@ class DbOperation {
         try {
             const email = this.pool.escape(data.email);
             const sql = `SELECT * FROM ${this.tbl_user} WHERE email = ${email}`;
-            return await runQuery(this.pool, sql);
+            const result = await runQuery(this.pool, sql);
+            return result[0];
         } catch (error) {
             return error;
         }

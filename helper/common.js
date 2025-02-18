@@ -87,6 +87,18 @@ class Common {
 
         return missingFields;
     }
+
+    error(message) {
+        return {
+            error: message
+        }
+    }
+
+    success(message) {
+        return {
+            success: message
+        }
+    }
 }
 
 module.exports = new Common();

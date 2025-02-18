@@ -13,13 +13,13 @@
  *   `notes` json DEFAULT NULL,
  *   PRIMARY KEY (`company_id`),
  *   KEY `industry_id` (`industry_id`),
- *   CONSTRAINT `companies_ibfk_1` FOREIGN KEY (`industry_id`) REFERENCES `industry` (`industry_id`)
+ *   CONSTRAINT `companies_ibfk_1` FOREIGN KEY (`industry_id`) REFERENCES `industries` (`industry_id`)
  * ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_swedish_ci;
  * 
  * @class CompanyModal
  * @classdesc This class provides methods to interact with the `companies` table.
  * @property {object} pool - The database connection pool.
- * @property {string} tbl_stock - The name of the table (`companies`).
+ * @property {string} tbl_company - The name of the table (`companies`).
  */
 // revenue, profitMargins, debtLevels, dividendPolicies
 
@@ -30,31 +30,104 @@ const runQuery = require('../../../helper/dbQuery');
 class CompanyModal {
     constructor() {
         this.pool = dbconnection;
-        this.tbl_stock = 'companies';
+        this.tbl_company = 'companies';
+        this.tbl_industry = 'industries';
     }
 
-    addCompany(company) {
-        return runQuery(this.pool, `INSERT INTO ${this.tbl_stock} SET ?`, company);
+    async addCompany(company) {
+        try {
+            const companyExists = await this.findCompany(company.company_name);
+            if (companyExists.length) {
+                return Common.error('Company already exists');
+            }
+
+            // if stock_id is exists then do not insert the record in the stock table
+            let stockExists = await runQuery(this.pool, `SELECT * FROM stocks WHERE stock_symbol = ?`, company.symbol);
+            if (!stockExists.length) {
+                if(!company.isin) {
+                    return Common.error('ISIN is required');
+                }
+
+                stockExists = await runQuery(this.pool, `INSERT INTO stocks SET ?`, {
+                    stock_symbol: company.symbol,
+                    stock_name: company.company_name,
+                    display_name: company.company_name,
+                    isin: company.isin
+                });
+            }
+            company.stock_id = stockExists[0].stock_id;
+
+            let company_data = {
+                company_name: company.company_name,
+                stock_id: company.stock_id,
+                industry_id: company.industry_id,
+                company_description: company.company_description,
+                company_website: company.company_website,
+                company_logo: company.company_logo,
+                notes: JSON.stringify(company.notes)
+            };
+
+            // check if the industry_id exists if not return error
+            const industryExists = await runQuery(this.pool, `SELECT * FROM ${this.tbl_industry} WHERE industry_id = ?`, company.industry_id);
+            if (!industryExists.length) {
+                return Common.error('Industry does not exist');
+            }
+            const result = await runQuery(this.pool, `INSERT INTO ${this.tbl_company} SET ?`, company_data);
+            if(result.affectedRows) {
+                return Common.success('Company added successfully');
+            }
+            return Common.error('Failed to add company');
+        } catch (error) {
+            return Common.error(error);
+        }
     }
 
-    removeCompany(company) {
-        return runQuery(this.pool, `DELETE FROM ${this.tbl_stock} WHERE company_id = ?`, company.company_id);
+    async removeCompany(company) {
+        const result = await runQuery(this.pool, `DELETE FROM ${this.tbl_company} WHERE company_id = ?`, company.company_id);
+        return result;
     }
 
-    getCompanies() {
-        return runQuery(this.pool, `SELECT * FROM ${this.tbl_stock}`, []);
+    async getCompanies() {
+        const result = await runQuery(this.pool, `SELECT * FROM ${this.tbl_company}`, []);
+        return result;
     }
 
-    findCompany(name) {
-        return runQuery(this.pool, `SELECT * FROM ${this.tbl_stock} WHERE company_name = ?`, name);
+    async findCompany(name) {
+        const result = await runQuery(this.pool, `SELECT * FROM ${this.tbl_company} WHERE company_name = ?`, name);
+        return result;
     }
 
-    updateCompany(company) {
-        return runQuery(this.pool, `UPDATE ${this.tbl_stock} SET ? WHERE company_id = ?`, [company, company.company_id]);
+    async updateCompany(company) {
+        const result = await runQuery(this.pool, `UPDATE ${this.tbl_company} SET ? WHERE company_id = ?`, [company, company.company_id]);
+        return result;
     }
 
-    getCompanyById(company_id) {
-        return runQuery(this.pool, `SELECT * FROM ${this.tbl_stock} WHERE company_id = ?`, company_id);
+    async getCompanyById(company_id) {
+        const result = await runQuery(this.pool, `SELECT * FROM ${this.tbl_company} WHERE company_id = ?`, company_id);
+        return result;
+    }
+
+    async getCompaniesByIndustry(industry_id) {
+        const result = await runQuery(this.pool, `SELECT * FROM ${this.tbl_company} WHERE industry_id = ?`, industry_id);
+        return result;
+    }
+
+    async getCompanyWithDetails(company_id) {
+        const result = await runQuery(this.pool, `SELECT * FROM ${this.tbl_company} WHERE company_id = ?`, company_id);
+        return result;
+    }
+
+    async getCompanyWithFullDetails(company_id) {
+        const company = await this.getCompanyWithDetails(company_id);
+        if (!company.length) {
+            return Common.error('Company not found');
+        }
+
+        const industryId = company[0].industry_id;
+        const industry = await runQuery(this.pool, `SELECT * FROM ${this.tbl_industry} WHERE industry_id = ?`, industryId);
+        company[0].industry_details = industry[0] || null;
+
+        return company;
     }
 }
 
