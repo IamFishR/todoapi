@@ -1,4 +1,3 @@
-const e = require('express');
 const IndustryModal = require('../../models/db/stock/industrysectorModal');
 
 class IndustrySector {
