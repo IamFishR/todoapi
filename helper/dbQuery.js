@@ -23,4 +23,21 @@ function runQuery(pool, query, params) {
     });
 }
 
+function runProcedure(pool, procedure, params) {
+    return new Promise((resolve, reject) => {
+        pool.getConnection((err, connection) => {
+            if (err) {
+                return reject(err);
+            }
+            connection.query(`CALL ${procedure}(${params})`, (err, result) => {
+                connection.release();
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
+    });
+}
+
 module.exports = runQuery;
