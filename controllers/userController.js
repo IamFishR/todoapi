@@ -132,9 +132,18 @@ class UserController {
                                         if (result.error) {
                                             res.status(400).json({ error: result.error });
                                         }
+                                        // Set token in HTTP-only cookie
+                                        res.cookie('token', token, {
+                                            httpOnly: true,
+                                            secure: false, // In development mode, set to false
+                                            sameSite: 'lax',
+                                            domain: 'localhost',
+                                            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+                                            path: '/'
+                                        });
+                                        
                                         res.status(200).json({
                                             message: "Sign in successful",
-                                            token: token,
                                             user: {
                                                 user_id: user.user_id,
                                                 name: user.name,
@@ -176,17 +185,24 @@ class UserController {
 
     async signOut(req, res) {
         try {
-            const token = req.headers['authorization'].replace('Bearer ', '');
+            const token = req.cookies.token || req.headers['authorization']?.replace('Bearer ', '');
+            if (!token) {
+                throw new Error("No token provided");
+            }
+            
             const decoded = verifyToken(token);
             if (!decoded) {
                 throw new Error("Invalid token");
             }
+            
             dbOperation.signOut({
                 session_id: decoded.session_id,
             }).then((result) => {
                 if (result.error) {
                     throw new Error(result.error);
                 }
+                // Clear the cookie
+                res.clearCookie('token');
                 res.status(200).json({ message: "Sign out successful" });
             }).catch((error) => {
                 throw new Error(error.message);
@@ -198,7 +214,11 @@ class UserController {
 
     async verifySingnIn(req, res) {
         try {
-            const token = req.body.token;
+            const token = req.cookies.token || req.body.token;
+            if (!token) {
+                throw new Error("No token provided");
+            }
+            
             const decoded = verifyToken(token);
             if (!decoded) {
                 throw new Error("Invalid token");
@@ -206,7 +226,21 @@ class UserController {
             if (decoded.exp < new Date()) {
                 throw new Error("Token expired");
             }
-            res.status(200).json({ message: "Authentication successful", decoded: decoded });
+            
+            // Get user details
+            const user = await dbOperation.getUserById(decoded.user_id);
+            if (!user) {
+                throw new Error("User not found");
+            }
+
+            // Remove sensitive data
+            await dbOperation.removeSecrets(user);
+            
+            res.status(200).json({ 
+                message: "Authentication successful", 
+                decoded: decoded,
+                user: user
+            });
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
