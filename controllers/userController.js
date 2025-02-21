@@ -138,7 +138,7 @@ class UserController {
                                             secure: false, // In development mode, set to false
                                             sameSite: 'lax',
                                             domain: 'localhost',
-                                            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+                                            maxAge: 48 * 60 * 60 * 1000, // 24 hours
                                             path: '/'
                                         });
                                         

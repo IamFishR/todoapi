@@ -4,9 +4,16 @@ var cookieParser = require('cookie-parser');
 var morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const moment = require('moment-timezone');
+require('dotenv').config();
 
 var app = express();
 // app.set('port', '3001');
+
+// set indian time zone
+process.env.TZ = 'Asia/Kolkata';
+app.locals.moment = require('moment-timezone');
+app.locals.moment.tz.setDefault('Asia/Kolkata');
 
 // Define log format
 const logFormat = '[:date[iso]] :method :url :status :response-time ms - :res[content-length]';
