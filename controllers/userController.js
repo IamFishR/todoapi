@@ -135,10 +135,9 @@ class UserController {
                                         // Set token in HTTP-only cookie
                                         res.cookie('token', token, {
                                             httpOnly: true,
-                                            secure: false, // In development mode, set to false
-                                            sameSite: 'lax',
-                                            domain: 'localhost',
-                                            maxAge: 48 * 60 * 60 * 1000, // 24 hours
+                                            secure: process.env.NODE_ENV === 'production', // Only use HTTPS in production
+                                            sameSite: 'strict', // Stronger protection against CSRF
+                                            maxAge: 48 * 60 * 60 * 1000, // 48 hours
                                             path: '/'
                                         });
                                         

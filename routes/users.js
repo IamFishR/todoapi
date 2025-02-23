@@ -9,7 +9,7 @@ router.post('/signup', userController.createUser);
 router.post('/verifyToken', authMiddleware, (req, res) => {
     res.status(200).json({ status: 'success', message: 'Token is valid' });
 });
-router.post('/signout', authMiddleware, userController.signOut);
+router.post('/signout', userController.signOut);
 router.post('/copypaste',authMiddleware, userController.copyPaste);
 
 // Route for getting a user by ID

@@ -21,4 +21,9 @@ router.get('/listall', authMiddleware, (req, res) => {
 // Fees API
 router.post('/fees', authMiddleware, Stocks.calculateFees);
 
+// db details
+router.get('/db', authMiddleware, (req, res) => {
+    stockDt.getdb(req, res);
+});
+
 module.exports = router;

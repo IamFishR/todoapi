@@ -5,7 +5,8 @@ const logme = require('../helper/logme');
 const dbOperation = require('../models/dbOperation');
 
 const authMiddleware = (req, res, next) => {
-    let token = req.headers['authorization'];
+    // Check for token in both cookies and authorization header
+    let token = req.cookies.token || req.headers['authorization'];
 
     if (token && token.startsWith('Bearer ')) {
         token = token.replace('Bearer ', '');
@@ -15,7 +16,8 @@ const authMiddleware = (req, res, next) => {
         logme.warn({
             message: 'someone tried to access a protected route without a token.',
             data: {
-                headers: req.headers
+                headers: req.headers,
+                cookies: req.cookies
             }
         })
         return res.status(401).send({
