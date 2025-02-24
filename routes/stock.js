@@ -26,4 +26,8 @@ router.get('/db', authMiddleware, (req, res) => {
     stockDt.getdb(req, res);
 });
 
+router.post('/stockinfo', authMiddleware, (req, res) => {
+    stockDt.getCompanyInfo(req, res);
+});
+
 module.exports = router;
