@@ -7,7 +7,7 @@ const getCompanyInfo = async (req, res) => {
     }
 
     const baseURL = "https://www.nseindia.com";
-    const apiURL = `${baseURL}/api/equity-meta-info?symbol=${symbol}`;
+    const apiURL = `${baseURL}/api/quote-equity?symbol=${symbol}`;
 
     try {
         // Step 1: Get fresh cookies from NSE
@@ -39,3 +39,8 @@ const getCompanyInfo = async (req, res) => {
         return res.status(500).json({ status: false, message: "Error fetching company info", error: error.message });
     }
 };
+
+
+exports = {
+    getCompanyInfo
+}
